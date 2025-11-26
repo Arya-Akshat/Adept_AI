@@ -62,8 +62,8 @@ export const pdfApi = {
   generateRoadmap: (pdfId: string) => api.post(`/api/pdfs/${pdfId}/roadmap`),
   getRoadmapForPDF: (pdfId: string) => api.get(`/api/pdfs/${pdfId}/roadmap`),
   deletePDF: (pdfId: string) => api.delete(`/api/pdfs/${pdfId}`),
-  explainTopic: (pdfId: string, unitIndex: number, topicIndex: number, data: { topicTitle: string; topicSummary: string }) =>
-    api.post(`/api/pdfs/${pdfId}/topic/${unitIndex}/${topicIndex}/explain`, data),
+  explainTopic: (data: { pdfId: string; topicTitle: string; topicSummary: string }) =>
+    api.post('/api/pdfs/explain', data),
 };
 
 export { API_BASE_URL };

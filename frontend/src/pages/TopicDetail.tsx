@@ -65,12 +65,11 @@ const TopicDetail = () => {
       }
 
       try {
-        const response = await pdfApi.explainTopic(
+        const response = await pdfApi.explainTopic({
           pdfId,
-          parseInt(unitIndex || "0"),
-          parseInt(topicIndex || "0"),
-          { topicTitle: title, topicSummary: summary }
-        );
+          topicTitle: title,
+          topicSummary: summary
+        });
 
         const data = response.data;
 

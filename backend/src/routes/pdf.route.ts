@@ -2,8 +2,7 @@ import { Router } from "express";
 import {
     uploadPdfHandler,
     listPdfsHandler,
-    getPdfMetadataHandler,
-    viewPdfHandler,
+    getPdfHandler,
     generateRoadmapHandler,
     getRoadmapHandler,
     deletePdfHandler,
@@ -21,22 +20,19 @@ pdfRoutes.post("/upload", upload.any(), uploadPdfHandler);
 // List all PDFs
 pdfRoutes.get("/", listPdfsHandler);
 
-// Get specific PDF metadata
-pdfRoutes.get("/:pdfId", getPdfMetadataHandler);
-
 // View/Download PDF
-pdfRoutes.get("/:pdfId/view", viewPdfHandler);
+pdfRoutes.get("/:filename/view", getPdfHandler);
 
 // Generate roadmap for specific PDF
-pdfRoutes.post("/:pdfId/roadmap", generateRoadmapHandler);
+pdfRoutes.post("/:filename/roadmap", generateRoadmapHandler);
 
 // Get roadmap for specific PDF
-pdfRoutes.get("/:pdfId/roadmap", getRoadmapHandler);
+pdfRoutes.get("/:filename/roadmap", getRoadmapHandler);
 
 // Explain topic (Gemini + YouTube)
-pdfRoutes.post("/:pdfId/topic/:unitIndex/:topicIndex/explain", explainTopicHandler);
+pdfRoutes.post("/explain", explainTopicHandler);
 
 // Delete PDF and related data
-pdfRoutes.delete("/:pdfId", deletePdfHandler);
+pdfRoutes.delete("/:filename", deletePdfHandler);
 
 export default pdfRoutes;

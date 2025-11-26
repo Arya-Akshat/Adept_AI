@@ -6,6 +6,7 @@ import fs from "fs";
 import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../constants/env";
 import { API } from "../config/apiClient";
 import PdfModel from "../models/pdf.model";
+import { v4 as uuidv4 } from "uuid";
 
 // Upload PDF (without auto-generating roadmap)
 export const uploadPdfHandler = catchErrors(async (req, res) => {
@@ -15,9 +16,18 @@ export const uploadPdfHandler = catchErrors(async (req, res) => {
     const uploadedFiles = [];
 
     for (const file of files) {
+        const fileId = uuidv4();
+        const ext = path.extname(file.originalname);
+        const filename = `${fileId}${ext}`;
+        const filePath = path.join(RAW_DATA_PATH, filename);
+
+        // Save file to disk (required for Flask)
+        fs.writeFileSync(filePath, file.buffer);
+
         // Create DB entry
         const newPdf = await PdfModel.create({
-            filename: file.filename,
+            filename: filename,
+            originalName: file.originalname,
             uploadDate: new Date()
         });
         uploadedFiles.push(newPdf);
@@ -52,19 +62,26 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     const { filename } = req.params;
 
     // Check if PDF exists in DB
-    const pdfEntry = await PdfModel.findOne({ filename });
+    // We accept either filename or _id. Let's try to find by filename first.
+    let pdfEntry = await PdfModel.findOne({ filename });
+
+    // If not found by filename, try by _id (if filename is a valid ObjectId)
+    if (!pdfEntry && filename.match(/^[0-9a-fA-F]{24}$/)) {
+        pdfEntry = await PdfModel.findById(filename);
+    }
+
     appAssert(pdfEntry, NOT_FOUND, "PDF not found in database");
 
     // Check if file exists on disk
-    const filePath = path.join(RAW_DATA_PATH, filename);
+    const filePath = path.join(RAW_DATA_PATH, pdfEntry.filename);
     if (!fs.existsSync(filePath)) {
         return res.status(NOT_FOUND).json({ message: "PDF file missing from storage" });
     }
 
     // Call Flask API
     try {
-        const response = await API.post("/get_roadmap", { filename });
-        const roadmapData = response.data;
+        const response = await API.get(`/getRoadmap?filename=${pdfEntry.filename}`);
+        const roadmapData = response.data.body; // Flask returns { body: ... }
 
         // Save roadmap to DB
         pdfEntry.roadmap = roadmapData;
@@ -84,7 +101,11 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
 export const getRoadmapHandler = catchErrors(async (req, res) => {
     const { filename } = req.params;
 
-    const pdfEntry = await PdfModel.findOne({ filename });
+    let pdfEntry = await PdfModel.findOne({ filename });
+    if (!pdfEntry && filename.match(/^[0-9a-fA-F]{24}$/)) {
+        pdfEntry = await PdfModel.findById(filename);
+    }
+
     appAssert(pdfEntry, NOT_FOUND, "PDF not found");
 
     if (pdfEntry.roadmap) {
@@ -96,11 +117,19 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 
 // Explain Topic
 export const explainTopicHandler = catchErrors(async (req, res) => {
-    const { topic, context } = req.body;
-    appAssert(topic, BAD_REQUEST, "Topic is required");
+    const { pdfId, topicTitle, topicSummary } = req.body;
+    appAssert(pdfId && topicTitle, BAD_REQUEST, "pdfId and topicTitle are required");
+
+    // Find PDF
+    const pdfEntry = await PdfModel.findById(pdfId);
+    appAssert(pdfEntry, NOT_FOUND, "PDF not found");
 
     try {
-        const response = await API.post("/explain_topic", { topic, context });
+        const response = await API.post("/explainTopic", {
+            filename: pdfEntry.filename,
+            topicTitle,
+            topicSummary
+        });
         return res.status(OK).json(response.data);
     } catch (error: any) {
         console.error("Flask API Error:", error.response?.data || error.message);
@@ -115,12 +144,18 @@ export const explainTopicHandler = catchErrors(async (req, res) => {
 export const deletePdfHandler = catchErrors(async (req, res) => {
     const { filename } = req.params;
 
+    let pdfEntry = await PdfModel.findOne({ filename });
+    if (!pdfEntry && filename.match(/^[0-9a-fA-F]{24}$/)) {
+        pdfEntry = await PdfModel.findById(filename);
+    }
+
+    appAssert(pdfEntry, NOT_FOUND, "PDF not found");
+
     // Remove from DB
-    const deletedPdf = await PdfModel.findOneAndDelete({ filename });
-    appAssert(deletedPdf, NOT_FOUND, "PDF not found");
+    await pdfEntry.deleteOne();
 
     // Remove file from disk
-    const filePath = path.join(RAW_DATA_PATH, filename);
+    const filePath = path.join(RAW_DATA_PATH, pdfEntry.filename);
     if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
     }
