@@ -1,0 +1,110 @@
+[
+  [
+    [
+      "Database State and Validity",
+      "The content defines database state as the content at a point in time, initial state as the state upon loading, and a valid state as one that satisfies structure and constraints.",
+      [
+        "https://www.youtube.com/watch?v=7BPdZo5ivqA",
+        "https://www.youtube.com/watch?v=2YJQGePDHNY"
+      ]
+    ],
+    [
+      "Schema vs. Database State",
+      "The database schema, or intension, changes infrequently, while the database state, or extension, changes with every update.",
+      []
+    ],
+    [
+      "Three-Schema Architecture Overview",
+      "The Three-Schema Architecture supports program-data independence and multiple data views using internal, conceptual, and external schemas with mappings for data transformation.",
+      [
+        "https://www.youtube.com/watch?v=vuXnRRG-m5M",
+        "https://www.youtube.com/watch?v=6Iu45VZGQDk"
+      ]
+    ],
+    [
+      "Aquatic Ecosystems and Biodiversity",
+      "This content describes aquatic ecosystems (rivers, streams, and oceans) including their biotic and abiotic components, characteristics, and functions. It also covers biodiversity, its importance, and the levels of biological organization.",
+      [
+        "https://www.youtube.com/watch?v=vINK9ujrRwM",
+        "https://www.youtube.com/watch?v=V9i3_NjGRvY"
+      ]
+    ],
+    [
+      "Biodiversity: Types and Values",
+      "The content defines biodiversity and its types (genetic, species, and ecosystem). It also discusses the values of biodiversity, including consumptive, productive, social, ethical, aesthetic, and option values, with examples of each.",
+      [
+        "https://www.youtube.com/watch?v=ewJlmPSV_XE",
+        "https://www.youtube.com/watch?v=4WOqKsZMzUE"
+      ]
+    ]
+  ],
+  [],
+  [
+    [
+      "Soil Pollution and Agriculture",
+      "The content discusses soil pollution, its causes, and control measures. It details the impacts of modern agriculture, including fertilizers (micronutrient imbalance, blue baby syndrome, eutrophication), pesticides (death of organisms, superpests, bio-magnification, cancer risk, groundwater contamination), waterlogging, and salinity, along with their effects and remedies.",
+      [
+        "https://www.youtube.com/watch?v=Yr1dW9gCHsw",
+        "https://www.youtube.com/watch?v=kdIgKO3YE8Q"
+      ]
+    ],
+    [
+      "E-Waste, Safety, and Environmental Acts",
+      "This content outlines e-waste management methods (landfill, incineration, reuse, recycle), Occupational Health and Safety (OH&S) management systems, and the Environmental Protection Act (EPA), including regulations like the Air and Water Acts, to control pollution and protect the environment and public health.",
+      [
+        "https://www.youtube.com/watch?v=VopUwkEqsOI",
+        "https://www.youtube.com/watch?v=u1pNRRlkyNc"
+      ]
+    ],
+    [
+      "Environmental Protection and Conservation Acts",
+      "The content covers key environmental protection and conservation acts, including water pollution control, wildlife protection, and forest conservation, along with their objectives to maintain ecological processes, preserve biodiversity, protect wildlife and forests, and ensure proper use of forest produce.",
+      [
+        "https://www.youtube.com/watch?v=N996KaG9BYc",
+        "https://www.youtube.com/watch?v=tMC1Ly5i3Do"
+      ]
+    ]
+  ],
+  [
+    [
+      "Environmental Pollution and Remedies",
+      "The content discusses soil salinity, its remedies, and air pollution, including its causes and classification of pollutants. It touches upon the impacts of modern agriculture.",
+      [
+        "https://www.youtube.com/watch?v=Yr1dW9gCHsw",
+        "https://www.youtube.com/watch?v=hEFqUat8bZo"
+      ]
+    ],
+    [
+      "Environmental Assessment Process and Participants",
+      "This content outlines the importance and practical application of environmental assessment, emphasizing its role in project safeguarding and developer-authority interaction. It identifies key participants like developers, specialist consultants, planning authorities, and the public, detailing the environmental consultant's role in liaising, appraising, surveying, and providing environmental statements. It also lists the stages of Environmental Impact Assessment (EIA), including project description, screening, scoping, baseline studies, impact prediction, and mitigation assessment.",
+      [
+        "https://www.youtube.com/watch?v=co9G_-L3_7U",
+        "https://www.youtube.com/watch?v=raJzdWP_aAo",
+        "https://www.youtube.com/watch?v=rHJIqpXdJnA",
+        "https://www.youtube.com/watch?v=iwqT1ShDQk0",
+        "https://www.youtube.com/watch?v=pDPlFRwMc1Y",
+        "https://www.youtube.com/watch?v=iINbYSyp0Hw",
+        "https://www.youtube.com/watch?v=HTF0cbWIr68",
+        "https://www.youtube.com/watch?v=dEI-7s98Wcg",
+        "https://www.youtube.com/watch?v=aqHGYpcMpJQ",
+        "https://www.youtube.com/watch?v=PGhgOtrbD1Q",
+        "https://www.youtube.com/watch?v=gE8i4-KOgjk",
+        "https://www.youtube.com/watch?v=b1rwNbwy8LE",
+        "https://www.youtube.com/watch?v=2-Rr3FtSuP4",
+        "https://www.youtube.com/watch?v=rI7Fw_3nlws",
+        "https://www.youtube.com/watch?v=pz17uP16KAw",
+        "https://www.youtube.com/watch?v=89Q3sokGuvI",
+        "https://www.youtube.com/watch?v=QYS8IK77TPI",
+        "https://www.youtube.com/watch?v=BvOeSiU7xh0",
+        "https://www.youtube.com/watch?v=iCBQknsxqkc",
+        "https://www.youtube.com/watch?v=yrKFzqD6v90",
+        "https://www.youtube.com/watch?v=1N4Hs4Tsh0U",
+        "https://www.youtube.com/watch?v=K5ikiXyqOgw",
+        "https://www.youtube.com/watch?v=XOMqU-3OX-U",
+        "https://www.youtube.com/watch?v=qFkm7-1G97Y",
+        "https://www.youtube.com/watch?v=UH0cCDrgNpo"
+      ]
+    ]
+  ],
+  []
+]
