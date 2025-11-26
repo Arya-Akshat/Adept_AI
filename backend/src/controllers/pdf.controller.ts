@@ -74,9 +74,19 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
 
     // Check if file exists on disk
     const filePath = path.join(RAW_DATA_PATH, pdfEntry.filename);
+    console.log(`[DEBUG] Checking file path: ${filePath}`);
+    console.log(`[DEBUG] RAW_DATA_PATH: ${RAW_DATA_PATH}`);
+    try {
+        console.log(`[DEBUG] Directory contents:`, fs.readdirSync(RAW_DATA_PATH));
+    } catch (e) {
+        console.log(`[DEBUG] Failed to list directory:`, e);
+    }
+
     if (!fs.existsSync(filePath)) {
+        console.log(`[DEBUG] File NOT found at ${filePath}`);
         return res.status(NOT_FOUND).json({ message: "PDF file missing from storage" });
     }
+    console.log(`[DEBUG] File found at ${filePath}`);
 
     // Call Flask API
     try {
