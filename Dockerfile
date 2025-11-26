@@ -28,6 +28,9 @@ COPY . .
 WORKDIR /app/backend
 RUN npm run build
 
+# Switch back to root
+WORKDIR /app
+
 # Expose the port Render expects
 EXPOSE 10000
 
