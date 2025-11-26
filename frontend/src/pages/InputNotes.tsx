@@ -113,50 +113,7 @@ const InputNotes = () => {
               </p>
             </div>
 
-            {hasSession ? (
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                      <FileText className="h-6 w-6" />
-                    </div>
-                    <CardTitle>Upload PDF</CardTitle>
-                    <CardDescription>
-                      Upload your course materials or lecture notes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FileUpload
-                      onFileSelect={handlePDFUpload}
-                      accept=".pdf"
-                      disabled={uploading}
-                    />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                      <Link2 className="h-6 w-6" />
-                    </div>
-                    <CardTitle>Google Classroom</CardTitle>
-                    <CardDescription>
-                      Connect your Google Classroom account
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      onClick={handleGoogleClassroom}
-                      disabled={uploading}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      Connect Google Classroom
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <Card>
                 <CardHeader>
                   <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -164,7 +121,7 @@ const InputNotes = () => {
                   </div>
                   <CardTitle>Upload Syllabus</CardTitle>
                   <CardDescription>
-                    Upload an image of your course syllabus to get started
+                    Upload an image of your course syllabus
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -175,7 +132,48 @@ const InputNotes = () => {
                   />
                 </CardContent>
               </Card>
-            )}
+
+              <Card>
+                <CardHeader>
+                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Upload PDF</CardTitle>
+                  <CardDescription>
+                    Upload your course materials or lecture notes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FileUpload
+                    onFileSelect={handlePDFUpload}
+                    accept=".pdf"
+                    disabled={uploading}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                    <Link2 className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Google Classroom</CardTitle>
+                  <CardDescription>
+                    Connect your Google Classroom account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={handleGoogleClassroom}
+                    disabled={uploading}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    Connect Google Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </main>
