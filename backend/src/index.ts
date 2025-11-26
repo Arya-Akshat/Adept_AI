@@ -20,7 +20,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
-        origin: [APP_ORIGIN, FLASK_URL],
+        origin: (origin, callback) => {
+            // Allow requests with no origin (like mobile apps or curl requests)
+            if (!origin) return callback(null, true);
+
+            // Allow allowed origins
+            if (origin === APP_ORIGIN || origin === FLASK_URL) {
+                return callback(null, true);
+            }
+
+            // Allow Vercel deployments
+            if (origin.endsWith(".vercel.app")) {
+                return callback(null, true);
+            }
+
+            // Allow localhost in development
+            if (NODE_ENV === "development" && origin.includes("localhost")) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"), false);
+        },
         credentials: true,
     })
 )
