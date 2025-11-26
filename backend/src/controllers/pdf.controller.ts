@@ -81,7 +81,7 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     // Call Flask API
     try {
         const response = await API.get(`/getRoadmap?filename=${pdfEntry.filename}`);
-        const roadmapData = response.data.body; // Flask returns { body: ... }
+        const roadmapData = (response.data as any).body; // Flask returns { body: ... }
 
         // Save roadmap to DB
         pdfEntry.roadmap = roadmapData;
