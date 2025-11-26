@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface PDF {
-  id: string;
+  _id: string;
   filename: string;
   originalName: string;
   uploadDate: string;

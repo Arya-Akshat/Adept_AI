@@ -59,7 +59,7 @@ const RoadmapPage = () => {
   };
 
   const handleViewPDF = (pdf: PDF) => {
-    const url = pdfApi.viewPDF(pdf.id);
+    const url = pdfApi.viewPDF(pdf._id);
     window.open(url, '_blank');
   };
 
@@ -69,7 +69,7 @@ const RoadmapPage = () => {
       setSelectedPdf(pdf);
 
       // Try to get cached roadmap first
-      const response = await pdfApi.getRoadmapForPDF(pdf.id);
+      const response = await pdfApi.getRoadmapForPDF(pdf._id);
       setRoadmap(response.data.roadmap);
       setView('roadmap');
 
@@ -94,8 +94,8 @@ const RoadmapPage = () => {
     if (!pdfToDelete) return;
 
     try {
-      await pdfApi.deletePDF(pdfToDelete.id);
-      setPdfs(pdfs.filter(p => p.id !== pdfToDelete.id));
+      await pdfApi.deletePDF(pdfToDelete._id);
+      setPdfs(pdfs.filter(p => p._id !== pdfToDelete._id));
       toast({
         title: 'Success',
         description: 'PDF deleted successfully',
@@ -185,7 +185,7 @@ const RoadmapPage = () => {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {pdfs.map((pdf) => (
-                <Card key={pdf.id} className="group transition-all hover:shadow-lg">
+                <Card key={pdf._id} className="group transition-all hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start gap-3">
                       <FileText className="h-8 w-8 text-primary" />
@@ -313,7 +313,7 @@ const RoadmapPage = () => {
                       if (!selectedPdf) return;
                       try {
                         setGeneratingRoadmap(true);
-                        const response = await pdfApi.generateRoadmap(selectedPdf.id);
+                        const response = await pdfApi.generateRoadmap(selectedPdf._id);
                         setRoadmap(response.data.roadmap);
                         toast({
                           title: 'Success',
@@ -372,7 +372,7 @@ const RoadmapPage = () => {
               <Card
                 key={topicId}
                 className="border-2 transition-all hover:shadow-lg hover:border-primary cursor-pointer"
-                onClick={() => navigate(`/roadmap/${selectedPdf!.id}/topic/${selectedUnit}/${topicId}`, {
+                onClick={() => navigate(`/roadmap/${selectedPdf!._id}/topic/${selectedUnit}/${topicId}`, {
                   state: {
                     topicTitle: topic.title,
                     topicSummary: topic.summary
