@@ -24,6 +24,9 @@ RUN npm install
 WORKDIR /app
 COPY . .
 
+# Create rawData directory
+RUN mkdir -p /app/backend/src/constants/rawData && chmod 777 /app/backend/src/constants/rawData
+
 # Build Node.js backend
 WORKDIR /app/backend
 RUN npm run build
