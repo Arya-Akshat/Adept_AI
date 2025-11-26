@@ -17,6 +17,7 @@ const app = express();
 
 
 app.use(express.json());
+app.set('trust proxy', 1); // Trust Render's load balancer
 app.use(express.urlencoded({ extended: true }));
 app.use(
     cors({
