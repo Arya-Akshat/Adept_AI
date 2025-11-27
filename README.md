@@ -37,22 +37,22 @@ cd frontend && npm install && npm run dev
 ## 📸 Application Screenshots
 
 ### 1. Landing / Login
-![Login Screen](ss/Screenshot%202025-11-27%20at%2011.59.52%20AM.png)
+![Login Screen](ss/login.png)
 
 ### 2. Dashboard Overview
-![Dashboard](ss/Screenshot%202025-11-27%20at%2012.00.10%20PM.png)
+![Dashboard](ss/dashboard.png)
 
 ### 3. Upload Interface
-![Upload Interface](ss/Screenshot%202025-11-27%20at%2012.00.29%20PM.png)
+![Upload Interface](ss/upload.png)
 
 ### 4. Roadmap Generation
-![Roadmap Generation](ss/Screenshot%202025-11-27%20at%2012.00.42%20PM.png)
+![Roadmap Generation](ss/roadmap.png)
 
 ### 5. Topic Explanation
-![Topic Explanation](ss/Screenshot%202025-11-27%20at%2012.00.50%20PM.png)
+![Topic Explanation](ss/topic_explanation.png)
 
 ### 6. Detailed View
-![Detailed View](ss/Screenshot%202025-11-27%20at%2012.00.59%20PM.png)
+![Detailed View](ss/detailed_view.png)
 
 ### 7. Resource Curation
-![Resource Curation](ss/Screenshot%202025-11-27%20at%2012.01.10%20PM.png)
+![Resource Curation](ss/resources.png)
