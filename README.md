@@ -36,22 +36,22 @@ cd frontend && npm install && npm run dev
 
 ## 📸 Application Screenshots
 
-### 1. Landing / Login
+### 1. Register 
 ![Login Screen](ss/login.png)
 
-### 2. Dashboard Overview
+### 2. Login
 ![Dashboard](ss/dashboard.png)
 
-### 3. Upload Interface
+### 3. Dashboard
 ![Upload Interface](ss/upload.png)
 
-### 4. Roadmap Generation
+### 4. Upload Interface
 ![Roadmap Generation](ss/roadmap.png)
 
-### 5. Topic Explanation
+### 5. Roadmap Generation
 ![Topic Explanation](ss/topic_explanation.png)
 
-### 6. Detailed View
+### 6. Topic Explanation 
 ![Detailed View](ss/detailed_view.png)
 
 ### 7. Resource Curation
