@@ -1,30 +1,58 @@
-# ADEPT
+# ADEPT - AI Study Companion
 
-ADEPT is a full-stack application project using MERN stack framework featuring a TypeScript/Express backend, a Python component, and a vue.js + react web-based frontend. It has a very structured layout consisting of different code files for constants, controllers, middleware, models, routes, services and utils
+ADEPT is a comprehensive AI-powered study assistant that transforms your syllabus and study materials into personalized learning roadmaps. It leverages the power of Large Language Models (Gemini) to generate structured study plans, explain complex topics, and curate relevant YouTube resources.
 
-## Tech Stack & Tools
+## 🚀 Quick Start (Run Locally)
 
-**Backend:**
-* Built with Express and Flask
-* Uses JWT to store user login details
-* Uses MongoDB for database
-* Python code files use geminiAPI and PyPDF2 to 
+After cloning the repository, open **3 separate terminals** and run the following commands:
 
-**Frontend:**
-* Developed using Vue.js + React Framework
-* Programmed using typescript, HTML, CSS, Tailwind
+**Terminal 1: Backend (Node.js)**
+```bash
+cd backend && npm install && npm run dev
+```
 
-## Visuals
+**Terminal 2: AI Engine (Flask)**
+```bash
+# Ensure you have Python installed. You may need to create a venv first.
+# python3 -m venv .venv_new && source .venv_new/bin/activate && pip install -r flask/requirements.txt
+python3 flask/app.py
+```
 
-Home Page
+**Terminal 3: Frontend (React)**
+```bash
+cd frontend && npm install && npm run dev
+```
 
-![image](https://github.com/user-attachments/assets/feab1e0d-443c-47d7-b594-334beaadd587)
+---
 
-Login/Register
+## 🛠️ Tech Stack
 
-![image](https://github.com/user-attachments/assets/f4069f7e-014c-4c0d-ace9-d9745a5d240c)
+*   **Frontend:** React, TypeScript, Vite, Tailwind CSS
+*   **Backend:** Node.js, Express, MongoDB (Mongoose)
+*   **AI Engine:** Python, Flask, Google Gemini API, LangChain
+*   **Authentication:** JWT (JSON Web Tokens)
 
-Model
+---
 
-![image](https://github.com/user-attachments/assets/fd2f179d-351c-4cf5-af59-bb73b27f9025)
+## 📸 Application Screenshots
 
+### 1. Landing / Login
+![Login Screen](ss/Screenshot%202025-11-27%20at%2011.59.52%20AM.png)
+
+### 2. Dashboard Overview
+![Dashboard](ss/Screenshot%202025-11-27%20at%2012.00.10%20PM.png)
+
+### 3. Upload Interface
+![Upload Interface](ss/Screenshot%202025-11-27%20at%2012.00.29%20PM.png)
+
+### 4. Roadmap Generation
+![Roadmap Generation](ss/Screenshot%202025-11-27%20at%2012.00.42%20PM.png)
+
+### 5. Topic Explanation
+![Topic Explanation](ss/Screenshot%202025-11-27%20at%2012.00.50%20PM.png)
+
+### 6. Detailed View
+![Detailed View](ss/Screenshot%202025-11-27%20at%2012.00.59%20PM.png)
+
+### 7. Resource Curation
+![Resource Curation](ss/Screenshot%202025-11-27%20at%2012.01.10%20PM.png)
