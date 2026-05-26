@@ -162,7 +162,7 @@ const RoadmapPage = () => {
               <Upload className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
               <h2 className="mb-2 text-2xl font-bold">No Study Materials Yet</h2>
               <p className="mb-6 text-muted-foreground">Upload your PDFs to get started</p>
-              <Button onClick={() => navigate('/input-notes')}>
+              <Button onClick={() => navigate('/syllabus')}>
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Materials
               </Button>

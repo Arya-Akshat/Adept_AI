@@ -27,10 +27,10 @@ try:
     print("✅ scikit-learn imported")
     import numpy
     print("✅ numpy imported")
-    import langchain
-    print("✅ langchain imported")
-    import langchain_google_genai
-    print("✅ langchain_google_genai imported")
+    import groq
+    print("✅ groq imported")
+    import google.generativeai
+    print("✅ google.generativeai imported")
     
     # Try importing the module
     sys.path.append(os.getcwd())

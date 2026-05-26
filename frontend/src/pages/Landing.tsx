@@ -32,9 +32,9 @@ const Landing = () => {
               </p>
               <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
                 {user ? (
-                  <Link to="/input-notes">
+                  <Link to="/syllabus">
                     <Button size="lg" className="w-full sm:w-auto">
-                      Go to Dashboard
+                      Start with Syllabus
                     </Button>
                   </Link>
                 ) : (
@@ -72,10 +72,9 @@ const Landing = () => {
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <FileText className="h-6 w-6" />
                   </div>
-                  <h3 className="mb-2 text-xl font-semibold">Upload Your Materials</h3>
+                  <h3 className="mb-2 text-xl font-semibold">Upload Your Syllabus</h3>
                   <p className="text-muted-foreground">
-                    Upload your syllabus as a PDF or image. Support for Google Classroom integration
-                    coming soon.
+                    Start with your syllabus image, then upload lecture notes or PDFs after that.
                   </p>
                 </CardContent>
               </Card>

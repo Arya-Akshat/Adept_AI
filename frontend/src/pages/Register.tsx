@@ -17,7 +17,7 @@ const Register = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/syllabus');
     }
   }, [user, navigate]);
 
@@ -29,7 +29,7 @@ const Register = () => {
     setLoading(true);
     try {
       await register(email, password, confirmPassword);
-      navigate('/');
+      navigate('/syllabus');
     } catch (error) {
       // Error is handled in context
     } finally {

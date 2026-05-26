@@ -5,20 +5,42 @@ from PIL import Image
 from dotenv import load_dotenv
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import easyocr
+import google.generativeai as genai
+from groq import Groq
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
+import re
 
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in environment variables")
+
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY not found in environment variables")
+
+genai.configure(api_key=GEMINI_API_KEY)
+gemini_vision_model = genai.GenerativeModel("gemini-2.0-flash")
+groq_client = Groq(api_key=GROQ_API_KEY)
+
+
+def create_text_prompt(system_prompt, user_prompt):
+    return [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+
+
+def generate_groq_text(system_prompt, user_prompt, temperature=0.2, max_tokens=2048):
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=create_text_prompt(system_prompt, user_prompt),
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    return (response.choices[0].message.content or "").strip()
 
 # --- 1. Text Extraction ---
 def extract_text_from_pdf(pdf_path):
@@ -30,14 +52,19 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 def extract_syllabus_from_image(image_path):
-    """Extracts syllabus text from an image using EasyOCR."""
+    """Extracts syllabus text from an image using Gemini vision."""
     try:
         if not os.path.exists(image_path):
             return "Default Syllabus: General Computer Science"
-            
-        reader = easyocr.Reader(['en'])
-        result = reader.readtext(image_path, detail=0)
-        return ' '.join(result)
+
+        image = Image.open(image_path)
+        prompt = (
+            "Extract all visible syllabus text from this image. "
+            "Return only the plain extracted text with no explanation, bullets, or markdown."
+        )
+        response = gemini_vision_model.generate_content([prompt, image])
+        text = (getattr(response, "text", "") or "").strip()
+        return text if text else "Default Syllabus: General Computer Science"
     except Exception as e:
         print(f"Error extracting syllabus: {e}")
         return "Default Syllabus: General Computer Science"
@@ -45,12 +72,19 @@ def extract_syllabus_from_image(image_path):
 # --- 2. Chunking ---
 def chunk_text(text):
     """Splits text into semantic chunks."""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        separators=["\n\n", "\n", " ", ""]
-    )
-    chunks = text_splitter.split_text(text)
+    if not text:
+        return []
+
+    chunk_size = 1000
+    chunk_overlap = 200
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = min(start + chunk_size, len(text))
+        chunks.append(text[start:end])
+        if end >= len(text):
+            break
+        start = max(0, end - chunk_overlap)
     return chunks
 
 # --- 3. TF-IDF Retrieval ---
@@ -71,89 +105,6 @@ def retrieve_relevant_chunks(chunks, query, top_k=5):
     relevant_chunks = [chunks[i] for i in related_docs_indices]
     return relevant_chunks
 
-# --- 4. LangChain Chains ---
-
-def create_roadmap_chain(llm):
-    """Creates a chain to generate the study roadmap."""
-    template = """
-    You are an expert study planner.
-    
-    Syllabus Context:
-    {syllabus}
-    
-    Relevant Study Material:
-    {context}
-    
-    Task:
-    Create a detailed study roadmap based on the syllabus and the provided study material.
-    Organize the roadmap into 5 Units.
-    For each unit, identify key subtopics found in the material.
-    
-    Output Format (JSON):
-    [
-        {{
-            "unit": 1,
-            "topics": [
-                {{
-                    "title": "Topic Name",
-                    "summary": "Brief summary of the topic based on the material."
-                }}
-            ]
-        }},
-        ...
-    ]
-    
-    Ensure the output is valid JSON. Do not include markdown formatting like ```json.
-    """
-    prompt = PromptTemplate(template=template, input_variables=["syllabus", "context"])
-    return LLMChain(llm=llm, prompt=prompt, output_key="roadmap_json")
-
-def create_scheduler_chain(llm):
-    """Creates a chain to add a schedule to the roadmap."""
-    template = """
-    You are a time management expert.
-    
-    Roadmap:
-    {roadmap_json}
-    
-    Task:
-    Add a "time_allocation" field to each topic in the roadmap.
-    Estimate how many hours/days are needed to study each topic based on its complexity.
-    
-    Output Format (JSON):
-    Same as input, but with "time_allocation" added to each topic.
-    Ensure the output is valid JSON. Do not include markdown formatting.
-    """
-    prompt = PromptTemplate(template=template, input_variables=["roadmap_json"])
-    return LLMChain(llm=llm, prompt=prompt, output_key="final_plan")
-
-def create_explanation_chain(llm):
-    """Creates a chain to generate detailed topic explanations."""
-    template = """
-    You are an expert tutor.
-    
-    Topic: {topic}
-    Summary: {summary}
-    
-    Context from Study Material:
-    {context}
-    
-    Task:
-    Provide a comprehensive learning guide for this topic.
-    
-    Output Format (JSON):
-    {{
-        "learningObjectives": ["Objective 1", "Objective 2", ...],
-        "detailedExplanation": "A detailed, multi-paragraph explanation of the topic. Use clear language and structure.",
-        "keyConcepts": ["Concept 1", "Concept 2", ...],
-        "practicalExamples": ["Example 1", "Example 2", ...]
-    }}
-    
-    Ensure the output is valid JSON. Do not include markdown formatting.
-    """
-    prompt = PromptTemplate(template=template, input_variables=["topic", "summary", "context"])
-    return LLMChain(llm=llm, prompt=prompt, output_key="explanation_json")
-
 def generate_topic_explanation(pdf_path, topic_title, topic_summary):
     """Generates explanation for a specific topic."""
     
@@ -169,10 +120,19 @@ def generate_topic_explanation(pdf_path, topic_title, topic_summary):
     context = "\n\n".join(relevant_chunks)
     
     # 3. Generate
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=GEMINI_API_KEY, temperature=0.3)
-    explanation_chain = create_explanation_chain(llm)
-    
-    result = explanation_chain.run(topic=topic_title, summary=topic_summary, context=context)
+    system_prompt = (
+        "You are an expert tutor. Provide a comprehensive learning guide in valid JSON only. "
+        "Return this structure exactly: {\"learningObjectives\": [...], \"detailedExplanation\": \"...\", "
+        "\"keyConcepts\": [...], \"practicalExamples\": [...]}"
+    )
+    user_prompt = (
+        f"Topic: {topic_title}\n"
+        f"Summary: {topic_summary}\n\n"
+        f"Context from Study Material:\n{context}\n\n"
+        "Task: Provide a comprehensive learning guide for this topic."
+    )
+
+    result = generate_groq_text(system_prompt, user_prompt, temperature=0.3)
     
     try:
         cleaned_result = result.replace("```json", "").replace("```", "").strip()
@@ -216,14 +176,19 @@ def generate_study_plan(pdf_path, syllabus_image_path):
     context = pdf_text[:100000] 
     
     # 4. Generate
-    print("--- Step 5: Generating roadmap with Gemini ---")
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=GEMINI_API_KEY, temperature=0.2)
-    
-    roadmap_chain = create_roadmap_chain(llm)
-    # schedule_chain = create_scheduler_chain(llm) # Optional: Add scheduling later
-    
-    # Run the chain
-    result = roadmap_chain.run(syllabus=syllabus_text, context=context)
+    print("--- Step 5: Generating roadmap with Groq ---")
+    system_prompt = (
+        "You are an expert study planner. Create a detailed study roadmap in valid JSON only. "
+        "Return an array of units, each containing a unit number and a topics array with title and summary."
+    )
+    user_prompt = (
+        f"Syllabus Context:\n{syllabus_text}\n\n"
+        f"Relevant Study Material:\n{context}\n\n"
+        "Task: Create a detailed study roadmap based on the syllabus and the provided study material. "
+        "Organize the roadmap into 5 units and identify key subtopics."
+    )
+
+    result = generate_groq_text(system_prompt, user_prompt, temperature=0.2)
     
     # Parse JSON
     try:

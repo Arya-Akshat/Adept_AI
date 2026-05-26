@@ -38,10 +38,16 @@ export const Navbar = () => {
                 Home
               </Link>
               <Link
+                to="/syllabus"
+                className="text-sm font-medium text-foreground transition-colors hover:text-primary"
+              >
+                Upload Syllabus
+              </Link>
+              <Link
                 to="/input-notes"
                 className="text-sm font-medium text-foreground transition-colors hover:text-primary"
               >
-                Input Notes
+                Upload Notes
               </Link>
               <Link
                 to="/roadmap"

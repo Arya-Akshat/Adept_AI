@@ -6,8 +6,8 @@ python-dotenv
 Flask
 docx2pdf
 fpdf
-langchain
-langchain-google-genai
 scikit-learn
 numpy
 flask-cors
+google-generativeai
+groq

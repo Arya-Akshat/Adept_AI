@@ -16,7 +16,7 @@ const Login = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/syllabus');
     }
   }, [user, navigate]);
 
@@ -25,7 +25,7 @@ const Login = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/syllabus');
     } catch (error) {
       // Error is handled in context
     } finally {

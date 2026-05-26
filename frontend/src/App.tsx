@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SyllabusUpload from "./pages/SyllabusUpload";
 import InputNotes from "./pages/InputNotes";
 import Roadmap from "./pages/Roadmap";
 import TopicDetail from "./pages/TopicDetail";
@@ -26,6 +27,14 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route
+              path="/syllabus"
+              element={
+                <ProtectedRoute>
+                  <SyllabusUpload />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/input-notes"
               element={

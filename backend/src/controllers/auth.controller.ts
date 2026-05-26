@@ -1,6 +1,8 @@
 import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
+import { isDatabaseConnected } from "../config/db";
 import SessionModel from "../models/session.model";
 import { createAccount, loginUser, refreshUserAccessToken } from "../services/auth.service";
+import { localAuthStore } from "../services/localAuthStore";
 import appAssert from "../utils/appAssert";
 import catchErrors from "../utils/catchErrors";
 import { clearAuthCookies, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthCookies } from "../utils/cookies";
@@ -43,7 +45,12 @@ export const logoutHandler = catchErrors(async (req,res) => {
     const {payload} = verifyToken(accessToken || "");
 
     if (payload) {
-        await SessionModel.findByIdAndDelete(payload.sessionId);
+        const sessionId = payload.sessionId as string;
+        if (!isDatabaseConnected()) {
+            await localAuthStore.deleteSessionById(sessionId);
+        } else {
+            await SessionModel.findByIdAndDelete(sessionId);
+        }
     };
 
     return clearAuthCookies(res).

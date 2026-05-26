@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FileText, Image, Link2 } from 'lucide-react';
+import { FileText, Link2, ArrowLeft } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { FileUpload } from '@/components/FileUpload';
@@ -50,26 +50,6 @@ const InputNotes = () => {
     }
   };
 
-  const handleImageUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      await coreApi.parseImg(file);
-      toast({
-        title: 'Success',
-        description: 'Syllabus uploaded successfully',
-      });
-      setHasSession(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to upload syllabus',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleGoogleClassroom = async () => {
     setUploading(true);
     try {
@@ -107,75 +87,69 @@ const InputNotes = () => {
             <div className="mb-8 text-center">
               <h1 className="mb-4 text-3xl font-bold">Upload Your Study Materials</h1>
               <p className="text-muted-foreground">
-                {hasSession
-                  ? 'Upload your course materials to generate a study roadmap'
-                  : 'Start by uploading your syllabus'}
+                Upload your course materials to generate a study roadmap
               </p>
             </div>
 
-            {hasSession ? (
-              <div className="grid gap-6 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                      <FileText className="h-6 w-6" />
-                    </div>
-                    <CardTitle>Upload PDF</CardTitle>
-                    <CardDescription>
-                      Upload your course materials or lecture notes
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <FileUpload
-                      onFileSelect={handlePDFUpload}
-                      accept=".pdf"
-                      disabled={uploading}
-                    />
-                  </CardContent>
-                </Card>
+            {!hasSession && (
+              <Card className="mb-6 border-primary/30 bg-primary/5">
+                <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="font-semibold">Need to upload your syllabus first?</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Go back to the syllabus step before uploading notes.
+                    </p>
+                  </div>
+                  <Button onClick={() => navigate('/syllabus')} variant="outline">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Go to Syllabus Upload
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
-                <Card>
-                  <CardHeader>
-                    <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                      <Link2 className="h-6 w-6" />
-                    </div>
-                    <CardTitle>Google Classroom</CardTitle>
-                    <CardDescription>
-                      Connect your Google Classroom account
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button
-                      onClick={handleGoogleClassroom}
-                      disabled={uploading}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      Connect Google Classroom
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
+            <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Image className="h-6 w-6" />
+                    <FileText className="h-6 w-6" />
                   </div>
-                  <CardTitle>Upload Syllabus</CardTitle>
+                  <CardTitle>Upload PDF</CardTitle>
                   <CardDescription>
-                    Upload an image of your course syllabus to get started
+                    Upload your course materials or lecture notes
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <FileUpload
-                    onFileSelect={handleImageUpload}
-                    accept=".jpg,.jpeg,.png"
-                    disabled={uploading}
+                    onFileSelect={handlePDFUpload}
+                    accept=".pdf"
+                    disabled={uploading || !hasSession}
                   />
                 </CardContent>
               </Card>
-            )}
+
+              <Card>
+                <CardHeader>
+                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                    <Link2 className="h-6 w-6" />
+                  </div>
+                  <CardTitle>Google Classroom</CardTitle>
+                  <CardDescription>
+                    Connect your Google Classroom account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={handleGoogleClassroom}
+                    disabled={uploading || !hasSession}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    Connect Google Classroom
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </main>

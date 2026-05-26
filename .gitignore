@@ -65,4 +65,6 @@ backend/src/constants/metadata/pdfs.json
 
 # Logs
 logs
-*.log
+*.log*.mov
+*.mp4
+*.pdf

@@ -169,7 +169,15 @@ def get_roadmap():
             if not pdf_file:
                 return jsonify({"error": "No PDF file found"}), 400
         
-        syllabus_file = os.path.join(raw_data_path, "syllabus.jpg")
+        syllabus_file = None
+        for candidate in ["syllabus.png", "syllabus.jpg", "syllabus.jpeg"]:
+            candidate_path = os.path.join(raw_data_path, candidate)
+            if os.path.exists(candidate_path):
+                syllabus_file = candidate_path
+                break
+
+        if not syllabus_file:
+            return jsonify({"error": "No syllabus image found"}), 400
 
         # Use the new advanced pipeline
         from gemini_advanced import generate_study_plan

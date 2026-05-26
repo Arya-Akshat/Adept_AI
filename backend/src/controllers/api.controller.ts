@@ -12,15 +12,19 @@ export const pdfHandler = catchErrors(async (req, res) => {
     appAssert(files, BAD_REQUEST, "No files sent")
     console.log(files)
 
+    const firstFile = files[0];
+    const filename = `${firstFile.originalname}`;
+
     for (const file of files) {
-        const filename = `${file.originalname}`;
         const filePath = path.join(RAW_DATA_PATH, filename);
 
         fs.writeFileSync(filePath, file.buffer);
     }
     console.log("Files saved successfully")
 
-    const response = await API.get("/getRoadmap")
+    const response = await API.get("/getRoadmap", {
+        params: { filename },
+    })
     appAssert(response, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
 
     const roadmapData = (response.data as any).body;
@@ -37,12 +41,12 @@ export const imgHandler = catchErrors(async (req, res) => {
     const file = files[0];
     const ext = path.extname(file.originalname).toLowerCase();
 
-    appAssert(ext === '.jpg' || ext === '.jpeg', BAD_REQUEST, "Only .jpg files are allowed");
+    appAssert(ext === '.jpg' || ext === '.jpeg' || ext === '.png', BAD_REQUEST, "Only .jpg, .jpeg, or .png files are allowed");
 
-    const filePath = path.join(RAW_DATA_PATH, 'syllabus.jpg');
+    const filePath = path.join(RAW_DATA_PATH, `syllabus${ext}`);
     fs.writeFileSync(filePath, file.buffer);
 
-    return res.status(OK).json({ message: "Image saved as syllabus.jpg" });
+    return res.status(OK).json({ message: `Image saved as syllabus${ext}` });
 })
 
 export const connectionHandler = catchErrors(async (req, res) => {
