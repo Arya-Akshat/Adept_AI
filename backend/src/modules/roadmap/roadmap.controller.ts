@@ -1,11 +1,17 @@
 import path from "path";
-import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../constants/http";
-import appAssert from "../utils/appAssert";
-import catchErrors from "../utils/catchErrors";
 import fs from "fs";
-import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../constants/env";
-import { API } from "../config/apiClient";
+import {
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  OK,
+} from "../../constants/http";
+import appAssert from "../../utils/appAssert";
+import catchErrors from "../../utils/catchErrors";
+import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import { v4 as uuidv4 } from "uuid";
+import logger from "../../utils/logger";
+import { API } from "../../services/gemini.service";
 
 const METADATA_PATH = path.join(path.dirname(RAW_DATA_PATH), "metadata", "pdfs.json");
 
@@ -108,7 +114,7 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     try {
         response = await API.get(`/getRoadmap?filename=${pdf.filename}`);
     } catch (error: any) {
-        console.error("Flask API Error:", error.response?.data || error.message);
+        logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
     }
 
@@ -159,7 +165,7 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
     try {
         response = await API.get(`/getRoadmap?filename=${pdf.filename}`);
     } catch (error: any) {
-        console.error("Flask API Error:", error.response?.data || error.message);
+        logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
     }
 

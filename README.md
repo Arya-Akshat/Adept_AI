@@ -1,58 +1,81 @@
-# ADEPT - AI Study Companion
+# VedaAI (formerly ADEPT) – AI Assessment Creator & Study Companion
 
-ADEPT is a comprehensive AI-powered study assistant that transforms your syllabus and study materials into personalized learning roadmaps. It leverages the power of Large Language Models (Gemini) to generate structured study plans, explain complex topics, and curate relevant YouTube resources.
+VedaAI is a production-grade educational platform that combines student roadmap generation with a powerful AI Assessment Creator for teachers. It features background job queuing via Redis/BullMQ, real-time WebSocket notifications via Socket.io, structured text generation via Groq, file extraction (PDF/text), and exam-style PDF generation using PDFKit.
 
-## 🚀 Quick Start (Run Locally)
+---
 
-After cloning the repository, open **3 separate terminals** and run the following commands:
+## 🛠️ Architecture & Tech Stack
 
-**Terminal 1: Backend (Node.js)**
+- **Frontend**: React (Vite) + TypeScript + Tailwind CSS
+- **Backend (Node.js)**: Express, Mongoose, Redis, BullMQ, Socket.io, PDFKit
+- **AI Engine (Python/Flask)**: Flask, Google Gemini API, LangChain (for student roadmaps)
+- **Primary AI Provider (VedaAI)**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`)
+
+---
+
+## 🚀 Quick Start (Local Setup)
+
+To run the full stack locally, make sure you have **Node.js (v18+)**, **Python 3.10+**, and a running **Redis** instance.
+
+### 1. Redis Service
+Ensure Redis is running on `localhost:6379` (or update `REDIS_URL` in `.env`):
 ```bash
-cd backend && npm install && npm run dev
+redis-server
 ```
 
-**Terminal 2: AI Engine (Flask)**
+### 2. Backend (Node.js)
 ```bash
-# Ensure you have Python installed. You may need to create a venv first.
-# python3 -m venv .venv_new && source .venv_new/bin/activate && pip install -r flask/requirements.txt
+cd backend
+npm install
+npm run build
+npm run dev
+```
+
+### 3. AI Engine (Flask)
+Create a virtual environment, install requirements, and run the Flask server:
+```bash
+python3 -m venv .venv_new
+source .venv_new/bin/activate
+pip install -r requirements.txt
 python3 flask/app.py
 ```
 
-**Terminal 3: Frontend (React)**
+### 4. Frontend (React)
 ```bash
-cd frontend && npm install && npm run dev
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## ⚙️ Environment Variables (Node.js Backend)
 
-*   **Frontend:** React, TypeScript, Vite, Tailwind CSS
-*   **Backend:** Node.js, Express, MongoDB (Mongoose)
-*   **AI Engine:** Python, Flask, Google Gemini API, LangChain
-*   **Authentication:** JWT (JSON Web Tokens)
+Create a `.env` file inside the `backend` folder:
+```env
+# Server Config
+NODE_ENV=development
+PORT=4004
 
----
+# Origins
+APP_ORIGIN=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
+FLASK_URL=http://localhost:5001
 
-## 📸 Application Screenshots
+# Database
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/vedaai
 
-### 1. Register 
-![Login Screen](ss/login.png)
+# Security / JWT
+JWT_SECRET=your_jwt_access_secret_key
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
 
-### 2. Login
-![Dashboard](ss/dashboard.png)
+# Paths
+RAW_DATA_PATH=/Users/gurudev/Desktop/VS Code/MyProjects/ADEPT/backend/src/constants/rawData
+PROCESSED_DATA_PATH=/Users/gurudev/Desktop/VS Code/MyProjects/ADEPT/backend/src/constants/processedData
 
-### 3. Dashboard
-![Upload Interface](ss/upload.png)
-
-### 4. Upload Interface
-![Roadmap Generation](ss/roadmap.png)
-
-### 5. Roadmap Generation
-![Topic Explanation](ss/topic_explanation.png)
-
-### 6. Topic Explanation 
-![Detailed View](ss/detailed_view.png)
-
-### 7. Resource Curation
-![Resource Curation](ss/resources.png)
+# VedaAI Generation Configuration
+GROQ_API_KEY=your_groq_api_key
+REDIS_URL=redis://localhost:6379
+WORKER_CONCURRENCY=3
+MAX_SOURCE_CONTENT_CHARS=3000
+```

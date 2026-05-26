@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { MONGO_URI } from "../constants/env";
+import logger from "../utils/logger";
 
 let databaseConnected = false;
 
@@ -10,10 +11,10 @@ const connectToDatabase = async() => {
     try {
         await mongoose.connect(MONGO_URI);
         databaseConnected = true;
-        console.log("Succesfully connected to DB");
+        logger.info("Successfully connected to DB");
     } catch (error) {
         databaseConnected = false;
-        console.log('Could not connect to database', error);
+        logger.error({ error }, "Could not connect to database");
         // Keep the dev server alive so non-DB routes can still be tested locally.
     }
 }

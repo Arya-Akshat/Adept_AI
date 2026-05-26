@@ -1,14 +1,14 @@
 import { Router } from "express";
 import {
-    uploadPdfHandler,
-    listPdfsHandler,
-    getPdfMetadataHandler,
-    viewPdfHandler,
-    generateRoadmapHandler,
-    getRoadmapHandler,
-    deletePdfHandler,
-    explainTopicHandler
-} from "../controllers/pdf.controller";
+  uploadPdfHandler,
+  listPdfsHandler,
+  getPdfMetadataHandler,
+  viewPdfHandler,
+  generateRoadmapHandler,
+  getRoadmapHandler,
+  deletePdfHandler,
+  explainTopicHandler,
+} from "./roadmap.controller";
 import multer from "multer";
 
 const upload = multer();

@@ -1,0 +1,79 @@
+import "./polyfill";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import { APP_ORIGIN, FLASK_URL, FRONTEND_URL } from "./config/env";
+import { apiLimiter } from "./middleware/rateLimiter.middleware";
+import logger from "./utils/logger";
+
+// Import existing routes
+import apiRoutes from "./modules/upload/upload.routes";
+import authRoutes from "./modules/auth/auth.routes";
+import pdfRoutes from "./modules/roadmap/roadmap.routes";
+import userRoutes from "./routes/user.route";
+import assessmentRoutes from "./modules/assessment/assessment.routes";
+
+// Import existing middleware
+import authenticate from "./middleware/auth.middleware";
+import errorHandler from "./middleware/error.middleware";
+
+import { OK } from "./constants/http";
+
+const app = express();
+
+// Security middleware
+app.use(helmet());
+app.use(apiLimiter);
+
+// Body parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// CORS
+app.use(
+  cors({
+    origin: [APP_ORIGIN, FLASK_URL, FRONTEND_URL],
+    credentials: true,
+  })
+);
+
+// Cookies
+app.use(cookieParser());
+
+// Request logging
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    logger.info(
+      {
+        method: req.method,
+        path: req.path,
+        status: res.statusCode,
+        durationMs: duration,
+      },
+      "HTTP Request completed"
+    );
+  });
+  next();
+});
+
+// Health check
+app.get("/", (_req, res) => {
+  res.status(OK).json({ status: "healthy" });
+});
+
+// Existing routes (preserved at original paths)
+app.use("/auth", authRoutes);
+app.use("/api", apiRoutes);
+app.use("/api/pdfs", pdfRoutes);
+app.use("/api/assessments", assessmentRoutes);
+
+// Protected routes
+app.use("/user", authenticate, userRoutes);
+
+// Error handler (must be last)
+app.use(errorHandler);
+
+export default app;

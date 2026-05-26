@@ -598,3 +598,302 @@ CRITICAL RULES:
 5. Use strict TypeScript throughout — no `any` types.
 6. Never use console.log in production code — use the Pino logger.
 7. DO NOT MOVE TO THE NEXT PHASE until you ask the user and the user says "Proceed".
+
+
+====================================================
+SCREENSHOT-DERIVED CORRECTIONS & ADDITIONS
+====================================================
+
+These additions are derived from pixel-level analysis of the reference screenshots.
+They take precedence over any conflicting general description above.
+
+====================================================
+LOGO VARIANTS
+====================================================
+
+The VedaAI logo has TWO variants based on the page context:
+
+Variant 1 (Light sidebar — used on assignment output page):
+- Dark/inverted background for the "V" icon container
+- White "VedaAI" wordmark text
+- Used when the sidebar CTA is "AI Teacher's Toolkit"
+
+Variant 2 (Default — used on all other pages):
+- Orange/gold square rounded container with white "V" icon
+- Dark "VedaAI" wordmark text
+- Used when the sidebar CTA is "Create Assignment"
+
+====================================================
+NAVBAR TITLE — CONTEXT-SENSITIVE
+====================================================
+
+The navbar center content changes per page:
+
+- Assignment list page:  ⊞ (grid icon)  "Assignment"
+- Create assignment page: (no icon)  "Assignment"  (plain breadcrumb)
+- Assignment output page:  ✦ (4-point sparkle icon)  "Create New"
+
+The icon and text must both change based on current route.
+The sparkle icon on the output page is a small 4-point star, NOT the same grid icon used on the list page.
+
+====================================================
+SIDEBAR — BADGE PLACEMENT PER PAGE
+====================================================
+
+Badge placement observed in screenshots:
+
+- Assignment list page (filled-state.png):
+  "Assignments" nav item → orange pill badge showing "10"
+  No badge on My Library
+
+- Create assignment page (upload-material.png):
+  "My Library" nav item → orange pill badge showing "32"
+  No badge on Assignments
+
+- Assignment output page (assignment-output.png):
+  "Assignments" nav item → orange pill badge showing "32"
+  No badge on My Library
+
+Implementation: badges should be driven by dynamic data, not hardcoded.
+The badge count comes from API/store state, not static values.
+
+====================================================
+QUESTION TYPE FORM — COLUMN HEADERS
+====================================================
+
+The question type rows have a visible column header row ABOVE the first row.
+This is a 3-column header:
+
+  "Question Type"  |  "No. of Questions"  |  "Marks"
+
+Styling:
+- Small font, muted gray color
+- Left-aligned "Question Type", right-aligned "No. of Questions" and "Marks"
+- No border or divider under the header
+- The header row aligns exactly with the columns below it
+
+This header row is MISSING from the current prompt and must be implemented.
+
+====================================================
+QUESTION TYPE DROPDOWN — DEFAULT OPTIONS
+====================================================
+
+The dropdown for question type must include these options by default
+(matching the screenshot exactly):
+
+1. Multiple Choice Questions
+2. Short Questions
+3. Diagram/Graph-Based Questions
+4. Numerical Problems
+5. Long Answer Questions
+6. True/False Questions
+7. Fill in the Blanks
+
+The first row defaults to "Multiple Choice Questions" when "+ Add Question Type" is clicked.
+
+====================================================
+FORM CARD — SUBTITLE TEXT
+====================================================
+
+The form card in Page 3 has a two-line header:
+
+Title:    "Assignment Details"  (bold, ~18px)
+Subtitle: "Basic information about your assignment"  (muted gray, ~13px, regular weight)
+
+This subtitle is visible in the screenshot directly below the card title and must be included.
+
+====================================================
+UPLOAD AREA — CAPTION BELOW DROPZONE
+====================================================
+
+Below the upload dropzone box, there is a muted caption line:
+"Upload images of your preferred document/image"
+
+Styling:
+- Small font (~12px)
+- Muted gray color
+- Centered
+- Sits outside/below the dashed border box, not inside it
+
+This caption is NOT the same as the text inside the dropzone.
+Both must be present.
+
+====================================================
+DUE DATE FIELD — EXACT STYLING
+====================================================
+
+The due date input field:
+- Has a rounded border (not full pill, more like rounded-lg)
+- Placeholder text: "DD-MM-YYYY" in muted gray
+- Calendar icon is on the RIGHT INSIDE the input (not outside)
+- The calendar icon appears to be a square calendar with a plus/add symbol inside it
+- Field label "Due Date" is above the input, left-aligned, medium weight
+
+====================================================
+PROGRESS BAR — EXACT PROPORTIONS
+====================================================
+
+The progress bar at the top of the create form has TWO segments separated by a small gap.
+
+Segment 1 (active): ~55% of total width, BLACK/dark fill
+Segment 2 (inactive): ~44% of total width, LIGHT GRAY fill
+
+Each segment is a thin horizontal line (~3-4px height), fully rounded ends (rounded-full).
+The gap between segments is ~6-8px.
+The entire bar sits below the page header, above the form card.
+It is NOT inside the form card — it floats between the header and the card.
+
+====================================================
+ASSIGNMENT CARD — TYPOGRAPHY DETAILS
+====================================================
+
+Observed in filled-state.png:
+
+Card title ("Quiz on Electricity"):
+- Bold, ~18-20px
+- Has a subtle underline (text-decoration: underline)
+- Dark/black color
+
+"Assigned on" label:
+- The text "Assigned on" is bold/semi-bold
+- The date value "20-06-2025" is regular weight
+- Format: "Assigned on : 20-06-2025" (space before and after the colon)
+
+"Due" label:
+- The text "Due" is bold/semi-bold
+- The date value "21-06-2025" is regular weight
+- Format: "Due : 21-06-2025" (space before and after the colon)
+- Right-aligned on the same line as "Assigned on"
+
+The card has significant vertical space between the title and the date row —
+the title sits near the top and dates sit near the bottom of the card (not close together).
+Card min-height appears to be ~120-130px.
+
+====================================================
+DIFFICULTY TAG DISPLAY — CRITICAL CORRECTION
+====================================================
+
+IMPORTANT: The backend sends difficulty as "hard" but the UI must display "Challenging".
+
+Difficulty mapping (backend → display):
+- "easy"   → [Easy]
+- "medium" → [Moderate]
+- "hard"   → [Challenging]
+
+This mapping must be applied in the DifficultyBadge component and everywhere
+difficulty text is rendered in the question paper.
+
+The screenshot clearly shows [Easy], [Moderate], and [Challenging] — NOT [Hard].
+Do NOT display the raw backend value.
+
+====================================================
+QUESTION PAPER — TIME AND MARKS LINE
+====================================================
+
+The time and marks line in the paper renders as:
+
+"Time Allowed: 45 minutes" (left-aligned, regular weight)
+"Maximum Marks: 20" (right-aligned, regular weight)
+
+Both on the SAME line using flex justify-between.
+No bold on either — regular weight, normal font size (~14px).
+Sits below the school/subject/class centered header block.
+A blank line separates the header block from this line.
+
+====================================================
+QUESTION PAPER — STUDENT INFO LINES
+====================================================
+
+Student info renders as three separate lines, each with a label and an underline blank:
+
+Line 1: "Name: _______________"
+Line 2: "Roll Number: ____________"
+Line 3: "Class: 5th Section: ________"
+
+The underline is rendered as an actual underline (CSS border-bottom or text decoration),
+NOT as underscores typed in the text.
+Each line is left-aligned.
+Standard font size, regular weight for both label and blank.
+The label text (Name:, Roll Number:, etc.) is NOT bold.
+
+====================================================
+QUESTION PAPER — ANSWER KEY SPACING
+====================================================
+
+The Answer Key section is separated from "End of Question Paper" by a visible blank line/gap.
+
+"End of Question Paper" — bold, left-aligned
+[blank gap]
+"Answer Key:" — bold, left-aligned, slightly larger visual weight
+
+The answer list items use standard numbered list styling:
+- Regular font weight
+- Normal text size (~14px)
+- Each answer may span multiple lines (wraps naturally)
+- Multi-line answer items have consistent indentation (the text wraps under the number, not under the start of the paragraph)
+
+====================================================
+SIDEBAR — SCHOOL CARD DETAILS
+====================================================
+
+The school card at the bottom of the sidebar:
+
+- Rounded card container with soft shadow
+- Left: circular avatar/logo (in assignment-output.png this is a school crest/shield icon, in other pages it's a stylized avatar)
+- Right of avatar: two lines of text
+  Line 1: "Delhi Public School" — bold, ~14px
+  Line 2: "Bokaro Steel City" — muted gray, ~12px, regular weight
+- The card has visible padding (~12px all sides)
+- In assignment-output.png the avatar appears to be a plain circular container with a school crest icon (NOT a person avatar)
+- In other pages the avatar is a person/character illustration
+
+Implementation note: the avatar should accept either an image URL or fall back to initials.
+
+====================================================
+DOWNLOAD PDF BUTTON — EXACT STYLING
+====================================================
+
+From assignment-output.png:
+
+- White pill button
+- Left icon: circular arrow (refresh/download icon) — specifically a counter-clockwise circular arrow with a downward arrow element
+- Text: "Download as PDF"
+- Font: regular weight, dark/black text
+- Pill shape: fully rounded (rounded-full)
+- Border: 1px solid light gray or no border (appears borderless on dark banner background)
+- Hover: subtle scale or opacity change
+- The button is relatively small — not a large CTA, approximately the same size as a standard form button
+
+====================================================
+BANNER — DARK AI MESSAGE BLOCK
+====================================================
+
+From assignment-output.png:
+
+- Background: very dark (near black, ~#1a1a1a or #111111), NOT pure black
+- Slightly rounded corners (rounded-xl or rounded-2xl)
+- Padding: generous (~24px)
+- The message text is white, regular weight, ~14-15px, wraps across two lines in the screenshot
+- "Download as PDF" button sits below the message text on its own line (NOT inline with text)
+- There is visible spacing (~12px) between the message text and the button
+
+====================================================
+SIDEBAR — ACTIVE NAV ITEM EXACT STYLING
+====================================================
+
+From filled-state.png and upload-material.png:
+
+Active nav item ("Assignments" when on that page):
+- Background: very light gray pill/rounded rectangle (~#f3f4f6 or similar)
+- The highlight extends full width of the nav area with some horizontal padding
+- rounded-xl or rounded-lg
+- The icon and text remain the same color (dark) — there is no color change on active, only background change
+- The orange badge pill sits right-aligned, flush to the right edge of the nav item row
+
+====================================================
+OVERALL PAGE BACKGROUND
+====================================================
+
+The main content area background is a very light gray — approximately #f0f0f0 or #eeeeee.
+It is NOT pure white and NOT a gradient — it is a flat, slightly warm light gray.
+The sidebar itself is white (#ffffff) which creates a subtle contrast with the main area.

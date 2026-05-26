@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { connectionHandler, delTokenHandler, getTokenHandler, imgHandler, linkHandler, pdfHandler, getRoadmapHandler } from "../controllers/api.controller";
+import {
+  connectionHandler,
+  delTokenHandler,
+  getTokenHandler,
+  imgHandler,
+  linkHandler,
+  pdfHandler,
+  getRoadmapHandler,
+} from "./upload.controller";
 import multer from "multer";
 
 

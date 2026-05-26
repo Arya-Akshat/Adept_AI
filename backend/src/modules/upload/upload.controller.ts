@@ -1,16 +1,22 @@
 import path from "path";
-import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../constants/http";
-import appAssert from "../utils/appAssert";
-import catchErrors from "../utils/catchErrors";
 import fs from "fs";
-import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../constants/env";
-import { API } from "../config/apiClient";
+import {
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  NOT_FOUND,
+  OK,
+} from "../../constants/http";
+import appAssert from "../../utils/appAssert";
+import catchErrors from "../../utils/catchErrors";
+import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
+import logger from "../../utils/logger";
+import { API } from "../../services/gemini.service";
 
 type fileSchema = Express.Multer.File[]
 export const pdfHandler = catchErrors(async (req, res) => {
     const files = req.files as fileSchema
     appAssert(files, BAD_REQUEST, "No files sent")
-    console.log(files)
+    logger.debug({ fileCount: files.length }, "PDF upload received");
 
     const firstFile = files[0];
     const filename = `${firstFile.originalname}`;
@@ -20,7 +26,7 @@ export const pdfHandler = catchErrors(async (req, res) => {
 
         fs.writeFileSync(filePath, file.buffer);
     }
-    console.log("Files saved successfully")
+    logger.info({ filename }, "Files saved successfully");
 
     const response = await API.get("/getRoadmap", {
         params: { filename },
@@ -51,16 +57,16 @@ export const imgHandler = catchErrors(async (req, res) => {
 
 export const connectionHandler = catchErrors(async (req, res) => {
     const response = async () => API.get("/")
-    console.log(response);
+    logger.debug({ response }, "Connection check prepared");
     return res.status(OK).json({ message: "Connection successful " })
 })
 
 export const linkHandler = catchErrors(async (req, res) => {
     const response = await API.get("/getNotes")
     appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error")
-    console.log(response.data);
+    logger.debug({ data: response.data }, "Flask notes response received");
 
-    console.log("Files saved successfully")
+    logger.info("Files saved successfully");
 
     const parseResponse = await API.get("/getRoadmap")
     appAssert(parseResponse, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
@@ -76,7 +82,7 @@ export const delTokenHandler = catchErrors(async (req, res) => {
     const response = await API.get("/deleteToken")
     appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error")
 
-    console.log(response.data)
+    logger.debug({ data: response.data }, "Token deletion response received");
     return res.status(OK).json({ message: "Token Deleted", data: response.data })
 })
 
@@ -95,7 +101,6 @@ export const getTokenHandler = catchErrors(async (req, res) => {
     // if (response.status !== 200) {
     //     return res.status(BAD_REQUEST).json({ message: "Failed to get token" })
     // }
-    // console.log(response.data)
     // return res.status(OK).json(response.data)
 })
 
@@ -108,5 +113,3 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
         return res.status(NOT_FOUND).json({ message: "Roadmap not found" });
     }
 })
-
-

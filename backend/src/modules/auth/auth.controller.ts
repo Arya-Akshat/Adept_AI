@@ -1,13 +1,22 @@
-import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
-import { isDatabaseConnected } from "../config/db";
-import SessionModel from "../models/session.model";
-import { createAccount, loginUser, refreshUserAccessToken } from "../services/auth.service";
-import { localAuthStore } from "../services/localAuthStore";
-import appAssert from "../utils/appAssert";
-import catchErrors from "../utils/catchErrors";
-import { clearAuthCookies, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthCookies } from "../utils/cookies";
-import { verifyToken } from "../utils/jwt";
-import { loginSchema, registerSchema } from "./auth.schemas";
+import { CREATED, OK, UNAUTHORIZED } from "../../constants/http";
+import { isDatabaseConnected } from "../../config/db";
+import SessionModel from "../../models/session.model";
+import {
+  createAccount,
+  loginUser,
+  refreshUserAccessToken,
+} from "../../services/auth.service";
+import { localAuthStore } from "../../services/localAuthStore";
+import appAssert from "../../utils/appAssert";
+import catchErrors from "../../utils/catchErrors";
+import {
+  clearAuthCookies,
+  getAccessTokenCookieOptions,
+  getRefreshTokenCookieOptions,
+  setAuthCookies,
+} from "../../utils/cookies";
+import { verifyToken } from "../../utils/jwt";
+import { loginSchema, registerSchema } from "../../controllers/auth.schemas";
 
 
 export const registerHandler = catchErrors(async (req, res) => {
