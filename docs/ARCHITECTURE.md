@@ -1,6 +1,6 @@
 # System Architecture
 
-This document describes the high-level architecture of VedaAI and shows how the frontend, Node.js backend, Python Flask service, database, Redis queue, and AI models interact.
+This document describes the high-level architecture of VedaAI and shows how the frontend, Node.js backend, Python FastAPI service, database, Redis queue, and AI models interact.
 
 ```
                   +-----------------------------------+
@@ -59,5 +59,5 @@ This document describes the high-level architecture of VedaAI and shows how the 
 - Runs concurrently (default 3 workers).
 - Pulls jobs, executes Groq AI generation pipelines, parses structured JSON, updates MongoDB, and publishes status updates back to Socket.io.
 
-### 5. Flask AI Engine
-- Legacy study helper engine used for student roadmap creation, YouTube recommendations, and deep explanation overlays.
+### 5. FastAPI AI Engine
+- Python helper engine used for student roadmap creation, YouTube recommendations, and deep explanation overlays.

@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import { APP_ORIGIN, FLASK_URL, FRONTEND_URL } from "./config/env";
+import { APP_ORIGIN, FASTAPI_URL, FRONTEND_URL } from "./config/env";
 import { apiLimiter } from "./middleware/rateLimiter.middleware";
 import logger from "./utils/logger";
 
@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS
 app.use(
   cors({
-    origin: [APP_ORIGIN, FLASK_URL, FRONTEND_URL],
+    origin: [APP_ORIGIN, FASTAPI_URL, FRONTEND_URL],
     credentials: true,
   })
 );

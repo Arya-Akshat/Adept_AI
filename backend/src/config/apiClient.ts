@@ -1,8 +1,8 @@
 import axios from 'axios';
-import { FLASK_URL } from '../constants/env';
+import { FASTAPI_URL } from '../constants/env';
 
 const options = {
-    baseURL: FLASK_URL,
+    baseURL: FASTAPI_URL,
     withCredentials: true
 }
 

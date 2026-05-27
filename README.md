@@ -8,7 +8,7 @@ VedaAI is a production-grade educational platform that combines student roadmap 
 
 - **Frontend**: React (Vite) + TypeScript + Tailwind CSS
 - **Backend (Node.js)**: Express, Mongoose, Redis, BullMQ, Socket.io, PDFKit
-- **AI Engine (Python/Flask)**: Flask, Google Gemini API, LangChain (for student roadmaps)
+- **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain (for student roadmaps)
 - **Primary AI Provider (VedaAI)**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`)
 
 ---
@@ -60,7 +60,7 @@ PORT=4004
 # Origins
 APP_ORIGIN=http://localhost:5173
 FRONTEND_URL=http://localhost:5173
-FLASK_URL=http://localhost:5001
+FASTAPI_URL=http://localhost:5001
 
 # Database
 MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/vedaai
@@ -70,8 +70,8 @@ JWT_SECRET=your_jwt_access_secret_key
 JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
 
 # Paths
-RAW_DATA_PATH=/Users/gurudev/Desktop/VS Code/MyProjects/ADEPT/backend/src/constants/rawData
-PROCESSED_DATA_PATH=/Users/gurudev/Desktop/VS Code/MyProjects/ADEPT/backend/src/constants/processedData
+RAW_DATA_PATH=./src/constants/rawData
+PROCESSED_DATA_PATH=./src/constants/processedData
 
 # VedaAI Generation Configuration
 GROQ_API_KEY=your_groq_api_key
