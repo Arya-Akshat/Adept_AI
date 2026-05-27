@@ -13,7 +13,19 @@ import logger from "../../utils/logger";
 import { API } from "../../services/gemini.service";
 import { v4 as uuidv4 } from "uuid";
 
-const METADATA_PATH = path.join(path.dirname(RAW_DATA_PATH), "metadata", "pdfs.json");
+const METADATA_DIR = path.join(path.dirname(RAW_DATA_PATH), "metadata");
+const METADATA_PATH = path.join(METADATA_DIR, "pdfs.json");
+
+// Ensure data directories exist
+if (!fs.existsSync(RAW_DATA_PATH)) {
+    fs.mkdirSync(RAW_DATA_PATH, { recursive: true });
+}
+if (!fs.existsSync(PROCESSED_DATA_PATH)) {
+    fs.mkdirSync(PROCESSED_DATA_PATH, { recursive: true });
+}
+if (!fs.existsSync(METADATA_DIR)) {
+    fs.mkdirSync(METADATA_DIR, { recursive: true });
+}
 
 const readMetadata = () => {
     if (!fs.existsSync(METADATA_PATH)) {
