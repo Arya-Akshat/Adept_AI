@@ -29,7 +29,11 @@ export const registerHandler = catchErrors(async (req, res) => {
 
     return setAuthCookies({res, accessToken, refreshToken})
     .status(CREATED)
-    .json(user);
+    .json({
+        ...(typeof (user as any).toJSON === "function" ? (user as any).toJSON() : user),
+        accessToken,
+        refreshToken,
+    });
 })
 
 
@@ -45,6 +49,8 @@ export const loginHandler = catchErrors(async (req,res) => {
         .status(OK)
         .json({
             message: "Login successful",
+            accessToken,
+            refreshToken,
         })
 })
 
@@ -70,7 +76,7 @@ export const logoutHandler = catchErrors(async (req,res) => {
 
 
 export const refreshHandler = catchErrors(async (req,res) => {
-    const refreshToken = req.cookies.refreshToken as string|undefined;
+    const refreshToken = (req.cookies.refreshToken as string|undefined) || (req.headers["x-refresh-token"] as string | undefined) || req.body.refreshToken as string | undefined;
     appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
     const {accessToken, newRefreshToken} = await refreshUserAccessToken(refreshToken);
@@ -81,5 +87,7 @@ export const refreshHandler = catchErrors(async (req,res) => {
 
     return res.status(OK).cookie("accessToken", accessToken, getAccessTokenCookieOptions()).json({
         message: "Access token refreshed",
+        accessToken,
+        refreshToken: newRefreshToken || refreshToken,
     });
 })

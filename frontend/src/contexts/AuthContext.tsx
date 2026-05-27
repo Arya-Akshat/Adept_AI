@@ -40,7 +40,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      await authApi.login({ email, password });
+      const response = await authApi.login({ email, password });
+      if (response.data?.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+      }
+      if (response.data?.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
       await checkAuth();
       toast({
         title: 'Success',
@@ -58,7 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, confirmPassword: string) => {
     try {
-      await authApi.register({ email, password, confirmPassword });
+      const response = await authApi.register({ email, password, confirmPassword });
+      if (response.data?.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+      }
+      if (response.data?.refreshToken) {
+        localStorage.setItem("refreshToken", response.data.refreshToken);
+      }
       await checkAuth();
       toast({
         title: 'Success',
@@ -77,12 +89,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       await authApi.logout();
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       setUser(null);
       toast({
         title: 'Success',
         description: 'Logged out successfully',
       });
     } catch (error: any) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      setUser(null);
       toast({
         title: 'Error',
         description: 'Failed to logout',
