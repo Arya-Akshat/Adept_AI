@@ -8,7 +8,7 @@ let io: SocketServer | null = null;
 export const initializeSocket = (httpServer: HttpServer): SocketServer => {
   io = new SocketServer(httpServer, {
     cors: {
-      origin: [FRONTEND_URL, APP_ORIGIN],
+      origin: (origin, callback) => callback(null, true),
       credentials: true,
     },
   });
