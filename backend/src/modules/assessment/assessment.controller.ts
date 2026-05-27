@@ -1,4 +1,4 @@
-import { CREATED, BAD_REQUEST, OK } from "../../constants/http";
+import { CREATED, BAD_REQUEST, OK, SERVICE_UNAVAILABLE, INTERNAL_SERVER_ERROR } from "../../constants/http";
 import { sendSuccess } from "../../utils/response";
 import {
   createAssessment,
@@ -15,7 +15,7 @@ import { redisClient } from "../../config/redis";
 
 export const createAssessmentHandler = async (req: any, res: any) => {
   if (!redisClient) {
-    throw new AppError(503, "Assessment generation is temporarily disabled (Redis missing on Render).");
+    throw new AppError(SERVICE_UNAVAILABLE, "Assessment generation is temporarily disabled (Redis missing on Render).");
   }
 
   const result = await createAssessment(req.userId, req.body);
@@ -48,7 +48,7 @@ export const getAssessmentHandler = async (req: any, res: any) => {
 
 export const regenerateAssessmentHandler = async (req: any, res: any) => {
   if (!redisClient) {
-    throw new AppError(503, "Assessment regeneration is temporarily disabled (Redis missing on Render).");
+    throw new AppError(SERVICE_UNAVAILABLE, "Assessment regeneration is temporarily disabled (Redis missing on Render).");
   }
   const data = await regenerateAssessment(req.userId, req.params.id);
   sendSuccess(res, data);
@@ -97,6 +97,6 @@ export const downloadAssessmentPdfHandler = async (req: any, res: any) => {
     });
     stream.pipe(res);
   } catch (err: any) {
-    throw new AppError(500, `PDF generation failed: ${err.message}`);
+    throw new AppError(INTERNAL_SERVER_ERROR, `PDF generation failed: ${err.message}`);
   }
 };
