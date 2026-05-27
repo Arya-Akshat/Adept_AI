@@ -33,9 +33,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS
+const allowedOrigins = [APP_ORIGIN, FASTAPI_URL, FRONTEND_URL];
 app.use(
   cors({
-    origin: [APP_ORIGIN, FASTAPI_URL, FRONTEND_URL],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
   })
 );
