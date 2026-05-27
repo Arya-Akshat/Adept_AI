@@ -11,7 +11,13 @@ import {
 import { AppError } from "../../utils/errors";
 import { createAssessmentPDFStream } from "../../services/pdf.service";
 
+import { redisClient } from "../../config/redis";
+
 export const createAssessmentHandler = async (req: any, res: any) => {
+  if (!redisClient) {
+    throw new AppError(503, "Assessment generation is temporarily disabled (Redis missing on Render).");
+  }
+
   const result = await createAssessment(req.userId, req.body);
   const responseBody: Record<string, unknown> = {
     success: true,
@@ -41,6 +47,9 @@ export const getAssessmentHandler = async (req: any, res: any) => {
 };
 
 export const regenerateAssessmentHandler = async (req: any, res: any) => {
+  if (!redisClient) {
+    throw new AppError(503, "Assessment regeneration is temporarily disabled (Redis missing on Render).");
+  }
   const data = await regenerateAssessment(req.userId, req.params.id);
   sendSuccess(res, data);
 };

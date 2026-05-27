@@ -14,22 +14,24 @@ const startServer = async () => {
   // Connect to MongoDB
   await connectToDatabase();
 
-  // Connect to Redis
+  // Connect to Redis (Optional for Render deployments without Redis)
+  let redisConnected = false;
   try {
     await connectRedis();
+    redisConnected = true;
   } catch (err) {
-    logger.error({ err }, "Failed to connect to Redis on startup");
-    process.exit(1);
+    logger.warn({ err }, "Failed to connect to Redis. Assessment generation will be disabled.");
   }
 
-  // Start BullMQ worker
-  try {
-    const { startAssessmentWorker } = await import("./modules/assessment/assessment.worker");
-    startAssessmentWorker();
-    logger.info("BullMQ: Assessment worker started");
-  } catch (err) {
-    logger.error({ err }, "Failed to start assessment worker");
-    process.exit(1);
+  // Start BullMQ worker (Only if Redis is connected)
+  if (redisConnected) {
+    try {
+      const { startAssessmentWorker } = await import("./modules/assessment/assessment.worker");
+      startAssessmentWorker();
+      logger.info("BullMQ: Assessment worker started");
+    } catch (err) {
+      logger.error({ err }, "Failed to start assessment worker");
+    }
   }
 
   // Initialize Socket.io on the same HTTP server before listening
