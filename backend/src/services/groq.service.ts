@@ -93,3 +93,84 @@ export const generateAssessment = async (
 
   throw new AIGenerationError("AI generation failed: Max retries exceeded");
 };
+
+export const generateCustomJson = async (
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number = 2048
+): Promise<string> => {
+  let attempts = 0;
+  const maxRetries = 2;
+  const retryDelayMs = 2000;
+  let useFallback = false;
+
+  while (attempts <= maxRetries) {
+    attempts++;
+    const model = useFallback ? FALLBACK_MODEL : PRIMARY_MODEL;
+    logger.info(
+      { model, attempt: attempts },
+      "Groq AI (Custom JSON): Sending generation request"
+    );
+
+    try {
+      const responsePromise = groq.chat.completions.create({
+        model,
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: maxTokens,
+      });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Groq API request timeout")), 60000)
+      );
+
+      const response = await Promise.race([responsePromise, timeoutPromise]);
+      const content = response.choices[0]?.message?.content;
+
+      if (!content) {
+        throw new Error("Groq API returned an empty response content.");
+      }
+
+      logger.info({ model }, "Groq AI (Custom JSON): Generation successful");
+      return content;
+    } catch (error: any) {
+      const isRateLimit = error.status === 429 || error.statusCode === 429;
+      const isTimeout = error.message && error.message.includes("timeout");
+
+      logger.warn(
+        {
+          model,
+          attempt: attempts,
+          error: error.message,
+          isRateLimit,
+          isTimeout,
+        },
+        "Groq AI (Custom JSON): Request failed"
+      );
+
+      if (isRateLimit || isTimeout) {
+        if (attempts <= maxRetries) {
+          logger.info(`Groq AI (Custom JSON): Retrying in ${retryDelayMs}ms...`);
+          useFallback = true;
+          await sleep(retryDelayMs);
+          continue;
+        }
+      }
+
+      throw new AIGenerationError(
+        `AI generation failed after ${attempts} attempts: ${error.message}`
+      );
+    }
+  }
+
+  throw new AIGenerationError("AI generation failed: Max retries exceeded");
+};

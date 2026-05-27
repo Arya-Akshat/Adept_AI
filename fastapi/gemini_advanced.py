@@ -33,14 +33,28 @@ def create_text_prompt(system_prompt, user_prompt):
     ]
 
 
-def generate_groq_text(system_prompt, user_prompt, temperature=0.2, max_tokens=2048):
-    response = groq_client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=create_text_prompt(system_prompt, user_prompt),
-        temperature=temperature,
-        max_tokens=max_tokens,
-    )
-    return (response.choices[0].message.content or "").strip()
+def generate_groq_text(system_prompt, user_prompt, temperature=0.2, max_tokens=1024):
+    try:
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=create_text_prompt(system_prompt, user_prompt),
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+        return (response.choices[0].message.content or "").strip()
+    except Exception as e:
+        print(f"[WARN] Groq primary model failed: {e}. Trying fallback model llama-3.1-8b-instant...")
+        try:
+            response = groq_client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=create_text_prompt(system_prompt, user_prompt),
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+            return (response.choices[0].message.content or "").strip()
+        except Exception as e_fallback:
+            print(f"[ERROR] Both Groq models failed: {e_fallback}")
+            raise e_fallback
 
 # --- 1. Text Extraction ---
 def extract_text_from_pdf(pdf_path):
@@ -214,7 +228,7 @@ def generate_study_plan(pdf_path=None, syllabus_image_path=None):
         print("--- Step 3: Chunking text ---")
         chunks = chunk_text(pdf_text)
         print(f"Created {len(chunks)} chunks.")
-        context = pdf_text[:100000]
+        context = pdf_text[:8000]
     
     # 4. Generate
     print("--- Step 5: Generating roadmap with Groq ---")

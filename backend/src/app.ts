@@ -14,6 +14,7 @@ import authRoutes from "./modules/auth/auth.routes";
 import pdfRoutes from "./modules/roadmap/roadmap.routes";
 import userRoutes from "./routes/user.route";
 import assessmentRoutes from "./modules/assessment/assessment.routes";
+import toolkitRoutes from "./modules/toolkit/toolkit.routes";
 
 // Import existing middleware
 import authenticate from "./middleware/auth.middleware";
@@ -70,6 +71,7 @@ app.use("/auth", authRoutes);
 app.use("/api", authenticate, apiRoutes);
 app.use("/api/pdfs", authenticate, pdfRoutes);
 app.use("/api/assessments", assessmentRoutes);
+app.use("/api/toolkit", toolkitRoutes);
 
 // Protected routes
 app.use("/user", authenticate, userRoutes);

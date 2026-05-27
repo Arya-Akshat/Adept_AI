@@ -30,6 +30,10 @@ import MyGroups from "./pages/MyGroups";
 import Toolkit from "./pages/Toolkit";
 import Settings from "./pages/Settings";
 
+// New Toolkit Pages
+import LessonPlanPage from "./pages/LessonPlanPage";
+import RubricPage from "./pages/RubricPage";
+
 const queryClient = new QueryClient();
 
 const App: React.FC = () => (
@@ -63,6 +67,8 @@ const App: React.FC = () => (
                 {/* Sidebar Navigation Pages */}
                 <Route path="/groups" element={<ProtectedRoute><MyGroups /></ProtectedRoute>} />
                 <Route path="/toolkit" element={<ProtectedRoute><Toolkit /></ProtectedRoute>} />
+                <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
+                <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                 {/* Catch-all fallback */}

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = "http://localhost:4004";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4004";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -210,4 +210,72 @@ export const pdfApi = {
   deletePDF: (pdfId: string) => api.delete(`/api/pdfs/${pdfId}`),
   explainTopic: (pdfId: string, unitIndex: number, topicIndex: number, data: { topicTitle: string; topicSummary: string }) =>
     api.post(`/api/pdfs/${pdfId}/topic/${unitIndex}/${topicIndex}/explain`, data),
+};
+
+// Toolkit endpoints
+export const toolkitApi = {
+  generateLessonPlan: (data: {
+    topic: string;
+    subject: string;
+    gradeLevel: string;
+    duration: number;
+    objectives?: string;
+    teachingStyle: "lecture" | "activity-based" | "discussion" | "mixed";
+  }) => api.post<{
+    success: boolean;
+    data: {
+      metadata: {
+        topic: string;
+        subject: string;
+        gradeLevel: string;
+        duration: number;
+        generatedAt: string;
+      };
+      objectives: string[];
+      sections: {
+        title: string;
+        duration: number;
+        description: string;
+        teacherActions: string[];
+        studentActions: string[];
+        materials: string[];
+      }[];
+      assessment: string;
+      homework: string;
+      teacherNotes: string;
+    };
+  }>("/api/toolkit/lesson-plan", data),
+
+  generateRubric: (data: {
+    assignmentTitle: string;
+    assignmentType: "essay" | "project" | "presentation" | "lab-report" | "creative" | "other";
+    gradeLevel: string;
+    totalMarks: number;
+    criteria?: string;
+    performanceLevels: number;
+  }) => api.post<{
+    success: boolean;
+    data: {
+      _id: string;
+      metadata: {
+        assignmentTitle: string;
+        assignmentType: string;
+        gradeLevel: string;
+        totalMarks: number;
+        generatedAt: string;
+      };
+      criteria: {
+        name: string;
+        weight: number;
+        marks: number;
+        levels: {
+          label: string;
+          score: number;
+          descriptor: string;
+        }[];
+      }[];
+    };
+  }>("/api/toolkit/rubric", data),
+
+  getRubricPdfUrl: (id: string) => `${API_BASE_URL}/api/toolkit/rubric/${id}/pdf`,
 };

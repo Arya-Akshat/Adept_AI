@@ -51,9 +51,9 @@ const DEFAULT_ROWS: QuestionTypeRow[] = [
 ];
 
 export const useAssessmentStore = create<AssessmentFormState>((set, get) => ({
-  title: "VedaAI Assessment",
-  subject: "Science",
-  duration: 45, // default duration in minutes
+  title: "",
+  subject: "",
+  duration: 0, // default duration in minutes
   dueDate: "",
   instructions: "",
   sourceType: "none",
@@ -115,9 +115,9 @@ export const useAssessmentStore = create<AssessmentFormState>((set, get) => ({
 
   resetForm: () => {
     set({
-      title: "VedaAI Assessment",
-      subject: "Science",
-      duration: 45,
+      title: "",
+      subject: "",
+      duration: 0,
       dueDate: "",
       instructions: "",
       sourceType: "none",
