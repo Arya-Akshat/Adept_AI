@@ -12,6 +12,7 @@ import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../utils/logger";
 import { API } from "../../services/gemini.service";
+import FormData from "form-data";
 
 const METADATA_PATH = path.join(path.dirname(RAW_DATA_PATH), "metadata", "pdfs.json");
 
@@ -111,10 +112,17 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     const filePath = path.join(RAW_DATA_PATH, pdf.filename);
     appAssert(fs.existsSync(filePath), NOT_FOUND, "PDF file not found on disk");
 
-    // Call Flask to generate roadmap with specific filename
     let response;
     try {
-        response = await API.get(`/getRoadmap?filename=${pdf.filename}&userId=${req.userId.toString()}`);
+        const formData = new FormData();
+        formData.append("userId", req.userId.toString());
+        formData.append("pdf_file", fs.createReadStream(filePath));
+
+        response = await API.post(`/getRoadmap`, formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
@@ -165,7 +173,15 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 
     let response;
     try {
-        response = await API.get(`/getRoadmap?filename=${pdf.filename}&userId=${req.userId.toString()}`);
+        const formData = new FormData();
+        formData.append("userId", req.userId.toString());
+        formData.append("pdf_file", fs.createReadStream(filePath));
+
+        response = await API.post(`/getRoadmap`, formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
+        });
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");

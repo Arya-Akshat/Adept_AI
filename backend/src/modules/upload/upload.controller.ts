@@ -12,6 +12,7 @@ import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import logger from "../../utils/logger";
 import { API } from "../../services/gemini.service";
 import { v4 as uuidv4 } from "uuid";
+import FormData from "form-data";
 
 const METADATA_DIR = path.join(path.dirname(RAW_DATA_PATH), "metadata");
 const METADATA_PATH = path.join(METADATA_DIR, "pdfs.json");
@@ -55,8 +56,12 @@ export const pdfHandler = catchErrors(async (req, res) => {
     }
     logger.info({ filename }, "Files saved successfully");
 
-    const response = await API.get("/getRoadmap", {
-        params: { filename, userId: req.userId.toString() },
+    const formData = new FormData();
+    formData.append("userId", req.userId.toString());
+    formData.append("pdf_file", fs.createReadStream(path.join(RAW_DATA_PATH, filename)));
+
+    const response = await API.post("/getRoadmap", formData, {
+        headers: { ...formData.getHeaders() },
     })
     appAssert(response, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
 
@@ -123,8 +128,20 @@ export const linkHandler = catchErrors(async (req, res) => {
 
     logger.info("Files saved successfully");
 
-    const parseResponse = await API.get("/getRoadmap", {
-        params: { userId: req.userId.toString() }
+    const parseFormData = new FormData();
+    parseFormData.append("userId", req.userId.toString());
+    
+    // Attach syllabus image if one exists for this user
+    for (const ext of ['.png', '.jpg', '.jpeg']) {
+        const syllabusPath = path.join(RAW_DATA_PATH, `syllabus_${req.userId}${ext}`);
+        if (fs.existsSync(syllabusPath)) {
+            parseFormData.append("syllabus_file", fs.createReadStream(syllabusPath));
+            break;
+        }
+    }
+
+    const parseResponse = await API.post("/getRoadmap", parseFormData, {
+        headers: { ...parseFormData.getHeaders() }
     })
     appAssert(parseResponse, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
 

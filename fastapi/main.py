@@ -226,52 +226,62 @@ def get_notes(userId: Optional[str] = None):
     except Exception as err:
         raise HTTPException(status_code=404, detail="Error in installing notes")
 
-@app.get("/getRoadmap")
-def get_roadmap(filename: Optional[str] = None, userId: Optional[str] = None):
+from fastapi import File, UploadFile, Form
+import tempfile
+import shutil
+
+@app.post("/getRoadmap")
+def get_roadmap(
+    userId: Optional[str] = Form(None),
+    pdf_file: Optional[UploadFile] = File(None),
+    syllabus_file: Optional[UploadFile] = File(None)
+):
     try:
-        pdf_file = None
-        if filename:
-            pdf_file = os.path.join(raw_data_path, filename)
-            if not os.path.exists(pdf_file):
-                raise HTTPException(status_code=404, detail=f"PDF/Image file '{filename}' not found")
-        else:
-            # Fallback: Find the first PDF file for the user
-            suffix = f"{userId}_" if userId else ""
-            for file in os.listdir(raw_data_path):
-                if file.startswith(suffix) and file.endswith(".pdf"):
-                    pdf_file = os.path.join(raw_data_path, file)
-                    break
+        temp_pdf_path = None
+        temp_syllabus_path = None
         
-        # Check if the primary file is an image (syllabus) or a PDF (notes)
-        is_primary_image = pdf_file and any(pdf_file.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg'])
-        
-        syllabus_file = None
-        if is_primary_image:
-            # The uploaded file itself is the syllabus image, so no separate syllabus is needed
-            syllabus_file = pdf_file
-            pdf_file = None
-        else:
-            # Look for a separate session syllabus image
-            candidates = []
-            if userId:
-                candidates.extend([f"syllabus_{userId}.png", f"syllabus_{userId}.jpg", f"syllabus_{userId}.jpeg"])
-            candidates.extend(["syllabus.png", "syllabus.jpg", "syllabus.jpeg"])
-            
-            for candidate in candidates:
-                candidate_path = os.path.join(raw_data_path, candidate)
-                if os.path.exists(candidate_path):
-                    syllabus_file = candidate_path
+        # 1. Handle PDF / Notes
+        if pdf_file and pdf_file.filename:
+            suffix = os.path.splitext(pdf_file.filename)[1]
+            temp_pdf_fd, temp_pdf_path = tempfile.mkstemp(suffix=suffix)
+            with os.fdopen(temp_pdf_fd, 'wb') as f:
+                shutil.copyfileobj(pdf_file.file, f)
+        elif userId:
+            # Fallback: Find the first PDF file for the user on Python's local disk (synced from classroom)
+            suffix = f"{userId}_"
+            for f in os.listdir(raw_data_path):
+                if f.startswith(suffix) and f.endswith(".pdf"):
+                    temp_pdf_path = os.path.join(raw_data_path, f)
                     break
 
-        if not pdf_file and not syllabus_file:
+        # 2. Handle Syllabus
+        if syllabus_file and syllabus_file.filename:
+            suffix = os.path.splitext(syllabus_file.filename)[1]
+            temp_syllabus_fd, temp_syllabus_path = tempfile.mkstemp(suffix=suffix)
+            with os.fdopen(temp_syllabus_fd, 'wb') as f:
+                shutil.copyfileobj(syllabus_file.file, f)
+        
+        # Check if the primary file is an image (syllabus) or a PDF (notes)
+        is_primary_image = temp_pdf_path and any(temp_pdf_path.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg'])
+        if is_primary_image and not temp_syllabus_path:
+            temp_syllabus_path = temp_pdf_path
+            temp_pdf_path = None
+
+        if not temp_pdf_path and not temp_syllabus_path:
             raise HTTPException(status_code=400, detail="No study materials or syllabus image found to generate a roadmap.")
 
         # Use the new advanced pipeline
         from gemini_advanced import generate_study_plan
-        target_name = os.path.basename(pdf_file) if pdf_file else os.path.basename(syllabus_file)
+        target_name = os.path.basename(temp_pdf_path) if temp_pdf_path else os.path.basename(temp_syllabus_path)
         print(f"Starting Advanced LangChain Pipeline for: {target_name}")
-        result = generate_study_plan(pdf_file, syllabus_file)
+        result = generate_study_plan(temp_pdf_path, temp_syllabus_path)
         
+        # Cleanup temp files
+        if pdf_file and temp_pdf_path and os.path.exists(temp_pdf_path):
+            os.remove(temp_pdf_path)
+        if syllabus_file and temp_syllabus_path and os.path.exists(temp_syllabus_path):
+            os.remove(temp_syllabus_path)
+            
         return {"message": "Roadmap generated successfully", "body": result}
     except HTTPException as he:
         raise he
