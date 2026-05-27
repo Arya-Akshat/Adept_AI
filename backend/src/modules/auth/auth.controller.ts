@@ -76,7 +76,7 @@ export const logoutHandler = catchErrors(async (req,res) => {
 
 
 export const refreshHandler = catchErrors(async (req,res) => {
-    const refreshToken = (req.cookies.refreshToken as string|undefined) || (req.headers["x-refresh-token"] as string | undefined) || req.body.refreshToken as string | undefined;
+    const refreshToken = (req.cookies.refreshToken as string|undefined) || (req.headers["x-refresh-token"] as string | undefined) || req.body?.refreshToken as string | undefined;
     appAssert(refreshToken, UNAUTHORIZED, "Missing refresh token");
 
     const {accessToken, newRefreshToken} = await refreshUserAccessToken(refreshToken);
