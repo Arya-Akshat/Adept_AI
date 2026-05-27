@@ -9,6 +9,12 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: {
+    fullName?: string;
+    avatarUrl?: string;
+    institutionName?: string;
+    branch?: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -85,8 +91,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (data: {
+    fullName?: string;
+    avatarUrl?: string;
+    institutionName?: string;
+    branch?: string;
+  }) => {
+    try {
+      const response = await userApi.updateProfile(data);
+      // userApi.updateProfile returns AxiosResponse<User>
+      setUser(response.data);
+      toast({
+        title: 'Success',
+        description: 'Profile updated successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to update profile',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

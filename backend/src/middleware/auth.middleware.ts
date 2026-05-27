@@ -13,8 +13,8 @@ const authenticate: RequestHandler = (req, res, next) => {
     const { error, payload } = verifyToken(accessToken);
     appAssert(payload, UNAUTHORIZED, error === "jwt expired" ? "Token expired" : "Invalid token", AppErrorCode.InvalidAccessToken);
     
-    req.userId = payload.userId;
-    req.sessionId = payload.sessionId;
+    req.userId = payload.userId as import("mongoose").Types.ObjectId;
+    req.sessionId = payload.sessionId as import("mongoose").Types.ObjectId;
     
     next();
 };

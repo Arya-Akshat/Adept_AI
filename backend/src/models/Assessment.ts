@@ -7,6 +7,8 @@ export interface QuestionDoc {
   marks: number;
   bloomLevel: string;
   type: string;
+  options?: string[];
+  answer?: string;
 }
 
 export interface SectionDoc {
@@ -73,6 +75,8 @@ const QuestionSchema = new Schema<QuestionDoc>(
     marks: { type: Number, required: true },
     bloomLevel: { type: String, required: true },
     type: { type: String, required: true },
+    options: { type: [String] },
+    answer: { type: String },
   },
   { _id: false }
 );

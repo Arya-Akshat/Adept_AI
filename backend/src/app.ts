@@ -1,3 +1,4 @@
+/// <reference path="./types.d.ts" />
 import "./polyfill";
 import express from "express";
 import cors from "cors";
@@ -66,8 +67,8 @@ app.get("/", (_req, res) => {
 
 // Existing routes (preserved at original paths)
 app.use("/auth", authRoutes);
-app.use("/api", apiRoutes);
-app.use("/api/pdfs", pdfRoutes);
+app.use("/api", authenticate, apiRoutes);
+app.use("/api/pdfs", authenticate, pdfRoutes);
 app.use("/api/assessments", assessmentRoutes);
 
 // Protected routes

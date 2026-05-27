@@ -5,16 +5,24 @@ import { compareValue, hashValue } from "../utils/bcrypt";
 export interface UserDocument extends mongoose.Document {
     email: string;
     password: string;
+    fullName?: string;
+    avatarUrl?: string;
+    institutionName?: string;
+    branch?: string;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(val:string): Promise<boolean>;
-    omitPassword(): Pick<UserDocument, "_id" | "email" | "createdAt" | "updatedAt" >;
+    omitPassword(): Omit<UserDocument, "password">;
 }
 
 const UserSchema = new mongoose.Schema<UserDocument>(
     {
     email: { type: String, unique: true, required: true},
     password: { type: String, unique: true, required: true},
+    fullName: { type: String },
+    avatarUrl: { type: String },
+    institutionName: { type: String },
+    branch: { type: String },
     },
     {
         timestamps: true,

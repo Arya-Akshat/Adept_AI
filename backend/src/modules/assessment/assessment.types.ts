@@ -61,6 +61,8 @@ export interface GeneratedQuestion {
   marks: number;
   bloomLevel: string;
   type: string;
+  options?: string[];
+  answer?: string;
 }
 
 export interface GeneratedSection {

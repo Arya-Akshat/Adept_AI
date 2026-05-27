@@ -37,7 +37,7 @@ export const generateAssessment = async (
           {
             role: "system",
             content:
-              "You are an expert assessment creator. You must generate high-quality assessment papers strictly in the requested JSON format. Do not write any markdown code fences, do not write any introductory or concluding text, write only the raw JSON string.",
+              "You are an expert assessment creator. You must generate high-quality assessment papers strictly in the requested JSON format. Do not write any markdown code fences, do not write any introductory or concluding text, write only the raw JSON string. If the user input is invalid, empty, or unreadable, you must still output a valid JSON object matching the requested schema using your general knowledge, and you must NEVER output conversational English text.",
           },
           {
             role: "user",
@@ -45,6 +45,7 @@ export const generateAssessment = async (
           },
         ],
         response_format: { type: "json_object" },
+        max_tokens: 3500,
       });
 
       const timeoutPromise = new Promise<never>((_, reject) =>

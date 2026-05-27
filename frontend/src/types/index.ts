@@ -1,6 +1,10 @@
 export interface User {
   _id: string;
   email: string;
+  fullName?: string;
+  avatarUrl?: string;
+  institutionName?: string;
+  branch?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,6 +17,7 @@ export interface PDF {
   fileSize: number;
   hasRoadmap: boolean;
   lastRoadmapGeneration?: string;
+  isSyllabus?: boolean;
 }
 
 export interface RoadmapItem {

@@ -42,7 +42,7 @@ export const TopicHeader = ({ topic, unitIndex, onBack }: TopicHeaderProps) => {
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/roadmap">Roadmap</BreadcrumbLink>
+              <BreadcrumbLink href="/library">Library</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>

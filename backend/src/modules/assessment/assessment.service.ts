@@ -31,14 +31,15 @@ const readMetadata = () => {
 
 const resolveSourceContent = async (
   sourceType: "text" | "pdf" | "none",
-  sourceContent: string
+  sourceContent: string,
+  teacherId: string
 ) => {
   let finalSourceContent = sourceContent || "";
 
   if (sourceType === "pdf" && sourceContent) {
     const metadata = readMetadata();
     const pdf = metadata.pdfs.find(
-      (item) => item.id === sourceContent || item.filename === sourceContent
+      (item) => (item.id === sourceContent || item.filename === sourceContent) && (item as any).userId === teacherId
     );
 
     let filePath = "";
@@ -88,7 +89,8 @@ export const createAssessment = async (
 
   const finalSourceContent = await resolveSourceContent(
     payload.sourceType,
-    payload.sourceContent
+    payload.sourceContent,
+    teacherId
   );
 
   const assessment = new AssessmentModel({

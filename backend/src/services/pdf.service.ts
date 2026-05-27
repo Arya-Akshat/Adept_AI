@@ -123,9 +123,76 @@ const buildAssessmentPdfDocument = (paper: GeneratedPaper) => {
       });
 
       doc.moveDown(0.8);
+
+      if (question.options && question.options.length > 0) {
+        const optionX = 70;
+        for (let oIdx = 0; oIdx < question.options.length; oIdx++) {
+          if (doc.y > 740) {
+            doc.addPage();
+          }
+          const label = String.fromCharCode(97 + oIdx) + ") ";
+          doc
+            .fontSize(9.5)
+            .font("Helvetica")
+            .fillColor("#4a5568")
+            .text(`${label}${question.options[oIdx]}`, optionX, doc.y, { width: 360 });
+          doc.moveDown(0.25);
+        }
+        doc.moveDown(0.5);
+      }
+
       absoluteQuestionNum++;
     }
     doc.moveDown(1.2);
+  }
+
+  // Answer Key Section
+  if (doc.y > 680) {
+    doc.addPage();
+  } else {
+    doc.moveDown(2);
+  }
+
+  const dividerY = doc.y;
+  doc
+    .moveTo(50, dividerY)
+    .lineTo(545, dividerY)
+    .strokeColor("#e2e8f0")
+    .lineWidth(1)
+    .stroke();
+  doc.moveDown(1);
+
+  doc
+    .fontSize(12)
+    .font("Helvetica-Bold")
+    .fillColor("#1a202c")
+    .text("ANSWER KEY", 50, doc.y);
+  doc.moveDown(0.8);
+
+  let ansNumber = 1;
+  for (const section of paper.sections) {
+    for (const question of section.questions) {
+      if (doc.y > 730) {
+        doc.addPage();
+      }
+      const qText = `Q${question.questionNumber || ansNumber}:`;
+      const answerText = question.answer || "No answer key generated.";
+      
+      const qY = doc.y;
+      doc
+        .fontSize(9.5)
+        .font("Helvetica-Bold")
+        .fillColor("#2d3748")
+        .text(qText, 50, qY, { width: 40 });
+        
+      doc
+        .font("Helvetica")
+        .fillColor("#4a5568")
+        .text(answerText, 90, qY, { width: 450 });
+        
+      doc.moveDown(0.8);
+      ansNumber++;
+    }
   }
 
   const range = doc.bufferedPageRange();

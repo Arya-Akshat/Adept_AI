@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
+import { VedaLogo } from '@/components/VedaLogo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,9 +14,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/syllabus');
-    }
+    if (user) navigate('/');
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,59 +22,84 @@ const Login = () => {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/syllabus');
+      navigate('/');
     } catch (error) {
-      // Error is handled in context
+      // Error handled in context
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background to-academic-light px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <BookOpen className="h-6 w-6" />
+    <div className="flex min-h-screen w-full bg-[#f5f5f5]">
+      {/* Left Panel */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-[#111111] p-12">
+        <VedaLogo variant={3} />
+        <div>
+          <h2 className="text-4xl font-extrabold text-white leading-tight mb-4">
+            AI-powered tools<br />for every teacher.
+          </h2>
+          <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
+            Generate assessments, create study roadmaps, and get AI-assisted grading — all in one place.
+          </p>
+        </div>
+        <p className="text-gray-600 text-xs">© 2025 VedaAI. All rights reserved.</p>
+      </div>
+
+      {/* Right Panel */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="mb-8 lg:hidden">
+            <VedaLogo variant={2} />
           </div>
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your ADEPT account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+
+          <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Welcome back</h1>
+          <p className="text-sm text-gray-500 mb-8">Sign in to your VedaAI account</p>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold text-gray-700">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="student@university.edu"
+                placeholder="you@school.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="rounded-xl border-gray-200 focus:border-black focus:ring-black text-sm"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-xs font-semibold text-gray-700">Password</Label>
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="rounded-xl border-gray-200 focus:border-black focus:ring-black text-sm"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-full bg-black hover:bg-gray-900 text-white text-sm font-semibold py-3 h-auto"
+            >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm">
+
+          <p className="mt-6 text-center text-sm text-gray-500">
             Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-primary hover:underline">
-              Register
+            <Link to="/register" className="font-semibold text-black hover:underline">
+              Create one
             </Link>
-          </div>
-        </CardContent>
-      </Card>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

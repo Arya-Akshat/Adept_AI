@@ -48,6 +48,7 @@ export const uploadPdfHandler = catchErrors(async (req, res) => {
         // Create metadata entry
         const pdfMetadata = {
             id: pdfId,
+            userId: req.userId.toString(),
             filename: filename,
             originalName: file.originalname,
             uploadDate: new Date().toISOString(),
@@ -70,7 +71,8 @@ export const uploadPdfHandler = catchErrors(async (req, res) => {
 // List all PDFs
 export const listPdfsHandler = catchErrors(async (req, res) => {
     const metadata = readMetadata();
-    return res.status(OK).json(metadata.pdfs);
+    const userPdfs = metadata.pdfs.filter((p: any) => p.userId === req.userId.toString());
+    return res.status(OK).json(userPdfs);
 });
 
 // Get specific PDF metadata
@@ -78,7 +80,7 @@ export const getPdfMetadataHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
     const metadata = readMetadata();
 
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId);
+    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     return res.status(OK).json(pdf);
@@ -89,7 +91,7 @@ export const viewPdfHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
     const metadata = readMetadata();
 
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId);
+    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     const filePath = path.resolve(RAW_DATA_PATH, pdf.filename);
@@ -103,7 +105,7 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
     const metadata = readMetadata();
 
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId);
+    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     const filePath = path.join(RAW_DATA_PATH, pdf.filename);
@@ -112,7 +114,7 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
     // Call Flask to generate roadmap with specific filename
     let response;
     try {
-        response = await API.get(`/getRoadmap?filename=${pdf.filename}`);
+        response = await API.get(`/getRoadmap?filename=${pdf.filename}&userId=${req.userId.toString()}`);
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
@@ -142,7 +144,7 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
     const metadata = readMetadata();
 
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId);
+    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     const roadmapPath = path.join(PROCESSED_DATA_PATH, `${pdfId}_roadmap.json`);
@@ -163,7 +165,7 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 
     let response;
     try {
-        response = await API.get(`/getRoadmap?filename=${pdf.filename}`);
+        response = await API.get(`/getRoadmap?filename=${pdf.filename}&userId=${req.userId.toString()}`);
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
         throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
@@ -193,7 +195,7 @@ export const deletePdfHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
     const metadata = readMetadata();
 
-    const pdfIndex = metadata.pdfs.findIndex((p: any) => p.id === pdfId);
+    const pdfIndex = metadata.pdfs.findIndex((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdfIndex !== -1, NOT_FOUND, "PDF not found");
 
     const pdf = metadata.pdfs[pdfIndex];
@@ -227,7 +229,7 @@ export const explainTopicHandler = catchErrors(async (req, res) => {
     appAssert(topicTitle, BAD_REQUEST, "Topic title is required");
 
     const metadata = readMetadata();
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId);
+    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     // Create a safe filename for the cache
@@ -273,3 +275,5 @@ export const explainTopicHandler = catchErrors(async (req, res) => {
         cached: false
     });
 });
+
+

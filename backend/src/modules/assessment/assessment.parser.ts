@@ -10,6 +10,8 @@ const QuestionSchema = z.object({
   marks: z.number(),
   bloomLevel: z.string(),
   type: z.string(),
+  options: z.array(z.string()).nullable().optional(),
+  answer: z.string().nullable().optional(),
 });
 
 const SectionSchema = z.object({
@@ -26,7 +28,7 @@ const PaperMetadataSchema = z.object({
     if (typeof val === "string" || val instanceof Date) return new Date(val);
     return val;
   }, z.date()),
-  instructions: z.string(),
+  instructions: z.string().nullable().optional(),
 });
 
 const GeneratedPaperSchema = z.object({

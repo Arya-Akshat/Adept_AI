@@ -47,6 +47,10 @@ INSTRUCTIONS FOR GENERATION:
 4. Make sure the sum of marks of all questions matches exactly ${totalMarks} marks.
 5. Provide a clear instruction for each section.
 6. The difficulty of each question must strictly match the distribution: exactly ${difficultyDistribution.easy} easy, ${difficultyDistribution.medium} medium, and ${difficultyDistribution.hard} hard questions.
+7. For any question that is multiple choice (e.g., type "Multiple Choice Questions", "MCQ", or "Multiple Choice"), you MUST include an "options" field containing an array of exactly 4 strings representing the options/choices. For non-MCQ questions, do not include options or set it to null.
+8. For EVERY single question, you MUST generate the correct solution or detailed answer and provide it in the "answer" field. For MCQs, state the correct option clearly and explain briefly. For numerical or short/long questions, provide the step-by-step correct solution.
+9. If the SOURCE MATERIAL is missing, empty, or unreadable, do NOT write any warning, message, or conversational text. Simply generate the questions based on your general knowledge of the SUBJECT: ${subject}.
+10. Under no circumstances should you include any preamble, introduction, explanation, or postamble. The output must start exactly with the opening brace '{' and end exactly with the closing brace '}' of a valid JSON object. Do not wrap the JSON in markdown code blocks.
 
 JSON Output Schema:
 {
@@ -68,7 +72,9 @@ JSON Output Schema:
           "difficulty": "easy", // must be "easy", "medium", or "hard"
           "marks": 5,
           "bloomLevel": "Remember",
-          "type": "MCQ" // must be one of: ${questionTypes.join(", ")}
+          "type": "MCQ", // must be one of: ${questionTypes.join(", ")}
+          "options": ["Option A text", "Option B text", "Option C text", "Option D text"], // MUST include array of exactly 4 choices ONLY if MCQ
+          "answer": "Correct Option: Option A. Explanation: ..." // Detailed answer/solution for the question. MUST be provided for EVERY question.
         }
       ]
     }

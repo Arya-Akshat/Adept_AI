@@ -1,116 +1,160 @@
-import { useState, useEffect } from 'react';
-import { Image, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
+import { useState } from 'react';
+import { Image, ArrowRight, CheckCircle2, RotateCcw, Map, FileImage, Library } from 'lucide-react';
+import { Layout } from '@/components/Layout';
 import { FileUpload } from '@/components/FileUpload';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { coreApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
 const SyllabusUpload = () => {
   const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [hasSyllabus, setHasSyllabus] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
+  const [fileName, setFileName] = useState('');
+  const [pdfId, setPdfId] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkToken();
-  }, []);
-
-  const checkToken = async () => {
-    try {
-      await coreApi.getToken();
-      setHasSyllabus(true);
-    } catch {
-      setHasSyllabus(false);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleImageUpload = async (file: File) => {
+    setFileName(file.name);
     setUploading(true);
     try {
-      await coreApi.parseImg(file);
-      toast({
-        title: 'Success',
-        description: 'Syllabus uploaded successfully',
-      });
-      setHasSyllabus(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to upload syllabus',
-        variant: 'destructive',
-      });
+      const response = await coreApi.parseImg(file);
+      if (response.data && response.data.pdfId) {
+        setPdfId(response.data.pdfId);
+      }
+      setUploaded(true);
+      toast({ title: 'Success', description: 'Syllabus uploaded and added to library.' });
+    } catch {
+      toast({ title: 'Upload failed', description: 'Please try again.', variant: 'destructive' });
+      setFileName('');
     } finally {
       setUploading(false);
     }
   };
 
-  if (loading) {
+  const handleReset = async () => {
+    try { await coreApi.deleteToken(); } catch {}
+    setUploaded(false);
+    setFileName('');
+    setPdfId('');
+  };
+
+  /* ── Loading / generating state ── */
+  if (uploading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
+      <Layout>
+        <div className="mx-auto max-w-lg mt-16 flex flex-col items-center gap-6 text-center">
+          <div className="relative">
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
+              <span className="text-3xl font-extrabold text-white font-serif">V</span>
+            </div>
+            <div className="absolute -inset-2 rounded-full border-2 border-orange-300 border-t-transparent animate-spin" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900">Extracting topics…</h2>
+          <p className="text-sm text-gray-500 max-w-xs">
+            VedaAI is reading <span className="font-semibold text-gray-700">"{fileName}"</span> and extracting the topic structure.
+          </p>
+        </div>
+      </Layout>
     );
   }
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 bg-gradient-to-b from-background to-academic-light py-12">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-2xl">
-            <div className="mb-8 text-center">
-              <h1 className="mb-4 text-3xl font-bold">Step 1: Upload Your Syllabus</h1>
-              <p className="text-muted-foreground">
-                {hasSyllabus
-                  ? 'Your syllabus is already uploaded. You can continue to notes now.'
-                  : 'Upload a syllabus image to unlock notes and roadmap generation.'}
+  /* ── Success state ── */
+  if (uploaded) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-xl mt-10 flex flex-col gap-4">
+          {/* Main success card */}
+          <div className="rounded-2xl border border-green-100 bg-white p-8 shadow-sm flex flex-col items-center gap-5 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 border border-green-100">
+              <CheckCircle2 className="h-8 w-8 text-green-500" />
+            </div>
+
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 mb-1">Syllabus uploaded successfully!</h2>
+              <p className="text-sm text-gray-500">
+                Your syllabus is now processed and available in <strong>My Library</strong>.
               </p>
             </div>
 
-            <Card>
-              <CardHeader>
-                <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Image className="h-6 w-6" />
-                </div>
-                <CardTitle>Upload Syllabus</CardTitle>
-                <CardDescription>
-                  Supported formats: JPG, JPEG, PNG
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FileUpload
-                  onFileSelect={handleImageUpload}
-                  accept=".jpg,.jpeg,.png"
-                  disabled={uploading}
-                />
+            {/* File name pill */}
+            <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-gray-50 px-4 py-2">
+              <FileImage className="h-4 w-4 text-orange-400 shrink-0" />
+              <span className="text-sm font-medium text-gray-700 truncate max-w-xs">{fileName}</span>
+            </div>
 
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button
-                    onClick={() => navigate('/input-notes')}
-                    disabled={!hasSyllabus}
-                    className="flex-1"
-                  >
-                    <ArrowRight className="mr-2 h-4 w-4" />
-                    Continue to Upload Notes
-                  </Button>
-                  <Button variant="outline" onClick={checkToken} disabled={uploading}>
-                    <CheckCircle2 className="mr-2 h-4 w-4" />
-                    Refresh Status
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Info box */}
+            <div className="w-full rounded-xl bg-amber-50 border border-amber-100 p-4 text-left text-sm text-amber-800">
+              <p className="font-semibold mb-1">📋 What would you like to do?</p>
+              <p className="text-xs leading-relaxed text-amber-700">
+                You can generate a structured study roadmap directly from your syllabus topics, or upload your lecture notes to create a detailed aligned roadmap.
+              </p>
+            </div>
           </div>
+
+          {/* CTAs */}
+          <button
+            onClick={() => navigate(`/library?generate=${pdfId}`)}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-black py-3.5 text-sm font-semibold text-white hover:bg-gray-900 transition-all shadow-md animate-pulse hover:animate-none"
+          >
+            <Map className="h-4 w-4" />
+            Proceed to Generate Roadmap
+            <ArrowRight className="h-4 w-4" />
+          </button>
+
+          <button
+            onClick={handleReset}
+            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-200 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
+          >
+            <RotateCcw className="h-4 w-4" />
+            Upload a Different Syllabus
+          </button>
+
+          <button
+            onClick={() => navigate('/library')}
+            className="mt-2 text-center text-xs font-semibold text-gray-500 hover:text-black transition-colors flex items-center justify-center gap-1.5"
+          >
+            <Library className="h-3.5 w-3.5" />
+            Go to My Library
+          </button>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </Layout>
+    );
+  }
+
+  /* ── Upload state ── */
+  return (
+    <Layout>
+      <div className="mx-auto max-w-xl mt-6">
+        <div className="mb-8 text-center">
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Upload Your Syllabus</h1>
+          <p className="text-sm text-gray-500">
+            Upload a photo or scan of your syllabus. VedaAI will extract all topics automatically.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm flex flex-col gap-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50">
+              <Image className="h-5 w-5 text-orange-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Syllabus Image</p>
+              <p className="text-xs text-gray-400">Supported: JPG, JPEG, PNG</p>
+            </div>
+          </div>
+
+          <FileUpload
+            onFileSelect={handleImageUpload}
+            accept=".jpg,.jpeg,.png"
+            disabled={uploading}
+          />
+
+          <p className="text-center text-xs text-gray-400">
+            After upload, topics will be extracted and you'll be guided to generate a roadmap.
+          </p>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

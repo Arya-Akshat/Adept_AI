@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FileText, Link2, ArrowLeft } from 'lucide-react';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
+import { Layout } from '@/components/Layout';
 import { FileUpload } from '@/components/FileUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,7 +37,7 @@ const InputNotes = () => {
         title: 'Success',
         description: 'PDF uploaded successfully',
       });
-      navigate('/roadmap');
+      navigate('/library');
     } catch (error) {
       toast({
         title: 'Error',
@@ -58,7 +57,7 @@ const InputNotes = () => {
         title: 'Success',
         description: 'Google Classroom connected successfully',
       });
-      navigate('/roadmap');
+      navigate('/library');
     } catch (error) {
       toast({
         title: 'Error',
@@ -72,89 +71,85 @@ const InputNotes = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
+      <Layout>
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-black border-t-transparent"></div>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 bg-gradient-to-b from-background to-academic-light py-12">
-        <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-4xl">
-            <div className="mb-8 text-center">
-              <h1 className="mb-4 text-3xl font-bold">Upload Your Study Materials</h1>
-              <p className="text-muted-foreground">
-                Upload your course materials to generate a study roadmap
-              </p>
-            </div>
-
-            {!hasSession && (
-              <Card className="mb-6 border-primary/30 bg-primary/5">
-                <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="font-semibold">Need to upload your syllabus first?</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Go back to the syllabus step before uploading notes.
-                    </p>
-                  </div>
-                  <Button onClick={() => navigate('/syllabus')} variant="outline">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Go to Syllabus Upload
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <FileText className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Upload PDF</CardTitle>
-                  <CardDescription>
-                    Upload your course materials or lecture notes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <FileUpload
-                    onFileSelect={handlePDFUpload}
-                    accept=".pdf"
-                    disabled={uploading || !hasSession}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                    <Link2 className="h-6 w-6" />
-                  </div>
-                  <CardTitle>Google Classroom</CardTitle>
-                  <CardDescription>
-                    Connect your Google Classroom account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button
-                    onClick={handleGoogleClassroom}
-                    disabled={uploading || !hasSession}
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Connect Google Classroom
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+    <Layout>
+      <div className="mx-auto max-w-4xl mt-6">
+        <div className="mb-8 text-center">
+          <h1 className="mb-4 text-3xl font-bold">Upload Your Study Materials</h1>
+          <p className="text-muted-foreground">
+            Upload your course materials to generate a study roadmap
+          </p>
         </div>
-      </main>
-      <Footer />
-    </div>
+
+        {!hasSession && (
+          <Card className="mb-6 border-orange-500/30 bg-orange-50/5">
+            <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="font-semibold text-gray-800">Want to align with a syllabus? (Optional)</h3>
+                <p className="text-sm text-muted-foreground">
+                  You can upload a syllabus image first so VedaAI aligns your roadmap with it.
+                </p>
+              </div>
+              <Button onClick={() => navigate('/syllabus')} variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Upload Syllabus First
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-[#EA580C]/10 text-[#EA580C]">
+                <FileText className="h-6 w-6" />
+              </div>
+              <CardTitle>Upload PDF</CardTitle>
+              <CardDescription>
+                Upload your course materials or lecture notes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FileUpload
+                onFileSelect={handlePDFUpload}
+                accept=".pdf"
+                disabled={uploading}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-50 text-[#EA580C]">
+                <Link2 className="h-6 w-6" />
+              </div>
+              <CardTitle>Google Classroom</CardTitle>
+              <CardDescription>
+                Connect your Google Classroom account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={handleGoogleClassroom}
+                disabled={uploading}
+                className="w-full border-gray-200 text-gray-700 hover:bg-gray-50"
+                variant="outline"
+              >
+                Connect Google Classroom
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

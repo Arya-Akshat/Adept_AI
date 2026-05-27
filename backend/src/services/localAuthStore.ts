@@ -6,6 +6,10 @@ export type LocalUser = {
     _id: string;
     email: string;
     password: string;
+    fullName?: string;
+    avatarUrl?: string;
+    institutionName?: string;
+    branch?: string;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -24,6 +28,10 @@ const sessions = new Map<string, LocalSession>();
 const normalizeUser = (user: LocalUser) => ({
     _id: user._id,
     email: user.email,
+    fullName: user.fullName,
+    avatarUrl: user.avatarUrl,
+    institutionName: user.institutionName,
+    branch: user.branch,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
 });
@@ -65,6 +73,14 @@ export const localAuthStore = {
 
         const isValid = await compareValue(password, user.password);
         return { user, isValid };
+    },
+
+    async updateUser(userId: string, updates: Partial<Omit<LocalUser, "_id" | "email" | "password">>) {
+        const user = users.get(userId);
+        if (!user) return null;
+        const updatedUser = { ...user, ...updates, updatedAt: new Date() };
+        users.set(userId, updatedUser);
+        return updatedUser;
     },
 
     async createSession(userId: string, userAgent?: string) {

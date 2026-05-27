@@ -3,11 +3,11 @@ PyMuPDF
 Pillow
 easyocr
 python-dotenv
-Flask
 docx2pdf
 fpdf
 scikit-learn
 numpy
-flask-cors
 google-generativeai
 groq
+fastapi
+uvicorn

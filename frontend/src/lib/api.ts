@@ -1,28 +1,174 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:4004';
+export const API_BASE_URL = "http://localhost:4004";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
+export interface User {
+  _id: string;
+  email: string;
+  verified: boolean;
+  fullName?: string;
+  avatarUrl?: string;
+  institutionName?: string;
+  branch?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DifficultyDistribution {
+  easy: number;
+  medium: number;
+  hard: number;
+}
+
+export interface AssessmentConfig {
+  questionTypes: string[];
+  totalQuestions: number;
+  totalMarks: number;
+  difficultyDistribution: DifficultyDistribution;
+  instructions: string;
+  subject: string;
+  duration: number;
+}
+
+export interface GeneratedQuestion {
+  questionNumber: number;
+  text: string;
+  difficulty: "easy" | "medium" | "hard";
+  marks: number;
+  bloomLevel: string;
+  type: string;
+  options?: string[];
+  answer?: string;
+}
+
+export interface GeneratedSection {
+  title: string;
+  instruction: string;
+  questions: GeneratedQuestion[];
+}
+
+export interface PaperMetadata {
+  subject: string;
+  totalMarks: number;
+  duration: number;
+  generatedAt: string;
+  instructions: string;
+}
+
+export interface GeneratedPaper {
+  metadata: PaperMetadata;
+  sections: GeneratedSection[];
+}
+
+export interface Assessment {
+  _id: string;
+  title: string;
+  teacherId: string;
+  sourceType: "text" | "pdf" | "none";
+  sourceContent?: string;
+  dueDate?: string;
+  instructions?: string;
+  subject: string;
+  duration: number;
+  questionTypes: string[];
+  difficultyDistribution: DifficultyDistribution;
+  totalQuestions: number;
+  totalMarks: number;
+  status: "draft" | "queued" | "processing" | "completed" | "failed";
+  generatedPaper?: GeneratedPaper;
+  jobId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssessmentJob {
+  _id: string;
+  jobId: string;
+  assessmentId: string;
+  teacherId: string;
+  status: "queued" | "processing" | "generating_sections" | "formatting" | "completed" | "failed";
+  progress: number;
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  confirmPassword?: string;
+}
+
+export interface LoginData {
+  email: string;
+  password: string;
+}
+
 // Auth endpoints
 export const authApi = {
-  register: (data: { email: string; password: string; confirmPassword: string }) =>
-    api.post('/auth/register', data),
-  login: (data: { email: string; password: string }) =>
-    api.post('/auth/login', data),
-  logout: () => api.get('/auth/logout'),
-  refresh: () => api.get('/auth/refresh'),
+  register: (data: RegisterData) => api.post("/auth/register", data),
+  login: (data: LoginData) => api.post("/auth/login", data),
+  logout: () => api.get("/auth/logout"),
+  refresh: () => api.get("/auth/refresh"),
 };
 
 // User endpoints
 export const userApi = {
-  getProfile: () => api.get('/user'),
+  getProfile: () => api.get<User>("/user"),
+  updateProfile: (data: {
+    fullName?: string;
+    avatarUrl?: string;
+    institutionName?: string;
+    branch?: string;
+  }) => api.patch<User>("/user", data),
+};
+
+// VedaAI Assessment endpoints
+export const assessmentApi = {
+  create: (data: {
+    title: string;
+    subject: string;
+    duration: number;
+    totalQuestions: number;
+    totalMarks: number;
+    questionTypes: string[];
+    difficultyDistribution: DifficultyDistribution;
+    dueDate?: string;
+    instructions?: string;
+    sourceType?: "text" | "pdf" | "none";
+    sourceContent?: string;
+  }) => api.post<{ success: boolean; data: { jobId: string; assessmentId: string } }>("/api/assessments/create", data),
+
+  list: (page = 1, limit = 10) =>
+    api.get<{
+      success: boolean;
+      data: {
+        assessments: Assessment[];
+        total: number;
+        page: number;
+        pages: number;
+      };
+    }>(`/api/assessments?page=${page}&limit=${limit}`),
+
+  get: (id: string) => api.get<{ success: boolean; data: Assessment }>(`/api/assessments/${id}`),
+
+  regenerate: (id: string) =>
+    api.post<{ success: boolean; data: { jobId: string; assessmentId: string } }>(`/api/assessments/${id}/regenerate`),
+
+  delete: (id: string) => api.delete<{ success: boolean }>(`/api/assessments/${id}`),
+
+  getJobStatus: (jobId: string) =>
+    api.get<{ success: boolean; data: AssessmentJob }>(`/api/assessments/job/${jobId}/status`),
+
+  getPdfUrl: (id: string) => `${API_BASE_URL}/api/assessments/${id}/pdf`,
 };
 
 // Core feature endpoints
@@ -65,5 +211,3 @@ export const pdfApi = {
   explainTopic: (pdfId: string, unitIndex: number, topicIndex: number, data: { topicTitle: string; topicSummary: string }) =>
     api.post(`/api/pdfs/${pdfId}/topic/${unitIndex}/${topicIndex}/explain`, data),
 };
-
-export { API_BASE_URL };

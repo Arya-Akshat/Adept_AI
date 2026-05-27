@@ -31,13 +31,13 @@ npm run build
 npm run dev
 ```
 
-### 3. AI Engine (Flask)
-Create a virtual environment, install requirements, and run the Flask server:
+### 3. AI Engine (FastAPI)
+Create a virtual environment, install requirements, and run the FastAPI server:
 ```bash
 python3 -m venv .venv_new
 source .venv_new/bin/activate
 pip install -r requirements.txt
-python3 flask/app.py
+uvicorn main:app --host 0.0.0.0 --port 5001 --app-dir fastapi
 ```
 
 ### 4. Frontend (React)
