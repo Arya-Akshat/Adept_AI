@@ -132,8 +132,9 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
             },
         });
     } catch (error: any) {
+        const errorDetail = error.response?.data?.detail || error.response?.data?.error || error.message;
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
-        throw new AppError(INTERNAL_SERVER_ERROR, error.response?.data?.error || error.message || "Roadmap generation failed in Flask", "FLASK_ERROR");
+        throw new AppError(INTERNAL_SERVER_ERROR, errorDetail || "Roadmap generation failed in Flask", "FLASK_ERROR");
     }
 
     appAssert(response, INTERNAL_SERVER_ERROR, "Roadmap generation failed");
@@ -182,8 +183,9 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
             },
         });
     } catch (error: any) {
+        const errorDetail = error.response?.data?.detail || error.response?.data?.error || error.message;
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
-        throw new AppError(INTERNAL_SERVER_ERROR, error.response?.data?.error || error.message || "Roadmap generation failed in Flask", "FLASK_ERROR");
+        throw new AppError(INTERNAL_SERVER_ERROR, errorDetail || "Roadmap generation failed in Flask", "FLASK_ERROR");
     }
 
     appAssert(response, INTERNAL_SERVER_ERROR, "Roadmap generation failed");

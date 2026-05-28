@@ -3,8 +3,8 @@ const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
 
-const API_URL = 'http://localhost:4004/api';
-const AUTH_URL = 'http://localhost:4004/auth';
+const API_URL = 'https://adept-ai.onrender.com/api';
+const AUTH_URL = 'https://adept-ai.onrender.com/auth';
 
 async function runTests() {
   console.log("Starting E2E test against production...");
