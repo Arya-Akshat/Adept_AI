@@ -14,63 +14,57 @@ import { API } from "../../services/gemini.service";
 import { v4 as uuidv4 } from "uuid";
 import FormData from "form-data";
 
-const METADATA_DIR = path.join(path.dirname(RAW_DATA_PATH), "metadata");
-const METADATA_PATH = path.join(METADATA_DIR, "pdfs.json");
-
-// Ensure data directories exist
-if (!fs.existsSync(RAW_DATA_PATH)) {
-    fs.mkdirSync(RAW_DATA_PATH, { recursive: true });
-}
-if (!fs.existsSync(PROCESSED_DATA_PATH)) {
-    fs.mkdirSync(PROCESSED_DATA_PATH, { recursive: true });
-}
-if (!fs.existsSync(METADATA_DIR)) {
-    fs.mkdirSync(METADATA_DIR, { recursive: true });
-}
-
-const readMetadata = () => {
-    if (!fs.existsSync(METADATA_PATH)) {
-        return { pdfs: [] };
-    }
-    const data = fs.readFileSync(METADATA_PATH, 'utf-8');
-    return JSON.parse(data);
-};
-
-const writeMetadata = (metadata: any) => {
-    fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata, null, 4));
-};
+import LibraryFile from "../../models/LibraryFile";
+import { uploadFileToSupabase, deleteFileFromSupabase } from "../../services/supabase.service";
+import axios from "axios";
 
 type fileSchema = Express.Multer.File[]
 
 export const pdfHandler = catchErrors(async (req, res) => {
-    const files = req.files as fileSchema
-    appAssert(files, BAD_REQUEST, "No files sent")
+    const files = req.files as Express.Multer.File[];
+    appAssert(files && files.length > 0, BAD_REQUEST, "No files sent");
     logger.debug({ fileCount: files.length }, "PDF upload received");
 
     const firstFile = files[0];
-    const filename = `${req.userId}_${firstFile.originalname}`;
+    const pdfId = uuidv4();
+    const filename = `${pdfId}_${firstFile.originalname}`;
 
-    for (const file of files) {
-        const filePath = path.join(RAW_DATA_PATH, filename);
-        fs.writeFileSync(filePath, file.buffer);
-    }
-    logger.info({ filename }, "Files saved successfully");
+    // Upload to Supabase
+    const publicUrl = await uploadFileToSupabase("adept-files", filename, firstFile.buffer, firstFile.mimetype);
+    logger.info({ filename, publicUrl }, "File uploaded to Supabase");
+
+    // Save to MongoDB
+    const libraryFile = await LibraryFile.create({
+        userId: req.userId,
+        filename: filename,
+        originalName: firstFile.originalname,
+        supabaseUrl: publicUrl,
+        fileSize: firstFile.size,
+        isSyllabus: false,
+        hasRoadmap: false
+    });
 
     const formData = new FormData();
     formData.append("userId", req.userId.toString());
-    formData.append("pdf_file", fs.createReadStream(path.join(RAW_DATA_PATH, filename)));
+    formData.append("pdf_file", firstFile.buffer, { filename: firstFile.originalname });
 
     const response = await API.post("/getRoadmap", formData, {
         headers: { ...formData.getHeaders() },
-    })
-    appAssert(response, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
+    });
+    appAssert(response, INTERNAL_SERVER_ERROR, "Parsing PDF failed");
 
     const roadmapData = (response.data as any).body;
-    const finalDataPath = path.join(PROCESSED_DATA_PATH, `finalData_${req.userId}.json`);
-    fs.writeFileSync(finalDataPath, JSON.stringify(roadmapData, null, 4));
+    
+    // Save roadmap JSON to MongoDB
+    libraryFile.hasRoadmap = true;
+    libraryFile.roadmapData = roadmapData;
+    await libraryFile.save();
 
-    return res.status(OK).json({ message: "File parsed successfully " })
-})
+    // Also update the active user roadmap
+    // The frontend currently reads finalData.json. We will update getRoadmapHandler to fetch the latest roadmap.
+    
+    return res.status(OK).json({ message: "File parsed successfully " });
+});
 
 export const imgHandler = catchErrors(async (req, res) => {
     const files = req.files as Express.Multer.File[];
@@ -78,40 +72,31 @@ export const imgHandler = catchErrors(async (req, res) => {
 
     const file = files[0];
     const ext = path.extname(file.originalname).toLowerCase();
-
     appAssert(ext === '.jpg' || ext === '.jpeg' || ext === '.png', BAD_REQUEST, "Only .jpg, .jpeg, or .png files are allowed");
 
-    // Save as standard user-isolated syllabus name for session/alignment compatibility
-    const sessionFilePath = path.join(RAW_DATA_PATH, `syllabus_${req.userId}${ext}`);
-    fs.writeFileSync(sessionFilePath, file.buffer);
-
-    // Save with unique ID in library list
     const pdfId = uuidv4();
-    const libraryFilename = `${pdfId}${ext}`;
-    const libraryFilePath = path.join(RAW_DATA_PATH, libraryFilename);
-    fs.writeFileSync(libraryFilePath, file.buffer);
+    const filename = `${pdfId}${ext}`;
 
-    // Save metadata so it shows up in "My Library"
-    const metadata = readMetadata();
-    const pdfMetadata = {
-        id: pdfId,
-        userId: req.userId.toString(),
-        filename: libraryFilename,
+    // Upload to Supabase
+    const publicUrl = await uploadFileToSupabase("adept-files", filename, file.buffer, file.mimetype);
+
+    // Save to MongoDB
+    await LibraryFile.create({
+        userId: req.userId,
+        filename: filename,
         originalName: file.originalname,
-        uploadDate: new Date().toISOString(),
+        supabaseUrl: publicUrl,
         fileSize: file.size,
-        hasRoadmap: false,
-        isSyllabus: true
-    };
-    metadata.pdfs.push(pdfMetadata);
-    writeMetadata(metadata);
+        isSyllabus: true,
+        hasRoadmap: false
+    });
 
     return res.status(OK).json({
-        message: `Image saved as syllabus_${req.userId}${ext} and added to library`,
+        message: `Image saved and added to library`,
         pdfId: pdfId,
         fileName: file.originalname
     });
-})
+});
 
 export const connectionHandler = catchErrors(async (req, res) => {
     const response = async () => API.get("/")
@@ -122,109 +107,91 @@ export const connectionHandler = catchErrors(async (req, res) => {
 export const linkHandler = catchErrors(async (req, res) => {
     const response = await API.get("/getNotes", {
         params: { userId: req.userId.toString() }
-    })
-    appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error")
+    });
+    appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error");
     logger.debug({ data: response.data }, "Flask notes response received");
-
-    logger.info("Files saved successfully");
 
     const parseFormData = new FormData();
     parseFormData.append("userId", req.userId.toString());
     
-    // Attach syllabus image if one exists for this user
-    for (const ext of ['.png', '.jpg', '.jpeg']) {
-        const syllabusPath = path.join(RAW_DATA_PATH, `syllabus_${req.userId}${ext}`);
-        if (fs.existsSync(syllabusPath)) {
-            parseFormData.append("syllabus_file", fs.createReadStream(syllabusPath));
-            break;
+    // Find the latest syllabus image for this user from MongoDB
+    const latestSyllabus = await LibraryFile.findOne({ userId: req.userId, isSyllabus: true }).sort({ createdAt: -1 });
+    
+    if (latestSyllabus) {
+        // Download buffer from Supabase to forward it
+        try {
+            const fileResponse = await axios.get(latestSyllabus.supabaseUrl, { responseType: 'arraybuffer' });
+            parseFormData.append("syllabus_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: latestSyllabus.filename });
+        } catch (err) {
+            logger.warn({ err }, "Failed to fetch syllabus from Supabase for linkHandler");
         }
     }
 
     const parseResponse = await API.post("/getRoadmap", parseFormData, {
         headers: { ...parseFormData.getHeaders() }
-    })
-    appAssert(parseResponse, INTERNAL_SERVER_ERROR, "Parsing PDF failed")
+    });
+    appAssert(parseResponse, INTERNAL_SERVER_ERROR, "Parsing PDF failed");
 
     const roadmapData = (parseResponse.data as any).body;
-    const finalDataPath = path.join(PROCESSED_DATA_PATH, `finalData_${req.userId}.json`);
-    fs.writeFileSync(finalDataPath, JSON.stringify(roadmapData, null, 4));
+    
+    if (latestSyllabus) {
+        latestSyllabus.hasRoadmap = true;
+        latestSyllabus.roadmapData = roadmapData;
+        await latestSyllabus.save();
+    } else {
+        // Create a dummy record if no syllabus existed just to hold the roadmap
+        await LibraryFile.create({
+            userId: req.userId,
+            filename: `roadmap_${Date.now()}.json`,
+            originalName: "Generated Roadmap",
+            supabaseUrl: "",
+            fileSize: 0,
+            isSyllabus: false,
+            hasRoadmap: true,
+            roadmapData: roadmapData
+        });
+    }
 
-    return res.status(OK).json({ message: "File parsed successfully " })
-})
+    return res.status(OK).json({ message: "File parsed successfully" });
+});
 
 export const delTokenHandler = catchErrors(async (req, res) => {
-    // Delete local user session syllabus images
-    for (const ext of ['.jpg', '.jpeg', '.png']) {
-        const filePath = path.join(RAW_DATA_PATH, `syllabus_${req.userId}${ext}`);
-        if (fs.existsSync(filePath)) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch (err) {
-                logger.error({ err, filePath }, "Failed to delete session syllabus file");
-            }
+    // Delete all files for this user from Supabase and MongoDB
+    const files = await LibraryFile.find({ userId: req.userId });
+    
+    for (const file of files) {
+        if (file.filename) {
+            await deleteFileFromSupabase("adept-files", file.filename);
         }
     }
-
-    // Delete library syllabus items and their image/roadmap files for this user
-    const metadata = readMetadata();
-    const remainingPdfs = [];
-    for (const pdf of metadata.pdfs) {
-        if (pdf.isSyllabus && pdf.userId === req.userId.toString()) {
-            const filePath = path.join(RAW_DATA_PATH, pdf.filename);
-            if (fs.existsSync(filePath)) {
-                try {
-                    fs.unlinkSync(filePath);
-                } catch (err) {
-                    logger.error({ err, filePath }, "Failed to delete library syllabus file");
-                }
-            }
-            const roadmapPath = path.join(PROCESSED_DATA_PATH, `${pdf.id}_roadmap.json`);
-            if (fs.existsSync(roadmapPath)) {
-                try {
-                    fs.unlinkSync(roadmapPath);
-                } catch (err) {
-                    logger.error({ err, roadmapPath }, "Failed to delete library syllabus roadmap cache");
-                }
-            }
-        } else {
-            remainingPdfs.push(pdf);
-        }
-    }
-    metadata.pdfs = remainingPdfs;
-    writeMetadata(metadata);
+    
+    await LibraryFile.deleteMany({ userId: req.userId });
 
     const response = await API.get("/deleteToken", {
         params: { userId: req.userId.toString() }
-    })
-    appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error")
+    });
+    appAssert(response, INTERNAL_SERVER_ERROR, "Flask Error");
 
-    logger.debug({ data: response.data }, "Token deletion response received");
-    return res.status(OK).json({ message: "Token Deleted", data: response.data })
-})
+    return res.status(OK).json({ message: "Token and user data deleted", data: response.data });
+});
 
 export const getTokenHandler = catchErrors(async (req, res) => {
-    const extensions = ['.jpg', '.jpeg', '.png'];
-    let syllabusExists = false;
-    for (const ext of extensions) {
-        if (fs.existsSync(path.join(RAW_DATA_PATH, `syllabus_${req.userId}${ext}`))) {
-            syllabusExists = true;
-            break;
-        }
-    }
-
-    if (syllabusExists) {
+    const syllabus = await LibraryFile.findOne({ userId: req.userId, isSyllabus: true });
+    
+    if (syllabus) {
         return res.status(OK).json({ message: "Syllabus exists." });
     } else {
         return res.status(NOT_FOUND).json({ message: "Syllabus does not exist." });
     }
-})
+});
 
 export const getRoadmapHandler = catchErrors(async (req, res) => {
-    const finalDataPath = path.join(PROCESSED_DATA_PATH, `finalData_${req.userId}.json`);
-    if (fs.existsSync(finalDataPath)) {
-        const data = fs.readFileSync(finalDataPath, 'utf-8');
-        return res.status(OK).json(JSON.parse(data));
+    // Return the most recently generated roadmap for this user
+    const latestFile = await LibraryFile.findOne({ userId: req.userId, hasRoadmap: true }).sort({ updatedAt: -1 });
+    
+    if (latestFile && latestFile.roadmapData) {
+        return res.status(OK).json(latestFile.roadmapData);
     } else {
         return res.status(NOT_FOUND).json({ message: "Roadmap not found" });
     }
-})
+});

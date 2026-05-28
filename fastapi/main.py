@@ -291,27 +291,30 @@ def get_roadmap(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/explainTopic")
-def explain_topic(req: ExplainTopicRequest):
+def explain_topic(
+    topicTitle: str = Form(...),
+    topicSummary: Optional[str] = Form(None),
+    pdf_file: UploadFile = File(...)
+):
+    temp_pdf_path = None
     try:
-        filename = req.filename
-        topic_title = req.topicTitle
-        topic_summary = req.topicSummary
-        
-        pdf_file = os.path.join(raw_data_path, filename)
-        if not os.path.exists(pdf_file):
-            raise HTTPException(status_code=404, detail=f"PDF file '{filename}' not found")
+        # Handle PDF
+        suffix = os.path.splitext(pdf_file.filename)[1]
+        temp_pdf_fd, temp_pdf_path = tempfile.mkstemp(suffix=suffix)
+        with os.fdopen(temp_pdf_fd, 'wb') as f:
+            shutil.copyfileobj(pdf_file.file, f)
             
         # 1. Generate Explanation using Gemini
         from gemini_advanced import generate_topic_explanation
-        print(f"Generating explanation for: {topic_title}")
-        explanation = generate_topic_explanation(pdf_file, topic_title, topic_summary)
+        print(f"Generating explanation for: {topicTitle}")
+        explanation = generate_topic_explanation(temp_pdf_path, topicTitle, topicSummary)
         
         if explanation is None:
             raise HTTPException(status_code=422, detail="Failed to generate explanation after retries. Please try again.")
 
         # 2. Fetch YouTube Videos
-        print(f"Fetching YouTube videos for: {topic_title}")
-        youtube_query = f"{topic_title} tutorial explained"
+        print(f"Fetching YouTube videos for: {topicTitle}")
+        youtube_query = f"{topicTitle} tutorial explained"
         videos = search_youtube_videos(youtube_query)
         
         return {
@@ -324,3 +327,6 @@ def explain_topic(req: ExplainTopicRequest):
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if temp_pdf_path and os.path.exists(temp_pdf_path):
+            os.remove(temp_pdf_path)

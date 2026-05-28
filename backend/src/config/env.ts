@@ -19,6 +19,8 @@ const envSchema = z.object({
   REDIS_URL: z.string().default("redis://localhost:6379"),
   WORKER_CONCURRENCY: z.string().default("3"),
   MAX_SOURCE_CONTENT_CHARS: z.string().default("3000"),
+  SUPABASE_URL: z.string().min(1, "SUPABASE_URL is required"),
+  SUPABASE_KEY: z.string().min(1, "SUPABASE_KEY is required"),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -50,3 +52,5 @@ export const GROQ_API_KEY = env.GROQ_API_KEY;
 export const REDIS_URL = env.REDIS_URL;
 export const WORKER_CONCURRENCY = parseInt(env.WORKER_CONCURRENCY, 10);
 export const MAX_SOURCE_CONTENT_CHARS = parseInt(env.MAX_SOURCE_CONTENT_CHARS, 10);
+export const SUPABASE_URL = env.SUPABASE_URL;
+export const SUPABASE_KEY = env.SUPABASE_KEY;

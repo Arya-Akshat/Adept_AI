@@ -14,54 +14,46 @@ import logger from "../../utils/logger";
 import { API } from "../../services/gemini.service";
 import FormData from "form-data";
 
-const METADATA_PATH = path.join(path.dirname(RAW_DATA_PATH), "metadata", "pdfs.json");
-
-// Helper functions for metadata management
-const readMetadata = () => {
-    if (!fs.existsSync(METADATA_PATH)) {
-        return { pdfs: [] };
-    }
-    const data = fs.readFileSync(METADATA_PATH, 'utf-8');
-    return JSON.parse(data);
-};
-
-const writeMetadata = (metadata: any) => {
-    fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata, null, 4));
-};
+import LibraryFile from "../../models/LibraryFile";
+import { uploadFileToSupabase, deleteFileFromSupabase } from "../../services/supabase.service";
+import axios from "axios";
 
 // Upload PDF (without auto-generating roadmap)
 export const uploadPdfHandler = catchErrors(async (req, res) => {
     const files = req.files as Express.Multer.File[];
     appAssert(files && files.length > 0, BAD_REQUEST, "No files sent");
 
-    const metadata = readMetadata();
     const uploadedPdfs = [];
 
     for (const file of files) {
         const pdfId = uuidv4();
         const fileExtension = path.extname(file.originalname);
         const filename = `${pdfId}${fileExtension}`;
-        const filePath = path.join(RAW_DATA_PATH, filename);
 
-        // Save file
-        fs.writeFileSync(filePath, file.buffer);
+        // Upload to Supabase
+        const publicUrl = await uploadFileToSupabase("adept-files", filename, file.buffer, file.mimetype);
 
-        // Create metadata entry
-        const pdfMetadata = {
-            id: pdfId,
-            userId: req.userId.toString(),
+        // Save to MongoDB
+        const libraryFile = await LibraryFile.create({
+            userId: req.userId,
             filename: filename,
             originalName: file.originalname,
-            uploadDate: new Date().toISOString(),
+            supabaseUrl: publicUrl,
             fileSize: file.size,
+            isSyllabus: false,
             hasRoadmap: false
-        };
+        });
 
-        metadata.pdfs.push(pdfMetadata);
-        uploadedPdfs.push(pdfMetadata);
+        uploadedPdfs.push({
+            id: libraryFile._id,
+            userId: libraryFile.userId,
+            filename: libraryFile.filename,
+            originalName: libraryFile.originalName,
+            uploadDate: libraryFile.uploadDate,
+            fileSize: libraryFile.fileSize,
+            hasRoadmap: libraryFile.hasRoadmap
+        });
     }
-
-    writeMetadata(metadata);
 
     return res.status(OK).json({
         message: "PDF(s) uploaded successfully",
@@ -71,52 +63,67 @@ export const uploadPdfHandler = catchErrors(async (req, res) => {
 
 // List all PDFs
 export const listPdfsHandler = catchErrors(async (req, res) => {
-    const metadata = readMetadata();
-    const userPdfs = metadata.pdfs.filter((p: any) => p.userId === req.userId.toString());
-    return res.status(OK).json(userPdfs);
+    const userPdfs = await LibraryFile.find({ userId: req.userId });
+    
+    // Map to old schema format for frontend compatibility
+    const formattedPdfs = userPdfs.map(pdf => ({
+        id: pdf._id,
+        userId: pdf.userId,
+        filename: pdf.filename,
+        originalName: pdf.originalName,
+        uploadDate: pdf.uploadDate,
+        fileSize: pdf.fileSize,
+        hasRoadmap: pdf.hasRoadmap,
+        isSyllabus: pdf.isSyllabus,
+        supabaseUrl: pdf.supabaseUrl
+    }));
+    
+    return res.status(OK).json(formattedPdfs);
 });
 
 // Get specific PDF metadata
 export const getPdfMetadataHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const metadata = readMetadata();
-
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
-    return res.status(OK).json(pdf);
+    return res.status(OK).json({
+        id: pdf._id,
+        userId: pdf.userId,
+        filename: pdf.filename,
+        originalName: pdf.originalName,
+        uploadDate: pdf.uploadDate,
+        fileSize: pdf.fileSize,
+        hasRoadmap: pdf.hasRoadmap,
+        isSyllabus: pdf.isSyllabus,
+        supabaseUrl: pdf.supabaseUrl
+    });
 });
 
 // View/Download PDF
 export const viewPdfHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const metadata = readMetadata();
-
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
-    const filePath = path.resolve(RAW_DATA_PATH, pdf.filename);
-    appAssert(fs.existsSync(filePath), NOT_FOUND, "PDF file not found on disk");
-
-    return res.sendFile(filePath);
+    // Redirect to the public Supabase URL so the browser can view it
+    return res.redirect(pdf.supabaseUrl);
 });
 
 // Generate roadmap for specific PDF (saves to cache)
 export const generateRoadmapHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const metadata = readMetadata();
-
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
     appAssert(pdf, NOT_FOUND, "PDF not found");
-
-    const filePath = path.join(RAW_DATA_PATH, pdf.filename);
-    appAssert(fs.existsSync(filePath), NOT_FOUND, "PDF file not found on disk");
 
     let response;
     try {
+        // Download the file from Supabase into memory
+        const fileResponse = await axios.get(pdf.supabaseUrl, { responseType: 'arraybuffer' });
+        
         const formData = new FormData();
         formData.append("userId", req.userId.toString());
-        formData.append("pdf_file", fs.createReadStream(filePath));
+        formData.append("pdf_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: pdf.filename });
 
         response = await API.post(`/getRoadmap`, formData, {
             headers: {
@@ -132,14 +139,10 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
 
     const roadmapData = (response.data as any).body;
 
-    // Save roadmap to cache
-    const roadmapPath = path.join(PROCESSED_DATA_PATH, `${pdfId}_roadmap.json`);
-    fs.writeFileSync(roadmapPath, JSON.stringify(roadmapData, null, 4));
-
-    // Update metadata
+    // Save roadmap directly to MongoDB
     pdf.hasRoadmap = true;
-    pdf.lastRoadmapGeneration = new Date().toISOString();
-    writeMetadata(metadata);
+    pdf.roadmapData = roadmapData;
+    await pdf.save();
 
     return res.status(OK).json({
         message: "Roadmap generated successfully",
@@ -150,32 +153,27 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
 // Get roadmap for specific PDF (uses cache if available)
 export const getRoadmapHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const metadata = readMetadata();
-
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
-    const roadmapPath = path.join(PROCESSED_DATA_PATH, `${pdfId}_roadmap.json`);
-
-    // Check if cached roadmap exists
-    if (fs.existsSync(roadmapPath)) {
-        const roadmapData = JSON.parse(fs.readFileSync(roadmapPath, 'utf-8'));
+    // Check if roadmap exists in MongoDB
+    if (pdf.hasRoadmap && pdf.roadmapData) {
         return res.status(OK).json({
             pdfId: pdfId,
-            roadmap: roadmapData,
+            roadmap: pdf.roadmapData,
             cached: true
         });
     }
 
-    // If no cache, generate new roadmap
-    const filePath = path.join(RAW_DATA_PATH, pdf.filename);
-    appAssert(fs.existsSync(filePath), NOT_FOUND, "PDF file not found on disk");
-
+    // If no roadmap, generate new roadmap
     let response;
     try {
+        // Download file from Supabase
+        const fileResponse = await axios.get(pdf.supabaseUrl, { responseType: 'arraybuffer' });
+        
         const formData = new FormData();
         formData.append("userId", req.userId.toString());
-        formData.append("pdf_file", fs.createReadStream(filePath));
+        formData.append("pdf_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: pdf.filename });
 
         response = await API.post(`/getRoadmap`, formData, {
             headers: {
@@ -191,13 +189,10 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 
     const roadmapData = (response.data as any).body;
 
-    // Save to cache
-    fs.writeFileSync(roadmapPath, JSON.stringify(roadmapData, null, 4));
-
-    // Update metadata
+    // Save to MongoDB
     pdf.hasRoadmap = true;
-    pdf.lastRoadmapGeneration = new Date().toISOString();
-    writeMetadata(metadata);
+    pdf.roadmapData = roadmapData;
+    await pdf.save();
 
     return res.status(OK).json({
         pdfId: pdfId,
@@ -209,28 +204,14 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 // Delete PDF and related data
 export const deletePdfHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const metadata = readMetadata();
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
+    appAssert(pdf, NOT_FOUND, "PDF not found");
 
-    const pdfIndex = metadata.pdfs.findIndex((p: any) => p.id === pdfId && p.userId === req.userId.toString());
-    appAssert(pdfIndex !== -1, NOT_FOUND, "PDF not found");
+    // Delete from Supabase
+    await deleteFileFromSupabase("adept-files", pdf.filename);
 
-    const pdf = metadata.pdfs[pdfIndex];
-
-    // Delete PDF file
-    const pdfPath = path.join(RAW_DATA_PATH, pdf.filename);
-    if (fs.existsSync(pdfPath)) {
-        fs.unlinkSync(pdfPath);
-    }
-
-    // Delete roadmap if exists
-    const roadmapPath = path.join(PROCESSED_DATA_PATH, `${pdfId}_roadmap.json`);
-    if (fs.existsSync(roadmapPath)) {
-        fs.unlinkSync(roadmapPath);
-    }
-
-    // Remove from metadata
-    metadata.pdfs.splice(pdfIndex, 1);
-    writeMetadata(metadata);
+    // Delete from MongoDB
+    await pdf.deleteOne();
 
     return res.status(OK).json({
         message: "PDF and related data deleted successfully"
@@ -244,51 +225,27 @@ export const explainTopicHandler = catchErrors(async (req, res) => {
 
     appAssert(topicTitle, BAD_REQUEST, "Topic title is required");
 
-    const metadata = readMetadata();
-    const pdf = metadata.pdfs.find((p: any) => p.id === pdfId && p.userId === req.userId.toString());
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
-    // Create a safe filename for the cache
-    const safeTitle = topicTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    const cacheFilename = `${pdfId}_${safeTitle}_explanation.json`;
-    const cachePath = path.join(PROCESSED_DATA_PATH, "explanations");
+    // Fetch the PDF from Supabase
+    const fileResponse = await axios.get(pdf.supabaseUrl, { responseType: 'arraybuffer' });
 
-    // Ensure explanations directory exists
-    if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath, { recursive: true });
-    }
+    // Call Python to generate explanation
+    const formData = new FormData();
+    formData.append("topicTitle", topicTitle);
+    if (topicSummary) formData.append("topicSummary", topicSummary);
+    formData.append("pdf_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: pdf.filename });
 
-    const fullCachePath = path.join(cachePath, cacheFilename);
-
-    // Check cache first
-    if (fs.existsSync(fullCachePath)) {
-        const cachedData = JSON.parse(fs.readFileSync(fullCachePath, 'utf-8'));
-        return res.status(OK).json({
-            ...cachedData,
-            cached: true
-        });
-    }
-
-    const filePath = path.join(RAW_DATA_PATH, pdf.filename);
-    appAssert(fs.existsSync(filePath), NOT_FOUND, "PDF file not found on disk");
-
-    // Call Flask to generate explanation
-    const response = await API.post("/explainTopic", {
-        filename: pdf.filename,
-        topicTitle,
-        topicSummary: topicSummary || ""
+    const response = await API.post("/explainTopic", formData, {
+        headers: { ...formData.getHeaders() }
     });
 
     appAssert(response, INTERNAL_SERVER_ERROR, "Explanation generation failed");
 
-    const explanationData = response.data;
-
-    // Save to cache
-    fs.writeFileSync(fullCachePath, JSON.stringify(explanationData, null, 4));
-
     return res.status(OK).json({
-        ...(explanationData as any),
-        cached: false
+        ...(response.data as any),
+        cached: false // Not caching explanations for now since they are dynamic
     });
 });
 
