@@ -25,6 +25,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     checkAuth();
+
+    const handleAuthExpired = () => {
+      setUser(null);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      toast({
+        title: 'Session Expired',
+        description: 'Please log in again.',
+        variant: 'destructive',
+      });
+    };
+    
+    window.addEventListener('auth-expired', handleAuthExpired);
+    return () => {
+      window.removeEventListener('auth-expired', handleAuthExpired);
+    };
   }, []);
 
   const checkAuth = async () => {

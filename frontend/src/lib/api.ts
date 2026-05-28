@@ -81,6 +81,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        window.dispatchEvent(new Event("auth-expired"));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
