@@ -48,6 +48,30 @@ export const uploadFileToSupabase = async (
 };
 
 /**
+ * Downloads a file buffer from Supabase Storage securely using the Service Role Key.
+ * @param bucketName The name of the Supabase bucket
+ * @param fileName The name of the file
+ * @returns The raw ArrayBuffer of the file
+ */
+export const downloadFileFromSupabase = async (
+  bucketName: string,
+  fileName: string
+): Promise<ArrayBuffer> => {
+  try {
+    const { data, error } = await supabase.storage.from(bucketName).download(fileName);
+    if (error) {
+      logger.error({ error }, `Failed to download ${fileName} from Supabase`);
+      throw new AppError(INTERNAL_SERVER_ERROR, `Supabase download failed: ${error.message}`, "SUPABASE_ERROR");
+    }
+    return await data.arrayBuffer();
+  } catch (err: any) {
+    logger.error({ err }, "Error in downloadFileFromSupabase");
+    if (err instanceof AppError) throw err;
+    throw new AppError(INTERNAL_SERVER_ERROR, `Supabase download error: ${err.message}`, "SUPABASE_ERROR");
+  }
+};
+
+/**
  * Deletes a file from Supabase Storage.
  * @param bucketName The name of the Supabase bucket
  * @param fileName The name of the file to delete

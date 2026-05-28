@@ -15,7 +15,7 @@ import { v4 as uuidv4 } from "uuid";
 import FormData from "form-data";
 
 import LibraryFile from "../../models/LibraryFile";
-import { uploadFileToSupabase, deleteFileFromSupabase } from "../../services/supabase.service";
+import { uploadFileToSupabase, deleteFileFromSupabase, downloadFileFromSupabase } from "../../services/supabase.service";
 import axios from "axios";
 
 type fileSchema = Express.Multer.File[]
@@ -81,7 +81,7 @@ export const imgHandler = catchErrors(async (req, res) => {
     const publicUrl = await uploadFileToSupabase("adept-files", filename, file.buffer, file.mimetype);
 
     // Save to MongoDB
-    await LibraryFile.create({
+    const libraryFile = await LibraryFile.create({
         userId: req.userId,
         filename: filename,
         originalName: file.originalname,
@@ -93,7 +93,7 @@ export const imgHandler = catchErrors(async (req, res) => {
 
     return res.status(OK).json({
         message: `Image saved and added to library`,
-        pdfId: pdfId,
+        pdfId: libraryFile._id,
         fileName: file.originalname
     });
 });
@@ -118,10 +118,10 @@ export const linkHandler = catchErrors(async (req, res) => {
     const latestSyllabus = await LibraryFile.findOne({ userId: req.userId, isSyllabus: true }).sort({ createdAt: -1 });
     
     if (latestSyllabus) {
-        // Download buffer from Supabase to forward it
+        // Download buffer from Supabase to forward it securely
         try {
-            const fileResponse = await axios.get(latestSyllabus.supabaseUrl, { responseType: 'arraybuffer' });
-            parseFormData.append("syllabus_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: latestSyllabus.filename });
+            const arrayBuffer = await downloadFileFromSupabase("adept-files", latestSyllabus.filename);
+            parseFormData.append("syllabus_file", Buffer.from(arrayBuffer), { filename: latestSyllabus.filename });
         } catch (err) {
             logger.warn({ err }, "Failed to fetch syllabus from Supabase for linkHandler");
         }

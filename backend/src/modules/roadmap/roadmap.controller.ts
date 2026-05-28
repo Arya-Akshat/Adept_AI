@@ -8,6 +8,7 @@ import {
 } from "../../constants/http";
 import appAssert from "../../utils/appAssert";
 import catchErrors from "../../utils/catchErrors";
+import { AppError } from "../../utils/errors";
 import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../utils/logger";
@@ -15,7 +16,7 @@ import { API } from "../../services/gemini.service";
 import FormData from "form-data";
 
 import LibraryFile from "../../models/LibraryFile";
-import { uploadFileToSupabase, deleteFileFromSupabase } from "../../services/supabase.service";
+import { uploadFileToSupabase, deleteFileFromSupabase, downloadFileFromSupabase } from "../../services/supabase.service";
 import axios from "axios";
 
 // Upload PDF (without auto-generating roadmap)
@@ -118,12 +119,12 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
 
     let response;
     try {
-        // Download the file from Supabase into memory
-        const fileResponse = await axios.get(pdf.supabaseUrl, { responseType: 'arraybuffer' });
+        // Download the file from Supabase into memory securely
+        const arrayBuffer = await downloadFileFromSupabase("adept-files", pdf.filename);
         
         const formData = new FormData();
         formData.append("userId", req.userId.toString());
-        formData.append("pdf_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: pdf.filename });
+        formData.append("pdf_file", Buffer.from(arrayBuffer), { filename: pdf.filename });
 
         response = await API.post(`/getRoadmap`, formData, {
             headers: {
@@ -132,7 +133,7 @@ export const generateRoadmapHandler = catchErrors(async (req, res) => {
         });
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
-        throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
+        throw new AppError(INTERNAL_SERVER_ERROR, error.response?.data?.error || error.message || "Roadmap generation failed in Flask", "FLASK_ERROR");
     }
 
     appAssert(response, INTERNAL_SERVER_ERROR, "Roadmap generation failed");
@@ -168,12 +169,12 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
     // If no roadmap, generate new roadmap
     let response;
     try {
-        // Download file from Supabase
-        const fileResponse = await axios.get(pdf.supabaseUrl, { responseType: 'arraybuffer' });
+        // Download file from Supabase securely
+        const arrayBuffer = await downloadFileFromSupabase("adept-files", pdf.filename);
         
         const formData = new FormData();
         formData.append("userId", req.userId.toString());
-        formData.append("pdf_file", Buffer.from(fileResponse.data as ArrayBuffer), { filename: pdf.filename });
+        formData.append("pdf_file", Buffer.from(arrayBuffer), { filename: pdf.filename });
 
         response = await API.post(`/getRoadmap`, formData, {
             headers: {
@@ -182,7 +183,7 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
         });
     } catch (error: any) {
         logger.error({ error: error.response?.data || error.message }, "Flask API Error");
-        throw new Error(error.response?.data?.error || "Roadmap generation failed in Flask");
+        throw new AppError(INTERNAL_SERVER_ERROR, error.response?.data?.error || error.message || "Roadmap generation failed in Flask", "FLASK_ERROR");
     }
 
     appAssert(response, INTERNAL_SERVER_ERROR, "Roadmap generation failed");
