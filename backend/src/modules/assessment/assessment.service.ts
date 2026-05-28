@@ -52,12 +52,14 @@ const resolveSourceContent = async (
         throw new AppError(NOT_FOUND, "Uploaded PDF file not found in library");
       }
       
-      const fileName = libraryFile.filePath.split('/').pop() || libraryFile.filePath;
-      const downloadResult = await downloadFileFromSupabase("adept-files", fileName);
-      if (!downloadResult.success || !downloadResult.tempFilePath) {
-        throw new AppError(NOT_FOUND, "Failed to download PDF from storage");
+      const fileName = libraryFile.filename || libraryFile.supabaseUrl.split('/').pop();
+      if (!fileName) {
+          throw new AppError(NOT_FOUND, "Invalid file metadata");
       }
-      filePath = downloadResult.tempFilePath;
+
+      const arrayBuffer = await downloadFileFromSupabase("adept-files", fileName);
+      filePath = path.join(os.tmpdir(), `assessment_download_${Date.now()}.pdf`);
+      fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
       isTempFile = true;
     } else {
       // It's likely a base64 string sent from the frontend

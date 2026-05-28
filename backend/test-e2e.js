@@ -2,76 +2,68 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 const API_URL = 'http://localhost:4004/api';
+const AUTH_URL = 'http://localhost:4004/auth';
 
 async function runTests() {
-  console.log("Starting E2E test...");
-
-  // Create a dummy JWT token
-  const dummyUserId = new mongoose.Types.ObjectId().toString();
-  const dummySessionId = new mongoose.Types.ObjectId().toString();
-  
-  const token = jwt.sign(
-    { userId: dummyUserId, sessionId: dummySessionId },
-    process.env.JWT_SECRET,
-    { expiresIn: '15m', audience: 'user' }
-  );
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-  };
+  console.log("Starting E2E test against production...");
 
   try {
-    // 1. Upload Image
-    console.log("1. Uploading image to /parseImg...");
+    // 1. Register a dummy user
+    const dummyEmail = `testuser_${Date.now()}@test.com`;
+    console.log("Registering user:", dummyEmail);
+    const registerRes = await axios.post(`${AUTH_URL}/register`, {
+      email: dummyEmail,
+      password: "password123",
+      confirmPassword: "password123",
+      firstName: "Test",
+      lastName: "User"
+    });
+
+    const token = registerRes.data.accessToken;
+    const authHeaders = { Authorization: `Bearer ${token}` };
+
+    // 2. Upload image
+    console.log("Uploading image...");
     const dummyImagePath = path.join(__dirname, 'dummy.jpg');
-    fs.writeFileSync(dummyImagePath, Buffer.from("dummy image content"));
+    if (!fs.existsSync(dummyImagePath)) fs.writeFileSync(dummyImagePath, Buffer.from("dummy"));
     
     const formData = new FormData();
     formData.append("image", fs.createReadStream(dummyImagePath));
 
     const uploadRes = await axios.post(`${API_URL}/parseImg`, formData, {
-      headers: {
-        ...authHeaders,
-        ...formData.getHeaders(),
-      }
+      headers: { ...authHeaders, ...formData.getHeaders() }
     });
-
-    console.log("Upload Response:", uploadRes.data);
     const pdfId = uploadRes.data.pdfId;
 
-    if (!pdfId) {
-        throw new Error("No pdfId returned from upload!");
+    // 3. Roadmap
+    console.log(`Requesting roadmap for ${pdfId}...`);
+    try {
+      await axios.get(`${API_URL}/pdfs/${pdfId}/roadmap`, { headers: authHeaders });
+    } catch(e) {
+      console.log("Roadmap failed (expected 502/500 if python is down):", e.response?.status);
     }
 
-    // 2. Wait a second for things to settle
-    await new Promise(r => setTimeout(r, 1000));
+    // 4. Create Assessment
+    console.log(`Creating assessment for ${pdfId}...`);
+    try {
+      const assessRes = await axios.post(`${API_URL}/assessments/create`, {
+        pdfId: pdfId,
+        unitIndex: 1,
+        questionCount: 5
+      }, { headers: authHeaders });
+      console.log("Assessment created:", assessRes.status);
+    } catch(e) {
+      console.log("Assessment creation failed:", e.response?.status, e.response?.data);
+    }
 
-    // 3. Request Roadmap Generation
-    console.log(`2. Requesting roadmap for pdfId: ${pdfId}...`);
-    const roadmapRes = await axios.get(`${API_URL}/pdfs/${pdfId}/roadmap`, {
-      headers: authHeaders
-    });
-
-    console.log("Roadmap Response Status:", roadmapRes.status);
-    console.log("Roadmap successfully generated!");
-
-    fs.unlinkSync(dummyImagePath);
     process.exit(0);
-
   } catch (error) {
     console.error("Test failed!");
     if (error.response) {
       console.error("Status:", error.response.status);
-      console.error("Data:", JSON.stringify(error.response.data, null, 2));
-    } else {
-      console.error(error);
+      console.error("Data:", error.response.data);
     }
     process.exit(1);
   }

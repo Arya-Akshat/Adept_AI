@@ -40,6 +40,22 @@ const startServer = async () => {
   // Start HTTP server
   httpServer.listen(PORT, () => {
     logger.info(`Server running on port ${PORT} in ${NODE_ENV} environment`);
+    
+    // Wake up Python service
+    try {
+      import("axios").then((axios) => {
+        import("./config/env").then(({ FASTAPI_URL }) => {
+          if (FASTAPI_URL) {
+            logger.info(`Pinging Python service at ${FASTAPI_URL} to wake it up...`);
+            axios.default.get(FASTAPI_URL).catch(() => {
+              logger.info("Python service ping completed (it may take a while to fully boot)");
+            });
+          }
+        });
+      });
+    } catch (err) {
+      logger.warn("Failed to ping Python service on startup");
+    }
   });
 
   // Graceful shutdown
