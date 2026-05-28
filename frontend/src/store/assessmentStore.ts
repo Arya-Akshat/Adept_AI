@@ -100,7 +100,7 @@ export const useAssessmentStore = create<AssessmentFormState>((set, get) => ({
   updateRowCount: (id, count) => {
     set((state) => ({
       questionRows: state.questionRows.map((r) =>
-        r.id === id ? { ...r, count: Math.max(1, count) } : r
+        r.id === id ? { ...r, count: Math.max(0, count) } : r
       ),
     }));
   },
@@ -165,9 +165,10 @@ export const useAssessmentStore = create<AssessmentFormState>((set, get) => ({
         );
 
         if (uploadRes.data && uploadRes.data.pdfs && uploadRes.data.pdfs.length > 0) {
-          // Pass the filename returned as sourceContent
-          finalSourceContent = uploadRes.data.pdfs[0].filename;
-          finalSourceType = state.sourceFile.name.endsWith(".pdf") ? "pdf" : "text";
+          // Pass the id returned as sourceContent so backend can find it in MongoDB
+          finalSourceContent = uploadRes.data.pdfs[0].id;
+          // Always send sourceType as "pdf" for uploaded files so backend downloads from Supabase
+          finalSourceType = "pdf";
         }
       }
 
