@@ -57,8 +57,9 @@ const resolveSourceContent = async (
           throw new AppError(NOT_FOUND, "Invalid file metadata");
       }
 
+      const ext = path.extname(fileName) || '.pdf';
       const arrayBuffer = await downloadFileFromSupabase("adept-files", fileName);
-      filePath = path.join(os.tmpdir(), `assessment_download_${Date.now()}.pdf`);
+      filePath = path.join(os.tmpdir(), `assessment_download_${Date.now()}${ext}`);
       fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
       isTempFile = true;
     } else {
@@ -73,7 +74,8 @@ const resolveSourceContent = async (
     }
 
     try {
-      finalSourceContent = await extractTextFromUpload(filePath, "application/pdf");
+      const mime = filePath.match(/\.(jpg|jpeg|png)$/i) ? "image/jpeg" : "application/pdf";
+      finalSourceContent = await extractTextFromUpload(filePath, mime);
     } finally {
       if (isTempFile && fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
