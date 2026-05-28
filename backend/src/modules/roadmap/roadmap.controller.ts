@@ -214,6 +214,10 @@ export const deletePdfHandler = catchErrors(async (req, res) => {
     // Delete from Supabase
     await deleteFileFromSupabase("adept-files", pdf.filename);
 
+    // Delete related Assessments
+    const AssessmentModel = (await import("../../models/Assessment")).default;
+    await AssessmentModel.deleteMany({ sourceContent: pdfId, teacherId: req.userId });
+
     // Delete from MongoDB
     await pdf.deleteOne();
 
