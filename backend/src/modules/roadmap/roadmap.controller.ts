@@ -66,7 +66,7 @@ export const listPdfsHandler = catchErrors(async (req, res) => {
     const userPdfs = await LibraryFile.find({ userId: req.userId });
     
     // Map to old schema format for frontend compatibility
-    const formattedPdfs = userPdfs.map(pdf => ({
+    const formattedPdfs = userPdfs.map((pdf: any) => ({
         id: pdf._id,
         userId: pdf.userId,
         filename: pdf.filename,
