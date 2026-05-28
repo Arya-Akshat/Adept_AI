@@ -284,12 +284,7 @@ def generate_study_plan(pdf_path=None, syllabus_image_path=None):
                         "links": {} # Links can be populated by a separate search step if needed
                     }
         
-        # Save to file
-        ref_path = pdf_path if pdf_path else syllabus_image_path
-        if ref_path:
-            output_path = os.path.join(os.path.dirname(ref_path), "..", "processedData", "finalData.json")
-            with open(output_path, "w") as f:
-                json.dump(final_data, f, indent=4)
+        # We no longer save to file here because Node.js saves the returned final_data itself.
             
         return final_data
         
