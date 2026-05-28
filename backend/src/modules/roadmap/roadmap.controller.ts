@@ -23,6 +23,7 @@ import axios from "axios";
 export const uploadPdfHandler = catchErrors(async (req, res) => {
     const files = req.files as Express.Multer.File[];
     appAssert(files && files.length > 0, BAD_REQUEST, "No files sent");
+    appAssert(files[0].size > 100, BAD_REQUEST, "File is too small (likely corrupt or empty)");
 
     const uploadedPdfs = [];
 

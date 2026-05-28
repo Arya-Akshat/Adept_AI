@@ -23,6 +23,7 @@ type fileSchema = Express.Multer.File[]
 export const pdfHandler = catchErrors(async (req, res) => {
     const files = req.files as Express.Multer.File[];
     appAssert(files && files.length > 0, BAD_REQUEST, "No files sent");
+    appAssert(files[0].size > 100, BAD_REQUEST, "File is too small (likely corrupt or empty)");
     logger.debug({ fileCount: files.length }, "PDF upload received");
 
     const firstFile = files[0];
@@ -69,6 +70,7 @@ export const pdfHandler = catchErrors(async (req, res) => {
 export const imgHandler = catchErrors(async (req, res) => {
     const files = req.files as Express.Multer.File[];
     appAssert(files && files.length > 0, BAD_REQUEST, "No image file sent");
+    appAssert(files[0].size > 100, BAD_REQUEST, "File is too small (likely corrupt or empty)");
 
     const file = files[0];
     const ext = path.extname(file.originalname).toLowerCase();
