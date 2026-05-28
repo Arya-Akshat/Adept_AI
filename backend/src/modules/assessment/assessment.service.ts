@@ -29,6 +29,11 @@ const readMetadata = () => {
   return JSON.parse(data) as { pdfs: Array<{ id: string; filename: string }> };
 };
 
+import { downloadFileFromSupabase } from "../../services/supabase.service";
+import LibraryFile from "../../models/LibraryFile";
+import mongoose from "mongoose";
+import os from "os";
+
 const resolveSourceContent = async (
   sourceType: "text" | "pdf" | "none",
   sourceContent: string,
@@ -37,31 +42,44 @@ const resolveSourceContent = async (
   let finalSourceContent = sourceContent || "";
 
   if (sourceType === "pdf" && sourceContent) {
-    const metadata = readMetadata();
-    const pdf = metadata.pdfs.find(
-      (item) => (item.id === sourceContent || item.filename === sourceContent) && (item as any).userId === teacherId
-    );
-
     let filePath = "";
-    if (pdf) {
-      filePath = path.join(RAW_DATA_PATH, pdf.filename);
+    let isTempFile = false;
+
+    // Check if sourceContent is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(sourceContent)) {
+      const libraryFile = await LibraryFile.findOne({ _id: sourceContent, userId: teacherId });
+      if (!libraryFile) {
+        throw new AppError(NOT_FOUND, "Uploaded PDF file not found in library");
+      }
+      
+      const fileName = libraryFile.filePath.split('/').pop() || libraryFile.filePath;
+      const downloadResult = await downloadFileFromSupabase("adept-files", fileName);
+      if (!downloadResult.success || !downloadResult.tempFilePath) {
+        throw new AppError(NOT_FOUND, "Failed to download PDF from storage");
+      }
+      filePath = downloadResult.tempFilePath;
+      isTempFile = true;
     } else {
-      const directPath = path.join(RAW_DATA_PATH, sourceContent);
-      if (fs.existsSync(directPath)) {
-        filePath = directPath;
+      // It's likely a base64 string sent from the frontend
+      isTempFile = true;
+      filePath = path.join(os.tmpdir(), `assessment_upload_${Date.now()}.pdf`);
+      try {
+        fs.writeFileSync(filePath, Buffer.from(sourceContent, "base64"));
+      } catch (err) {
+        throw new AppError(BAD_REQUEST, "Invalid PDF content provided");
       }
     }
 
-    if (!filePath) {
-      throw new AppError(NOT_FOUND, "Uploaded PDF file not found");
+    try {
+      finalSourceContent = await extractTextFromUpload(filePath, "application/pdf");
+    } finally {
+      if (isTempFile && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
-
-    finalSourceContent = await extractTextFromUpload(filePath, "application/pdf");
   } else if (sourceType === "text" && sourceContent) {
-    const directPath = path.join(RAW_DATA_PATH, sourceContent);
-    if (fs.existsSync(directPath)) {
-      finalSourceContent = await extractTextFromUpload(directPath, "text/plain");
-    }
+    // If it's pure text, just use it directly
+    finalSourceContent = sourceContent;
   }
 
   return finalSourceContent;
