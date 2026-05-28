@@ -251,6 +251,8 @@ export const assessmentApi = {
     api.get<{ success: boolean; data: AssessmentJob }>(`/api/assessments/job/${jobId}/status`),
 
   getPdfUrl: (id: string) => `${API_BASE_URL}/api/assessments/${id}/pdf`,
+  
+  downloadPdf: (id: string) => api.get(`/api/assessments/${id}/pdf`, { responseType: 'blob' }),
 };
 
 // Core feature endpoints

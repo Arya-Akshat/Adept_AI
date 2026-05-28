@@ -163,10 +163,15 @@ export const AssignmentOutput: React.FC = () => {
     if (!id || !assessment) return;
     setDownloadingPdf(true);
     try {
-      const pdfUrl = assessmentApi.getPdfUrl(id);
-      
-      // Open in a new tab to download
-      window.open(pdfUrl, "_blank");
+      const res = await assessmentApi.downloadPdf(id);
+      const url = window.URL.createObjectURL(new Blob([res.data as any]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `assessment_${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
       toast.success("PDF download started!");
     } catch (err) {
       toast.error("Failed to download PDF");
