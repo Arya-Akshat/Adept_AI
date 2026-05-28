@@ -24,6 +24,17 @@ import { OK } from "./constants/http";
 
 const app = express();
 
+// Trust proxy (required for rate limiting behind Render's load balancer)
+app.set("trust proxy", 1);
+
+// CORS MUST be before rate limiters and body parsers so OPTIONS requests aren't blocked
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, origin || true),
+    credentials: true,
+  })
+);
+
 // Security middleware
 app.use(helmet());
 app.use(apiLimiter);
@@ -31,14 +42,6 @@ app.use(apiLimiter);
 // Body parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// CORS
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
 
 // Cookies
 app.use(cookieParser());
