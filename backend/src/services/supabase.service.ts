@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_URL, SUPABASE_KEY } from '../config/env';
 import logger from '../utils/logger';
+import { AppError } from '../utils/errors';
+import { INTERNAL_SERVER_ERROR } from '../constants/http';
 
 // Initialize Supabase client
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -29,7 +31,7 @@ export const uploadFileToSupabase = async (
 
     if (error) {
       logger.error({ error }, `Failed to upload ${fileName} to Supabase`);
-      throw new Error(`Supabase upload failed: ${error.message}`);
+      throw new AppError(INTERNAL_SERVER_ERROR, `Supabase upload failed: ${error.message}`, "SUPABASE_ERROR");
     }
 
     // Get public URL
@@ -38,9 +40,10 @@ export const uploadFileToSupabase = async (
       .getPublicUrl(fileName);
 
     return publicUrlData.publicUrl;
-  } catch (err) {
+  } catch (err: any) {
     logger.error({ err }, "Error in uploadFileToSupabase");
-    throw err;
+    if (err instanceof AppError) throw err;
+    throw new AppError(INTERNAL_SERVER_ERROR, `Supabase error: ${err.message}`, "SUPABASE_ERROR");
   }
 };
 
