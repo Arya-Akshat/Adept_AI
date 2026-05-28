@@ -4,12 +4,34 @@ VedaAI is a production-grade educational platform that combines student roadmap 
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## 🌐 Live Deployments
+- **Frontend (Vercel):** [https://adept-ai-seven.vercel.app](https://adept-ai-seven.vercel.app)
+- **Node.js Backend (Render):** [https://adept-ai.onrender.com](https://adept-ai.onrender.com)
+- **AI / FastAPI Service (Render):** [https://adept-ai-fastapi.onrender.com](https://adept-ai-fastapi.onrender.com)
 
-- **Frontend**: React (Vite) + TypeScript + Tailwind CSS
+---
+
+## 🎥 Demo Video
+Watch the full application walkthrough on YouTube: 
+
+[![VedaAI Demo](https://img.youtube.com/vi/CuQZ74n6ed4/0.jpg)](https://youtu.be/CuQZ74n6ed4)
+
+---
+
+## 🛠️ Architecture Overview & Approach
+
+### **Approach**
+Our goal was to build a highly responsive and scalable application that doesn't block the user's browser while AI processes run in the background. To accomplish this:
+1. **Asynchronous Generation:** When a user requests an assessment, the Node.js backend instantly offloads the heavy LLM prompting to a **BullMQ worker** powered by **Redis**. 
+2. **Real-time Feedback:** The worker processes the request and streams status updates back to the React frontend in real-time using **Socket.io** (WebSockets).
+3. **Structured AI Output:** Instead of rendering raw LLM text, we enforce strict JSON schema adherence through our LangChain/Groq pipeline. The frontend then dynamically renders this structured JSON into a pixel-perfect, exam-style UI.
+4. **Microservice AI Engine:** Heavy PDF extraction (PyMuPDF) and LangChain operations are isolated in a dedicated Python/FastAPI microservice to keep the primary Node API highly available.
+
+### **Tech Stack**
+- **Frontend**: React (Vite) + TypeScript + Tailwind CSS + Zustand
 - **Backend (Node.js)**: Express, Mongoose, Redis, BullMQ, Socket.io, PDFKit
-- **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain (for student roadmaps)
-- **Primary AI Provider (VedaAI)**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`)
+- **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain
+- **Primary AI Provider**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`)
 
 ---
 
