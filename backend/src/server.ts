@@ -32,6 +32,22 @@ const startServer = async () => {
     } catch (err) {
       logger.error({ err }, "Failed to start assessment worker");
     }
+
+    try {
+      const { startRoadmapWorker } = await import("./modules/roadmap/roadmap.worker");
+      startRoadmapWorker();
+      logger.info("BullMQ: Roadmap worker started");
+    } catch (err) {
+      logger.error({ err }, "Failed to start roadmap worker");
+    }
+
+    try {
+      const { startVectorWorker } = await import("./modules/roadmap/vector.worker");
+      startVectorWorker();
+      logger.info("BullMQ: Vector worker started");
+    } catch (err) {
+      logger.error({ err }, "Failed to start vector worker");
+    }
   }
 
   // Initialize Socket.io on the same HTTP server before listening
@@ -71,7 +87,21 @@ const startServer = async () => {
         const { stopAssessmentWorker } = await import("./modules/assessment/assessment.worker");
         await stopAssessmentWorker();
       } catch (err) {
-        logger.error({ err }, "Error stopping worker");
+        logger.error({ err }, "Error stopping assessment worker");
+      }
+
+      try {
+        const { stopRoadmapWorker } = await import("./modules/roadmap/roadmap.worker");
+        await stopRoadmapWorker();
+      } catch (err) {
+        logger.error({ err }, "Error stopping roadmap worker");
+      }
+
+      try {
+        const { stopVectorWorker } = await import("./modules/roadmap/vector.worker");
+        await stopVectorWorker();
+      } catch (err) {
+        logger.error({ err }, "Error stopping vector worker");
       }
 
       try {

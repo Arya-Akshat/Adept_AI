@@ -151,3 +151,98 @@ Requirements:
     throw new AppError(INTERNAL_SERVER_ERROR, "Failed to parse AI generated rubric");
   }
 };
+
+import LibraryFile from "../../models/LibraryFile";
+import appAssert from "../../utils/appAssert";
+import type { PresentationRequest } from "./toolkit.types";
+
+export const generatePresentation = async (
+  teacherId: string,
+  payload: PresentationRequest
+) => {
+  const { fileIds, slideCount = 8, topicFocus } = payload;
+  appAssert(fileIds && fileIds.length > 0, 400, "Please select at least one study material");
+
+  // Fetch the selected files from DB
+  const files = await LibraryFile.find({
+    _id: { $in: fileIds },
+    userId: teacherId,
+  });
+
+  appAssert(files.length > 0, 404, "No study materials found");
+
+  // Compile context from their roadmaps
+  let combinedContext = "";
+  files.forEach((file) => {
+    combinedContext += `Source Material: ${file.originalName}\n`;
+    if (file.roadmapData) {
+      // Traverse unit/topic structure of the roadmap
+      Object.entries(file.roadmapData).forEach(([unitIdx, unitObj]: [string, any]) => {
+        combinedContext += `Unit ${parseInt(unitIdx, 10) + 1}:\n`;
+        if (unitObj && typeof unitObj === "object") {
+          Object.entries(unitObj).forEach(([topicIdx, topicObj]: [string, any]) => {
+            if (topicObj && typeof topicObj === "object") {
+              combinedContext += `- Topic: ${topicObj.title || ""}\n  Summary: ${topicObj.summary || ""}\n`;
+            }
+          });
+        }
+      });
+    }
+    combinedContext += "\n";
+  });
+
+  const systemPrompt =
+    "You are an expert educator and visual designer. You must generate a complete slide presentation outline strictly in the requested JSON format based on the provided course material. Do not write any markdown code fences, do not write any introductory or concluding text, write only the raw JSON string. The output must strictly match this JSON schema:\n" +
+    JSON.stringify(
+      {
+        metadata: {
+          title: "string",
+          subject: "string",
+          slideCount: "number",
+          generatedAt: "string",
+        },
+        slides: [
+          {
+            slideNumber: "number",
+            title: "string",
+            bulletPoints: ["string (max 3-4 items, concise, impact-driven)"],
+            teacherNotes: "string (explanatory script or teaching details for the teacher)",
+            suggestedImagePrompt: "string (highly descriptive image prompt for creating visual slides or icons)",
+          },
+        ],
+      },
+      null,
+      2
+    );
+
+  const userPrompt = `Generate a PowerPoint slide presentation with exactly ${slideCount} slides using the following course materials:
+  
+  ---
+  ${combinedContext}
+  ---
+  
+  Focus / Topic Scope: ${topicFocus || "A comprehensive overview of the materials."}
+  
+  Requirements:
+  - Generate exactly ${slideCount} slides.
+  - Slide 1 should be a Title slide.
+  - Slide ${slideCount} should be a Summary / Conclusion slide.
+  - Keep slide bullets concise, engaging, and professional.
+  - suggestedImagePrompt must be a detailed, visual prompt describing a clean, educational graphic or diagram related to that slide.`;
+
+  const rawJson = await generateCustomJson(systemPrompt, userPrompt, 3000);
+  try {
+    const cleaned = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
+    const data = JSON.parse(cleaned);
+
+    // Populate metadata
+    if (!data.metadata) data.metadata = {};
+    data.metadata.slideCount = slideCount;
+    data.metadata.generatedAt = new Date().toISOString();
+
+    return data;
+  } catch (err: any) {
+    logger.error({ error: err.message, rawJson }, "Presentation parsing failed");
+    throw new AppError(500, "Failed to parse AI generated presentation outline");
+  }
+};

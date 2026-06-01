@@ -66,8 +66,9 @@ const Toolkit: React.FC = () => {
       title: "AI Lecture Slide Creator",
       desc: "Upload textbook chapters or notes to structure and export engaging presentation slides.",
       icon: <Presentation className="h-5 w-5" />,
-      badge: "Coming Soon",
-      comingSoon: true,
+      badge: "Slide Creator",
+      path: "/toolkit/slide-generator",
+      comingSoon: false,
     },
   ];
 

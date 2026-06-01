@@ -1,9 +1,10 @@
-import { CREATED, NOT_FOUND } from "../../constants/http";
+import { CREATED, NOT_FOUND, BAD_REQUEST } from "../../constants/http";
 import { sendSuccess } from "../../utils/response";
-import { generateLessonPlan, generateRubric } from "./toolkit.service";
+import { generateLessonPlan, generateRubric, generatePresentation } from "./toolkit.service";
 import { AppError } from "../../utils/errors";
 import RubricModel from "../../models/Rubric";
 import { createRubricPDFStream } from "../../services/pdf.service";
+import appAssert from "../../utils/appAssert";
 
 export const generateLessonPlanHandler = async (req: any, res: any) => {
   const data = await generateLessonPlan(req.body);
@@ -12,6 +13,11 @@ export const generateLessonPlanHandler = async (req: any, res: any) => {
 
 export const generateRubricHandler = async (req: any, res: any) => {
   const data = await generateRubric(req.userId, req.body);
+  sendSuccess(res, data, CREATED);
+};
+
+export const generatePresentationHandler = async (req: any, res: any) => {
+  const data = await generatePresentation(req.userId, req.body);
   sendSuccess(res, data, CREATED);
 };
 
@@ -49,5 +55,24 @@ export const downloadRubricPdfHandler = async (req: any, res: any) => {
     stream.pipe(res);
   } catch (err: any) {
     throw new AppError(500, `PDF generation failed: ${err.message}`);
+  }
+};
+
+import { createPresentationBuffer } from "../../services/pptx.service";
+
+export const downloadPresentationPptxHandler = async (req: any, res: any) => {
+  const { metadata, slides } = req.body;
+  appAssert(metadata && slides && slides.length > 0, BAD_REQUEST, "Invalid presentation slides data");
+
+  try {
+    const buffer = await createPresentationBuffer({ metadata, slides });
+    const safeTitle = (metadata.title || "presentation").replace(/[^a-zA-Z0-9]/g, "_");
+    const filename = `${safeTitle}.pptx`;
+
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(buffer);
+  } catch (err: any) {
+    throw new AppError(500, `PowerPoint generation failed: ${err.message}`);
   }
 };

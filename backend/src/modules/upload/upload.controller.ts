@@ -17,6 +17,10 @@ import FormData from "form-data";
 import LibraryFile from "../../models/LibraryFile";
 import { uploadFileToSupabase, deleteFileFromSupabase, downloadFileFromSupabase } from "../../services/supabase.service";
 import axios from "axios";
+import os from "os";
+import { extractTextFromUpload } from "../../services/fileExtract.service";
+import { getRoadmapQueue } from "../../queues";
+import { emitRoadmapQueued } from "../roadmap/roadmap.socket";
 
 type fileSchema = Express.Multer.File[]
 
@@ -76,25 +80,59 @@ export const imgHandler = catchErrors(async (req, res) => {
     const ext = path.extname(file.originalname).toLowerCase();
     appAssert(ext === '.jpg' || ext === '.jpeg' || ext === '.png', BAD_REQUEST, "Only .jpg, .jpeg, or .png files are allowed");
 
-    const pdfId = uuidv4();
-    const filename = `${pdfId}${ext}`;
+    const tempPdfId = uuidv4();
+    const filename = `${tempPdfId}${ext}`;
 
     // Upload to Supabase
     const publicUrl = await uploadFileToSupabase("adept-files", filename, file.buffer, file.mimetype);
 
+    // Save to temp file and extract text (OCR)
+    const tempPath = path.join(os.tmpdir(), `roadmap_upload_${Date.now()}${ext}`);
+    fs.writeFileSync(tempPath, file.buffer);
+
+    let extractedText = "";
+    try {
+        extractedText = await extractTextFromUpload(tempPath, file.mimetype);
+    } finally {
+        if (fs.existsSync(tempPath)) {
+            fs.unlinkSync(tempPath);
+        }
+    }
+
+    const vectorStatus = "na";
+    const courseId = req.body.courseId || undefined;
+
     // Save to MongoDB
     const libraryFile = await LibraryFile.create({
         userId: req.userId,
+        courseId,
         filename: filename,
         originalName: file.originalname,
         supabaseUrl: publicUrl,
         fileSize: file.size,
         isSyllabus: true,
-        hasRoadmap: false
+        hasRoadmap: false,
+        roadmapStatus: "queued",
+        vectorStatus,
     });
 
+    const pdfId = (libraryFile._id as any).toString();
+
+    // Queue BullMQ job
+    const roadmapQueue = getRoadmapQueue();
+    await roadmapQueue.add(`roadmap-gen-${pdfId}`, {
+        pdfId,
+        userId: req.userId.toString(),
+        filePath: filename,
+        extractedText,
+        fileType: "image"
+    });
+
+    // Emit socket event
+    emitRoadmapQueued(pdfId);
+
     return res.status(OK).json({
-        message: `Image saved and added to library`,
+        message: `Image saved and queued for roadmap generation`,
         pdfId: libraryFile._id,
         fileName: file.originalname
     });

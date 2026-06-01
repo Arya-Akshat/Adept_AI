@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ILibraryFile extends Document {
   userId: mongoose.Types.ObjectId;
+  courseId?: mongoose.Types.ObjectId;
   filename: string;
   originalName: string;
   supabaseUrl: string;
@@ -10,6 +11,10 @@ export interface ILibraryFile extends Document {
   hasRoadmap: boolean;
   isSyllabus: boolean;
   roadmapData?: any; // To store the generated JSON directly
+  roadmapStatus: "not_started" | "queued" | "processing" | "ready" | "failed";
+  vectorStatus: "not_started" | "queued" | "processing" | "ready" | "failed" | "na";
+  roadmapError?: string;
+  vectorError?: string;
 }
 
 const LibraryFileSchema = new Schema<ILibraryFile>(
@@ -18,6 +23,11 @@ const LibraryFileSchema = new Schema<ILibraryFile>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
+    },
+    courseId: {
+      type: Schema.Types.ObjectId,
+      ref: "Course",
       index: true,
     },
     filename: {
@@ -50,6 +60,24 @@ const LibraryFileSchema = new Schema<ILibraryFile>(
     },
     roadmapData: {
       type: Schema.Types.Mixed, // Allows flexible JSON structures
+    },
+    roadmapStatus: {
+      type: String,
+      enum: ["not_started", "queued", "processing", "ready", "failed"],
+      default: "not_started",
+      index: true,
+    },
+    vectorStatus: {
+      type: String,
+      enum: ["not_started", "queued", "processing", "ready", "failed", "na"],
+      default: "not_started",
+      index: true,
+    },
+    roadmapError: {
+      type: String,
+    },
+    vectorError: {
+      type: String,
     },
   },
   { timestamps: true }

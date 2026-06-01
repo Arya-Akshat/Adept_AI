@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4004";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:4004" : "https://adept-ai.onrender.com");
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -44,10 +44,17 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401) {
       if (originalRequest.url === "/auth/refresh") {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+        return Promise.reject(error);
+      }
+
+      if (originalRequest._retry) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        window.dispatchEvent(new Event("auth-expired"));
         return Promise.reject(error);
       }
 
@@ -264,9 +271,12 @@ export const coreApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-  parseImg: (file: File) => {
+  parseImg: (file: File, courseId?: string | null) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (courseId) {
+      formData.append('courseId', courseId);
+    }
     return api.post('/api/parseImg', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -279,21 +289,35 @@ export const coreApi = {
 
 // PDF Management endpoints
 export const pdfApi = {
-  uploadPDF: (file: File) => {
+  uploadPDF: (file: File, courseId?: string | null) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (courseId) {
+      formData.append('courseId', courseId);
+    }
     return api.post('/api/pdfs/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-  listPDFs: () => api.get('/api/pdfs'),
-  getPDFMetadata: (pdfId: string) => api.get(`/api/pdfs/${pdfId}`),
+  listPDFs: () => api.get<PDF[]>('/api/pdfs'),
+  getPDFMetadata: (pdfId: string) => api.get<PDF>(`/api/pdfs/${pdfId}`),
+  getStatus: (pdfId: string) => api.get<{
+    pdfId: string;
+    roadmapStatus: PDF["roadmapStatus"];
+    vectorStatus: PDF["vectorStatus"];
+    roadmapError?: string;
+    vectorError?: string;
+  }>(`/api/pdfs/${pdfId}/status`),
   viewPDF: (pdfId: string) => `${API_BASE_URL}/api/pdfs/${pdfId}/view`,
-  generateRoadmap: (pdfId: string) => api.post(`/api/pdfs/${pdfId}/roadmap`),
-  getRoadmapForPDF: (pdfId: string) => api.get(`/api/pdfs/${pdfId}/roadmap`),
-  deletePDF: (pdfId: string) => api.delete(`/api/pdfs/${pdfId}`),
+  generateRoadmap: (pdfId: string) => api.post<{ success: boolean; data: { pdfId: string; roadmapStatus: string; vectorStatus: string } }>(`/api/pdfs/${pdfId}/roadmap`),
+  getRoadmapForPDF: (pdfId: string) => api.get<{ pdfId: string; roadmap: any; cached: boolean }>(`/api/pdfs/${pdfId}/roadmap`),
+  deletePDF: (pdfId: string) => api.delete<{ message: string }>(`/api/pdfs/${pdfId}`),
   explainTopic: (pdfId: string, unitIndex: number, topicIndex: number, data: { topicTitle: string; topicSummary: string }) =>
     api.post(`/api/pdfs/${pdfId}/topic/${unitIndex}/${topicIndex}/explain`, data),
+  toggleTopicStudied: (pdfId: string, unitIndex: number, topicIndex: number, studied: boolean) =>
+    api.patch<{ success: boolean; data: { studied: boolean } }>(`/api/pdfs/${pdfId}/topic/studied`, { unitIndex, topicIndex, studied }),
+  assignFileToCourse: (pdfId: string, courseId: string | null) =>
+    api.patch<{ success: boolean; data: { courseId: string | null } }>(`/api/pdfs/${pdfId}/assign-course`, { courseId }),
 };
 
 // Toolkit endpoints
@@ -362,4 +386,39 @@ export const toolkitApi = {
   }>("/api/toolkit/rubric", data),
 
   getRubricPdfUrl: (id: string) => `${API_BASE_URL}/api/toolkit/rubric/${id}/pdf`,
+  
+  generatePresentation: (data: { courseId: string; fileIds: string[]; slideCount: number; topicFocus?: string }) =>
+    api.post<{
+      success: boolean;
+      data: {
+        metadata: {
+          title: string;
+          subject: string;
+          slideCount: number;
+          generatedAt: string;
+        };
+        slides: {
+          slideNumber: number;
+          title: string;
+          bulletPoints: string[];
+          teacherNotes?: string;
+          suggestedImagePrompt: string;
+        }[];
+      };
+    }>("/api/toolkit/presentation", data),
+
+  downloadPresentationPptx: (data: { metadata: { title: string; subject?: string }; slides: any[] }) =>
+    api.post("/api/toolkit/presentation/download", data, { responseType: "blob" }),
+};
+
+// Course/Subject management endpoints
+export const courseApi = {
+  createCourse: (data: { name: string; description?: string; color?: string }) =>
+    api.post<{ _id: string; name: string; description?: string; color: string }>("/api/courses", data),
+  listCourses: () =>
+    api.get<any[]>("/api/courses"),
+  updateCourse: (courseId: string, data: { name?: string; description?: string; color?: string }) =>
+    api.patch<any>(`/api/courses/${courseId}`, data),
+  deleteCourse: (courseId: string) =>
+    api.delete<{ message: string }>(`/api/courses/${courseId}`),
 };

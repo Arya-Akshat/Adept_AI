@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Image, ArrowRight, CheckCircle2, RotateCcw, Map, FileImage, Library } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { FileUpload } from '@/components/FileUpload';
-import { coreApi } from '@/lib/api';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { coreApi, courseApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,13 +20,27 @@ const SyllabusUpload = () => {
   const [uploaded, setUploaded] = useState(false);
   const [fileName, setFileName] = useState('');
   const [pdfId, setPdfId] = useState('');
+  const [courses, setCourses] = useState<any[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('unassigned');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await courseApi.listCourses();
+      setCourses(response.data || []);
+    } catch (err) {}
+  };
 
   const handleImageUpload = async (file: File) => {
     setFileName(file.name);
     setUploading(true);
     try {
-      const response = await coreApi.parseImg(file);
+      const courseIdParam = selectedCourseId === 'unassigned' ? null : selectedCourseId;
+      const response = await coreApi.parseImg(file, courseIdParam);
       if (response.data && response.data.pdfId) {
         setPdfId(response.data.pdfId);
       }
@@ -133,6 +156,29 @@ const SyllabusUpload = () => {
         </div>
 
         <div className="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm flex flex-col gap-5">
+          {/* Course Folder Selection */}
+          {courses.length > 0 && (
+            <Card className="border-orange-500/20 bg-orange-50/5 rounded-2xl">
+              <CardContent className="p-4 space-y-3">
+                <div className="space-y-0.5">
+                  <h3 className="font-bold text-gray-800 text-xs">Assign to Course Folder</h3>
+                  <p className="text-[10px] text-muted-foreground">Select which course subject folder to save this syllabus into.</p>
+                </div>
+                <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+                  <SelectTrigger className="rounded-xl bg-white border-gray-200 text-xs py-1">
+                    <SelectValue placeholder="Select Course" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="unassigned">Unassigned (General)</SelectItem>
+                    {courses.map((course) => (
+                      <SelectItem key={course._id} value={course._id}>{course.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50">
               <Image className="h-5 w-5 text-orange-500" />

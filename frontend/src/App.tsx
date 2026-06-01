@@ -24,6 +24,7 @@ import SyllabusUpload from "./pages/SyllabusUpload";
 import InputNotes from "./pages/InputNotes";
 import Roadmap from "./pages/Roadmap";
 import TopicDetail from "./pages/TopicDetail";
+import DoubtSolverPage from "./pages/DoubtSolverPage";
 
 // Navbar / Sidebar Dummy Pages
 import MyGroups from "./pages/MyGroups";
@@ -33,6 +34,7 @@ import Settings from "./pages/Settings";
 // New Toolkit Pages
 import LessonPlanPage from "./pages/LessonPlanPage";
 import RubricPage from "./pages/RubricPage";
+import SlideGeneratorPage from "./pages/SlideGeneratorPage";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,7 @@ const App: React.FC = () => (
                 <Route path="/syllabus" element={<ProtectedRoute><SyllabusUpload /></ProtectedRoute>} />
                 <Route path="/input-notes" element={<ProtectedRoute><InputNotes /></ProtectedRoute>} />
                 <Route path="/library/:pdfId/topic/:unitIndex/:topicIndex" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
+                <Route path="/library/:pdfId/doubt" element={<ProtectedRoute><DoubtSolverPage /></ProtectedRoute>} />
                 <Route path="/roadmap" element={<Navigate to="/library" replace />} />
 
                 {/* Sidebar Navigation Pages */}
@@ -69,6 +72,7 @@ const App: React.FC = () => (
                 <Route path="/toolkit" element={<ProtectedRoute><Toolkit /></ProtectedRoute>} />
                 <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
                 <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />
+                <Route path="/toolkit/slide-generator" element={<ProtectedRoute><SlideGeneratorPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                 {/* Catch-all fallback */}

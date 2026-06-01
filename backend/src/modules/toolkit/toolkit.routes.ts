@@ -6,10 +6,13 @@ import {
   generateLessonPlanHandler,
   generateRubricHandler,
   downloadRubricPdfHandler,
+  generatePresentationHandler,
+  downloadPresentationPptxHandler,
 } from "./toolkit.controller";
 import {
   LessonPlanRequestSchema,
   RubricRequestSchema,
+  PresentationRequestSchema,
 } from "./toolkit.types";
 
 const router = Router();
@@ -35,6 +38,19 @@ router.post(
 router.get(
   "/rubric/:id/pdf",
   asyncHandler(downloadRubricPdfHandler)
+);
+
+// 4. Generate Slide Presentation (synchronous Groq call)
+router.post(
+  "/presentation",
+  validate(PresentationRequestSchema),
+  asyncHandler(generatePresentationHandler)
+);
+
+// 5. Download PowerPoint File (stateless binary PPTX compilation)
+router.post(
+  "/presentation/download",
+  asyncHandler(downloadPresentationPptxHandler)
 );
 
 export default router;

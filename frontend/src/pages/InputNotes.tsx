@@ -4,7 +4,15 @@ import { Layout } from '@/components/Layout';
 import { FileUpload } from '@/components/FileUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { coreApi, pdfApi } from '@/lib/api';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { coreApi, pdfApi, courseApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,18 +20,29 @@ const InputNotes = () => {
   const [hasSession, setHasSession] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('unassigned');
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkSession();
+    checkSessionAndCourses();
   }, []);
 
-  const checkSession = async () => {
+  const checkSessionAndCourses = async () => {
     try {
-      await coreApi.getToken();
+      const [tokenRes, courseRes] = await Promise.all([
+        coreApi.getToken(),
+        courseApi.listCourses()
+      ]);
       setHasSession(true);
+      setCourses(courseRes.data || []);
     } catch (error) {
       setHasSession(false);
+      // Even if token check fails, try to load courses if authorized
+      try {
+        const courseRes = await courseApi.listCourses();
+        setCourses(courseRes.data || []);
+      } catch (err) {}
     } finally {
       setLoading(false);
     }
@@ -32,7 +51,8 @@ const InputNotes = () => {
   const handlePDFUpload = async (file: File) => {
     setUploading(true);
     try {
-      await pdfApi.uploadPDF(file);
+      const courseIdParam = selectedCourseId === 'unassigned' ? null : selectedCourseId;
+      await pdfApi.uploadPDF(file, courseIdParam);
       toast({
         title: 'Success',
         description: 'PDF uploaded successfully',
@@ -102,6 +122,33 @@ const InputNotes = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Upload Syllabus First
               </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Course Folder Selection */}
+        {hasSession && courses.length > 0 && (
+          <Card className="mb-6 border-orange-500/20 bg-orange-50/5 rounded-2xl">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="font-bold text-gray-800 text-sm">Assign to Course Folder</h3>
+                  <p className="text-xs text-muted-foreground">Select which course subject folder to save this PDF note into.</p>
+                </div>
+                <div className="w-full sm:w-[280px] shrink-0">
+                  <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+                    <SelectTrigger className="rounded-xl bg-white border-gray-200">
+                      <SelectValue placeholder="Select Course" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="unassigned">Unassigned (General)</SelectItem>
+                      {courses.map((course) => (
+                        <SelectItem key={course._id} value={course._id}>{course.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )}

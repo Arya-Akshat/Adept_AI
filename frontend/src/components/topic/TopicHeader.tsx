@@ -1,10 +1,8 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -15,45 +13,101 @@ interface TopicHeaderProps {
     title: string;
   };
   unitIndex: number;
+  topicIndex?: number;
+  totalTopics?: number;
   onBack: () => void;
+  studied?: boolean;
+  onToggleStudied?: () => void;
+  studiedProgress?: number; // Real percentage of studied topics in the unit!
 }
 
-export const TopicHeader = ({ topic, unitIndex, onBack }: TopicHeaderProps) => {
+export const TopicHeader = ({ 
+  topic, 
+  unitIndex, 
+  topicIndex, 
+  totalTopics, 
+  onBack,
+  studied = false,
+  onToggleStudied,
+  studiedProgress = 0
+}: TopicHeaderProps) => {
+  const currentTopic = topicIndex !== undefined ? topicIndex + 1 : 1;
+  const total = totalTopics || 1;
+
   return (
     <div className="space-y-4">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="gap-2 hover:bg-accent"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Roadmap
-      </Button>
+      {/* Back button and Toggle Studied Button */}
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="group gap-2 hover:bg-gray-100 hover:text-black text-gray-500 -ml-2 rounded-xl transition-all"
+        >
+          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+          Back to Roadmap
+        </Button>
 
-      <div className="space-y-3">
-        <Badge className="bg-gradient-to-r from-academic-primary to-academic-secondary text-white">
-          Unit {unitIndex + 1}
-        </Badge>
+        {onToggleStudied && (
+          <Button
+            onClick={onToggleStudied}
+            className={`gap-2 rounded-xl text-xs font-semibold px-4 py-2 transition-all shadow-sm ${
+              studied
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-black"
+            }`}
+          >
+            <CheckCircle className={`h-4 w-4 ${studied ? "fill-white text-green-600" : ""}`} />
+            {studied ? "Studied ✓" : "Mark as Studied"}
+          </Button>
+        )}
+      </div>
+
+      {/* Breadcrumb */}
+      <Breadcrumb className="text-xs">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <span className="text-gray-400">Library</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <span className="text-gray-400">Unit {unitIndex + 1}</span>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="font-semibold text-orange-600">{topic.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      {/* Main Title Section */}
+      <div className="rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-6 md:p-8 text-white shadow-sm relative overflow-hidden">
+        {/* Decorative background shape */}
+        <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
         
-        <h1 className="text-3xl font-bold text-foreground">
-          {topic.title}
-        </h1>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider text-orange-400 uppercase mb-2">
+              <BookOpen className="h-3.5 w-3.5" />
+              Unit {unitIndex + 1} · Topic {currentTopic} of {total}
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              {topic.title}
+            </h1>
+          </div>
 
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/library">Library</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink>Unit {unitIndex + 1}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{topic.title}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+          <div className="shrink-0 w-full md:w-48">
+            <div className="flex justify-between text-xs text-gray-400 mb-1.5 font-medium">
+              <span>Unit Progress</span>
+              <span>{Math.round(studiedProgress)}%</span>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden backdrop-blur-sm">
+              <div
+                className="bg-gradient-to-r from-green-500 to-emerald-400 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${studiedProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

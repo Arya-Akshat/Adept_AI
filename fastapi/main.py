@@ -1,11 +1,20 @@
 from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from dotenv import load_dotenv
 import os
 import sys
 import io
+
+# Add current directory to path for sub-module loading
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Load embedding model at startup
+from rag.embedder import load_embedding_model
+embedding_model = load_embedding_model()
+
+from rag.doubt_solver import solve_doubt_stream
 
 # Initialize FastAPI app
 app = FastAPI(title="VedaAI AI Engine")
@@ -330,3 +339,96 @@ def explain_topic(
     finally:
         if temp_pdf_path and os.path.exists(temp_pdf_path):
             os.remove(temp_pdf_path)
+
+
+# --- RAG Doubt Solver Endpoints ---
+
+class IngestRequest(BaseModel):
+    pdfId: str
+    extractedText: str
+    roadmapTopics: list
+
+class DoubtRequest(BaseModel):
+    pdfId: str
+    question: str
+    conversationHistory: list
+
+class DeleteVectorsRequest(BaseModel):
+    pdfId: str
+
+@app.post("/ingest-document")
+def ingest_document(request: IngestRequest):
+    if not request.pdfId or not request.extractedText:
+        raise HTTPException(status_code=400, detail="pdfId and extractedText are required")
+        
+    try:
+        from rag.chunker import chunk_document
+        from rag.embedder import embed_batch
+        from rag.vector_store import upsert_chunks
+        
+        # 1. Chunk document
+        chunks = chunk_document(request.extractedText, request.roadmapTopics, request.pdfId)
+        if not chunks:
+            return {"success": True, "chunksStored": 0, "message": "No chunks generated"}
+            
+        # 2. Embed chunks
+        chunk_texts = [c.text for c in chunks]
+        embeddings = embed_batch(chunk_texts)
+        
+        # 3. Create Qdrant collection and upsert
+        upsert_chunks(request.pdfId, chunks, embeddings)
+        
+        return {"success": True, "chunksStored": len(chunks)}
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi.responses import StreamingResponse
+import json
+
+@app.post("/doubt-solver/stream")
+async def doubt_solver_stream(request: DoubtRequest):
+    if not request.pdfId or not request.question:
+        raise HTTPException(status_code=400, detail="pdfId and question are required")
+    if len(request.question) > 500:
+        raise HTTPException(status_code=400, detail="Question cannot exceed 500 characters")
+
+    def event_generator():
+        try:
+            for token in solve_doubt_stream(
+                pdfId=request.pdfId,
+                question=request.question,
+                conversation_history=request.conversationHistory
+            ):
+                yield f"data: {json.dumps({'token': token})}\n\n"
+            yield f"data: {json.dumps({'done': True})}\n\n"
+        except Exception as e:
+            logger = logging.getLogger("main")
+            logger.error(f"Error in doubt stream: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
+
+@app.delete("/delete-document-vectors")
+def delete_document_vectors(request: DeleteVectorsRequest):
+    if not request.pdfId:
+        raise HTTPException(status_code=400, detail="pdfId is required")
+    try:
+        from rag.vector_store import delete_collection
+        delete_collection(request.pdfId)
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

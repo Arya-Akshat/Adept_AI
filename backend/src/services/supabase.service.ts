@@ -4,8 +4,21 @@ import logger from '../utils/logger';
 import { AppError } from '../utils/errors';
 import { INTERNAL_SERVER_ERROR } from '../constants/http';
 
-// Initialize Supabase client
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Initialize Supabase client with custom fetch debugger
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: false,
+  },
+  global: {
+    fetch: (url, options) => {
+      logger.debug({ url }, "Supabase fetch initiated");
+      return fetch(url, options).catch((err: any) => {
+        logger.error({ err, url }, "Supabase fetch failed raw error");
+        throw err;
+      });
+    },
+  },
+});
 
 /**
  * Uploads a file buffer to Supabase Storage.

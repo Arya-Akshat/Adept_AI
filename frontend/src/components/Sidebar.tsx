@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
+import {
   Settings,
   Sparkles,
-  Plus
+  Plus,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { VedaLogo } from "./VedaLogo";
 import { cn } from "@/lib/utils";
@@ -11,26 +13,32 @@ import { useAuth } from "@/contexts/AuthContext";
 import { api, assessmentApi } from "@/lib/api";
 import { toast } from "sonner";
 import { PDF } from "@/types";
+import { useUIStore } from "@/store/uiStore";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
 
   const currentPath = location.pathname;
   const isOutputPage = /^\/assignments\/[a-f0-9]+$/i.test(currentPath) && !currentPath.endsWith("/create");
   const isCreatePage = currentPath === "/assignments/create";
   const isListPage = currentPath === "/" || currentPath === "/assignments";
 
-  // Context-specific logo variant
   const logoVariant = isOutputPage ? 1 : 2;
 
-  // Context-specific CTA button
   const ctaText = isOutputPage ? "AI Teacher's Toolkit" : "Create Assignment";
   const ctaIcon = isOutputPage ? (
-    <Sparkles className="mr-2 h-4 w-4 text-white" />
+    <Sparkles className="h-4 w-4 text-white flex-shrink-0" />
   ) : (
-    <Plus className="mr-2 h-4 w-4 text-white" />
+    <Plus className="h-4 w-4 text-white flex-shrink-0" />
   );
 
   const handleCtaClick = () => {
@@ -39,7 +47,6 @@ export const Sidebar: React.FC = () => {
     }
   };
 
-  // Dynamic Nav badges
   const [assignmentsCount, setAssignmentsCount] = useState<number>(0);
   const [libraryCount, setLibraryCount] = useState<number>(0);
 
@@ -78,23 +85,20 @@ export const Sidebar: React.FC = () => {
     assignmentsBadge = libraryCount;
   }
 
-  // School card avatar
   const schoolAvatar = user?.avatarUrl ? (
     <img
       src={user.avatarUrl}
       alt="Avatar"
-      className="h-9 w-9 rounded-full object-cover border border-amber-200"
+      className="h-9 w-9 min-w-[36px] min-h-[36px] rounded-full object-cover border border-amber-200 flex-shrink-0"
     />
   ) : isOutputPage ? (
-    // School Crest / Shield
-    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+    <div className="flex h-9 w-9 min-w-[36px] min-h-[36px] items-center justify-center rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 flex-shrink-0">
       <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       </svg>
     </div>
   ) : (
-    // Stylized Avatar/Character Illustration
-    <div className="h-9 w-9 overflow-hidden rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center">
+    <div className="h-9 w-9 min-w-[36px] min-h-[36px] overflow-hidden rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
       <span className="text-sm font-bold text-amber-700">DPS</span>
     </div>
   );
@@ -164,87 +168,156 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <div className="flex h-full w-64 flex-col justify-between rounded-2xl border border-gray-100 bg-white px-5 py-6 font-sans shadow-[0_8px_30px_rgba(0,0,0,0.05)] overflow-hidden">
-      <div className="flex flex-col gap-6">
-        {/* Logo */}
-        <div onClick={() => navigate("/")} className="px-2 cursor-pointer">
-          <VedaLogo variant={logoVariant} />
-        </div>
-
-        {/* CTA Button - orange border style */}
+    <TooltipProvider delayDuration={0}>
+      <div
+        className={cn(
+          "relative flex h-full flex-col justify-between rounded-2xl border border-gray-100 bg-white py-6 font-sans shadow-[0_8px_30px_rgba(0,0,0,0.05)] transition-all duration-200 ease-in-out",
+          isSidebarCollapsed ? "w-[68px] px-3" : "w-64 px-5"
+        )}
+        style={{ overflow: "visible" }}
+      >
+        {/* Collapse toggle button — vertically centered on right edge */}
         <button
-          onClick={handleCtaClick}
-          className={cn(
-            "flex w-full items-center justify-center rounded-full py-3 px-4 text-sm font-semibold transition-all",
-            isOutputPage
-              ? "bg-[#111111] text-white hover:bg-opacity-90"
-              : "border-2 border-[#EA580C] bg-[#111111] text-white hover:bg-gray-900"
-          )}
+          onClick={toggleSidebar}
+          className="absolute z-50 flex h-7 w-7 items-center justify-center rounded-full border border-black bg-white text-black shadow-md hover:bg-gray-100 transition-colors"
+          style={{ right: "-14px", top: "50%", transform: "translateY(-50%)" }}
+          aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {ctaIcon}
-          {ctaText}
+          {isSidebarCollapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
         </button>
 
-        {/* Nav Items */}
-        <nav className="flex flex-col gap-1 mt-4">
-        {navItems.map((item) => {
-            const isActive = 
-              (item.path === "/" && isListPage) || 
-              (item.path === "/assignments" && (isListPage || isOutputPage)) || 
-              currentPath.startsWith(item.path) && item.path !== "/";
-            const IconComp = item.icon;
-            return (
+        <div className="flex flex-col gap-6">
+          {/* Logo */}
+          <div
+            onClick={() => navigate("/")}
+            className={cn("cursor-pointer overflow-hidden", isSidebarCollapsed ? "px-0" : "px-2")}
+          >
+            {isSidebarCollapsed ? (
+              <img src="/logo.png" alt="VedaAI" className="h-9 w-9 object-contain rounded-xl shadow-sm" />
+            ) : (
+              <VedaLogo variant={logoVariant} />
+            )}
+          </div>
+
+          {/* CTA Button */}
+          <Tooltip>
+            <TooltipTrigger asChild>
               <button
-                key={item.label}
-                onClick={() => navigate(item.path === "/" ? "/" : item.path)}
+                onClick={handleCtaClick}
                 className={cn(
-                  "flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50",
-                  isActive && "bg-gray-100 font-semibold"
+                  "flex w-full items-center rounded-full py-3 text-sm font-semibold transition-all",
+                  isSidebarCollapsed ? "justify-center px-0" : "justify-center px-4",
+                  isOutputPage
+                    ? "bg-[#111111] text-white hover:bg-opacity-90"
+                    : "border-2 border-[#EA580C] bg-[#111111] text-white hover:bg-gray-900"
                 )}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-gray-500">
-                    <IconComp />
-                  </span>
-                  <span>{item.label}</span>
-                </div>
-                {item.badge != null && (
-                  <span className="flex h-5 items-center justify-center rounded-full bg-orange-500 px-2 text-[11px] font-bold text-white shadow-sm">
-                    {item.badge}
-                  </span>
-                )}
+                {ctaIcon}
+                {!isSidebarCollapsed && <span className="ml-2">{ctaText}</span>}
               </button>
-            );
-          })}
-        </nav>
-      </div>
+            </TooltipTrigger>
+            {isSidebarCollapsed && (
+              <TooltipContent side="right">
+                <p>{ctaText}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
 
-      <div className="flex flex-col gap-4">
-        {/* Settings */}
-        <button 
-          onClick={() => navigate("/settings")}
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
-            currentPath === "/settings" && "bg-gray-100 font-semibold text-gray-800"
-          )}
-        >
-          <Settings className="h-5 w-5 text-gray-500" />
-          <span>Settings</span>
-        </button>
+          {/* Nav Items */}
+          <nav className="flex flex-col gap-1 mt-4">
+            {navItems.map((item) => {
+              const isActive =
+                (item.path === "/" && isListPage) ||
+                (item.path === "/assignments" && (isListPage || isOutputPage)) ||
+                (currentPath.startsWith(item.path) && item.path !== "/");
+              const IconComp = item.icon;
 
-        {/* School Card */}
-        <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          {schoolAvatar}
-          <div className="flex flex-col min-w-0">
-            <span className="truncate text-[13px] font-bold text-gray-800 leading-tight">
-              {user?.institutionName || "Delhi Public School"}
-            </span>
-            <span className="truncate text-[11px] text-gray-500 regular leading-tight">
-              {user?.branch || "Bokaro Steel City"}
-            </span>
+              const navButton = (
+                <button
+                  key={item.label}
+                  onClick={() => navigate(item.path === "/" ? "/" : item.path)}
+                  className={cn(
+                    "flex w-full items-center rounded-xl px-3 py-3 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50",
+                    isSidebarCollapsed ? "justify-center" : "justify-between",
+                    isActive && "bg-gray-100 font-semibold"
+                  )}
+                >
+                  <div className={cn("flex items-center", !isSidebarCollapsed && "gap-3")}>
+                    <span className="text-gray-500 flex-shrink-0">
+                      <IconComp />
+                    </span>
+                    {!isSidebarCollapsed && <span>{item.label}</span>}
+                  </div>
+                  {!isSidebarCollapsed && item.badge != null && (
+                    <span className="flex h-5 items-center justify-center rounded-full bg-orange-500 px-2 text-[11px] font-bold text-white shadow-sm">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+
+              return isSidebarCollapsed ? (
+                <Tooltip key={item.label}>
+                  <TooltipTrigger asChild>{navButton}</TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>{item.label}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                navButton
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {/* Settings */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => navigate("/settings")}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50",
+                  isSidebarCollapsed && "justify-center",
+                  currentPath === "/settings" && "bg-gray-100 font-semibold text-gray-800"
+                )}
+              >
+                <Settings className="h-5 w-5 text-gray-500 flex-shrink-0" />
+                {!isSidebarCollapsed && <span>Settings</span>}
+              </button>
+            </TooltipTrigger>
+            {isSidebarCollapsed && (
+              <TooltipContent side="right">
+                <p>Settings</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+
+          {/* School Card */}
+          <div
+            className={cn(
+              "flex items-center rounded-xl border border-gray-100 bg-white p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+              isSidebarCollapsed ? "justify-center" : "gap-3"
+            )}
+          >
+            {schoolAvatar}
+            {!isSidebarCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <span className="truncate text-[13px] font-bold text-gray-800 leading-tight">
+                  {user?.institutionName || "Delhi Public School"}
+                </span>
+                <span className="truncate text-[11px] text-gray-500 regular leading-tight">
+                  {user?.branch || "Bokaro Steel City"}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };

@@ -9,15 +9,17 @@ const envSchema = z.object({
   MONGO_URI: z.string().min(1, "MONGO_URI is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_REFRESH_SECRET: z.string().min(1, "JWT_REFRESH_SECRET is required"),
-  APP_ORIGIN: z.string().default("http://localhost:5173"),
-  FRONTEND_URL: z.string().default("http://localhost:5173"),
+  APP_ORIGIN: z.string().default(process.env.NODE_ENV === "production" ? "https://adept-ai-seven.vercel.app" : "http://localhost:8080"),
+  FRONTEND_URL: z.string().default(process.env.NODE_ENV === "production" ? "https://adept-ai-seven.vercel.app" : "http://localhost:8080"),
   RAW_DATA_PATH: z.string().min(1, "RAW_DATA_PATH is required"),
   PROCESSED_DATA_PATH: z.string().min(1, "PROCESSED_DATA_PATH is required"),
-  FASTAPI_URL: z.string().default("http://localhost:5001"),
+  FASTAPI_URL: z.string().default(process.env.NODE_ENV === "production" ? "https://adept-ai-fastapi.onrender.com" : "http://localhost:5001"),
   GEMINI_API_KEY: z.string().optional(),
   GROQ_API_KEY: z.string().min(1, "GROQ_API_KEY is required"),
   REDIS_URL: z.string().default("redis://localhost:6379"),
   WORKER_CONCURRENCY: z.string().default("3"),
+  ROADMAP_WORKER_CONCURRENCY: z.string().default("3"),
+  VECTOR_WORKER_CONCURRENCY: z.string().default("2"),
   MAX_SOURCE_CONTENT_CHARS: z.string().default("3000"),
   SUPABASE_URL: z.string().min(1, "SUPABASE_URL is required"),
   SUPABASE_KEY: z.string().min(1, "SUPABASE_KEY is required"),
@@ -51,6 +53,8 @@ export const GEMINI_API_KEY = env.GEMINI_API_KEY;
 export const GROQ_API_KEY = env.GROQ_API_KEY;
 export const REDIS_URL = env.REDIS_URL;
 export const WORKER_CONCURRENCY = parseInt(env.WORKER_CONCURRENCY, 10);
+export const ROADMAP_WORKER_CONCURRENCY = parseInt(env.ROADMAP_WORKER_CONCURRENCY, 10);
+export const VECTOR_WORKER_CONCURRENCY = parseInt(env.VECTOR_WORKER_CONCURRENCY, 10);
 export const MAX_SOURCE_CONTENT_CHARS = parseInt(env.MAX_SOURCE_CONTENT_CHARS, 10);
 export const SUPABASE_URL = env.SUPABASE_URL;
 export const SUPABASE_KEY = env.SUPABASE_KEY;

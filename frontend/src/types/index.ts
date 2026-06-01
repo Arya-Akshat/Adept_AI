@@ -18,6 +18,12 @@ export interface PDF {
   hasRoadmap: boolean;
   lastRoadmapGeneration?: string;
   isSyllabus?: boolean;
+  roadmapStatus: "not_started" | "queued" | "processing" | "ready" | "failed";
+  vectorStatus: "not_started" | "queued" | "processing" | "ready" | "failed" | "na";
+  roadmapError?: string;
+  vectorError?: string;
+  supabaseUrl?: string;
+  courseId?: string;
 }
 
 export interface RoadmapItem {

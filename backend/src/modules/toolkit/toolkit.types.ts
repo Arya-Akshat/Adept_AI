@@ -21,3 +21,12 @@ export const RubricRequestSchema = z.object({
 });
 
 export type RubricRequest = z.infer<typeof RubricRequestSchema>;
+
+export const PresentationRequestSchema = z.object({
+  courseId: z.string().min(1, "Course ID is required"),
+  fileIds: z.array(z.string()).min(1, "At least one file must be selected"),
+  slideCount: z.number().min(4).max(15).default(8),
+  topicFocus: z.string().optional(),
+});
+
+export type PresentationRequest = z.infer<typeof PresentationRequestSchema>;
