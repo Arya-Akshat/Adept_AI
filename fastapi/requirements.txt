@@ -1,12 +1,6 @@
-PyPDF2
 PyMuPDF
 Pillow
-easyocr
 python-dotenv
-docx2pdf
-fpdf
-scikit-learn
-numpy
 google-generativeai
 groq
 fastapi

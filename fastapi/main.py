@@ -10,10 +10,6 @@ import io
 # Add current directory to path for sub-module loading
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Load embedding model at startup
-from rag.embedder import load_embedding_model
-embedding_model = load_embedding_model()
-
 from rag.doubt_solver import solve_doubt_stream
 
 # Initialize FastAPI app
