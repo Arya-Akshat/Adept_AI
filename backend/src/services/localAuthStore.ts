@@ -10,6 +10,15 @@ export type LocalUser = {
     avatarUrl?: string;
     institutionName?: string;
     branch?: string;
+    schoolName?: string;
+    city?: string;
+    primarySubject?: string;
+    classesTeaching?: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+    onboardingCompleted: boolean;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -28,10 +37,19 @@ const sessions = new Map<string, LocalSession>();
 const normalizeUser = (user: LocalUser) => ({
     _id: user._id,
     email: user.email,
-    fullName: user.fullName,
-    avatarUrl: user.avatarUrl,
-    institutionName: user.institutionName,
-    branch: user.branch,
+    fullName: user.fullName || "",
+    avatarUrl: user.avatarUrl || "",
+    institutionName: user.institutionName || "",
+    branch: user.branch || "",
+    schoolName: user.schoolName || "",
+    city: user.city || "",
+    primarySubject: user.primarySubject || "",
+    classesTeaching: user.classesTeaching || [],
+    schoolBoard: user.schoolBoard || "",
+    approximateStudents: user.approximateStudents !== undefined ? user.approximateStudents : null,
+    referralSource: user.referralSource || "",
+    avatarBase64: user.avatarBase64 || "",
+    onboardingCompleted: !!user.onboardingCompleted,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
 });
@@ -48,6 +66,19 @@ export const localAuthStore = {
             _id: uuidv4(),
             email,
             password: await hashValue(password),
+            fullName: "",
+            avatarUrl: "",
+            institutionName: "",
+            branch: "",
+            schoolName: "",
+            city: "",
+            primarySubject: "",
+            classesTeaching: [],
+            schoolBoard: "",
+            approximateStudents: null,
+            referralSource: "",
+            avatarBase64: "",
+            onboardingCompleted: false,
             createdAt: now,
             updatedAt: now,
         };

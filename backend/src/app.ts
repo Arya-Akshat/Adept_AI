@@ -80,6 +80,7 @@ app.use("/api/courses", authenticate, courseRoutes);
 
 // Protected routes
 app.use("/user", authenticate, userRoutes);
+app.use("/api/user", authenticate, userRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

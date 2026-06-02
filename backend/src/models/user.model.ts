@@ -9,6 +9,15 @@ export interface UserDocument extends mongoose.Document {
     avatarUrl?: string;
     institutionName?: string;
     branch?: string;
+    schoolName?: string;
+    city?: string;
+    primarySubject?: string;
+    classesTeaching?: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+    onboardingCompleted: boolean;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(val:string): Promise<boolean>;
@@ -19,10 +28,19 @@ const UserSchema = new mongoose.Schema<UserDocument>(
     {
     email: { type: String, unique: true, required: true},
     password: { type: String, unique: true, required: true},
-    fullName: { type: String },
-    avatarUrl: { type: String },
-    institutionName: { type: String },
-    branch: { type: String },
+    fullName: { type: String, default: "" },
+    avatarUrl: { type: String, default: "" },
+    institutionName: { type: String, default: "" },
+    branch: { type: String, default: "" },
+    schoolName: { type: String, default: "" },
+    city: { type: String, default: "" },
+    primarySubject: { type: String, default: "" },
+    classesTeaching: { type: [String], default: [] },
+    schoolBoard: { type: String, default: "" },
+    approximateStudents: { type: Number, default: null },
+    referralSource: { type: String, default: "" },
+    avatarBase64: { type: String, default: "" },
+    onboardingCompleted: { type: Boolean, default: false },
     },
     {
         timestamps: true,

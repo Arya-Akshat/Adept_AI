@@ -20,5 +20,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
+  if (!user.onboardingCompleted) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
   return <>{children}</>;
 };

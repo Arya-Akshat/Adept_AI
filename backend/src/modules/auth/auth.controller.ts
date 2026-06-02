@@ -27,10 +27,13 @@ export const registerHandler = catchErrors(async (req, res) => {
 
     const { user, accessToken, refreshToken } = await createAccount(request);
 
+    const publicUser = typeof (user as any).toJSON === "function" ? (user as any).toJSON() : user;
+
     return setAuthCookies({res, accessToken, refreshToken})
     .status(CREATED)
     .json({
-        ...(typeof (user as any).toJSON === "function" ? (user as any).toJSON() : user),
+        ...publicUser,
+        user: publicUser,
         accessToken,
         refreshToken,
     });
@@ -43,7 +46,9 @@ export const loginHandler = catchErrors(async (req,res) => {
         userAgent: req.headers["user-agent"]
     })
 
-    const { accessToken, refreshToken } = await loginUser(request);
+    const { user, accessToken, refreshToken } = await loginUser(request);
+
+    const publicUser = typeof (user as any).toJSON === "function" ? (user as any).toJSON() : user;
 
     return setAuthCookies({res, accessToken, refreshToken})
         .status(OK)
@@ -51,6 +56,7 @@ export const loginHandler = catchErrors(async (req,res) => {
             message: "Login successful",
             accessToken,
             refreshToken,
+            user: publicUser,
         })
 })
 

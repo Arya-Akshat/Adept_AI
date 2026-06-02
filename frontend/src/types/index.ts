@@ -5,6 +5,15 @@ export interface User {
   avatarUrl?: string;
   institutionName?: string;
   branch?: string;
+  schoolName?: string;
+  city?: string;
+  primarySubject?: string;
+  classesTeaching?: string[];
+  schoolBoard?: string;
+  approximateStudents?: number | null;
+  referralSource?: string;
+  avatarBase64?: string;
+  onboardingCompleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }

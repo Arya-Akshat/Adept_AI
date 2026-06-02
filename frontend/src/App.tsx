@@ -13,6 +13,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import OnboardingPage from "./pages/OnboardingPage";
 
 // New Assignment Pages
 import Dashboard from "./pages/Dashboard";
@@ -54,6 +55,7 @@ const App: React.FC = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/landing" element={<Landing />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
 
                 {/* Dashboard and Assignment Routes */}
                 <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

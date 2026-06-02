@@ -107,6 +107,15 @@ export interface User {
   avatarUrl?: string;
   institutionName?: string;
   branch?: string;
+  schoolName?: string;
+  city?: string;
+  primarySubject?: string;
+  classesTeaching?: string[];
+  schoolBoard?: string;
+  approximateStudents?: number | null;
+  referralSource?: string;
+  avatarBase64?: string;
+  onboardingCompleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -217,7 +226,27 @@ export const userApi = {
     avatarUrl?: string;
     institutionName?: string;
     branch?: string;
+    schoolName?: string;
+    city?: string;
+    primarySubject?: string;
+    classesTeaching?: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+    onboardingCompleted?: boolean;
   }) => api.patch<User>("/user", data),
+  completeOnboarding: (data: {
+    fullName: string;
+    schoolName: string;
+    city: string;
+    primarySubject: string;
+    classesTeaching: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+  }) => api.post<{ success: boolean; data: { user: User } }>("/api/user/onboarding/complete", data),
 };
 
 // AdeptAi Assessment endpoints

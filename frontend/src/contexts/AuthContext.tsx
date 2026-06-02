@@ -14,6 +14,26 @@ interface AuthContextType {
     avatarUrl?: string;
     institutionName?: string;
     branch?: string;
+    schoolName?: string;
+    city?: string;
+    primarySubject?: string;
+    classesTeaching?: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+    onboardingCompleted?: boolean;
+  }) => Promise<void>;
+  completeOnboarding: (data: {
+    fullName: string;
+    schoolName: string;
+    city: string;
+    primarySubject: string;
+    classesTeaching: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
   }) => Promise<void>;
 }
 
@@ -129,6 +149,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     avatarUrl?: string;
     institutionName?: string;
     branch?: string;
+    schoolName?: string;
+    city?: string;
+    primarySubject?: string;
+    classesTeaching?: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+    onboardingCompleted?: boolean;
   }) => {
     try {
       const response = await userApi.updateProfile(data);
@@ -148,8 +177,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const completeOnboarding = async (data: {
+    fullName: string;
+    schoolName: string;
+    city: string;
+    primarySubject: string;
+    classesTeaching: string[];
+    schoolBoard?: string;
+    approximateStudents?: number | null;
+    referralSource?: string;
+    avatarBase64?: string;
+  }) => {
+    try {
+      const response = await userApi.completeOnboarding(data);
+      setUser(response.data.data.user);
+      toast({
+        title: 'Success',
+        description: 'Onboarding completed successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.error?.message || 'Failed to complete onboarding',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, completeOnboarding }}>
       {children}
     </AuthContext.Provider>
   );

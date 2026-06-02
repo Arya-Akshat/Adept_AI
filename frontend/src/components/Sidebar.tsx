@@ -85,9 +85,20 @@ export const Sidebar: React.FC = () => {
     assignmentsBadge = libraryCount;
   }
 
-  const schoolAvatar = user?.avatarUrl ? (
+  const getInitials = () => {
+    if (!user) return "V";
+    const namePart = user.fullName?.trim() || "";
+    const schoolPart = user.schoolName?.trim() || user.institutionName?.trim() || "";
+    const nameInitial = namePart ? namePart.charAt(0) : "";
+    const schoolInitial = schoolPart ? schoolPart.charAt(0) : "";
+    return (nameInitial + schoolInitial).toUpperCase() || "V";
+  };
+
+  const hasSchoolInfo = !!(user?.schoolName || user?.institutionName);
+
+  const schoolAvatar = (user?.avatarBase64 || user?.avatarUrl) ? (
     <img
-      src={user.avatarUrl}
+      src={user.avatarBase64 || user.avatarUrl}
       alt="Avatar"
       className="h-9 w-9 min-w-[36px] min-h-[36px] rounded-full object-cover border border-amber-200 flex-shrink-0"
     />
@@ -99,7 +110,7 @@ export const Sidebar: React.FC = () => {
     </div>
   ) : (
     <div className="h-9 w-9 min-w-[36px] min-h-[36px] overflow-hidden rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center flex-shrink-0">
-      <span className="text-sm font-bold text-amber-700">DPS</span>
+      <span className="text-sm font-bold text-amber-700">{getInitials()}</span>
     </div>
   );
 
@@ -299,20 +310,36 @@ export const Sidebar: React.FC = () => {
 
           {/* School Card */}
           <div
+            onClick={() => {
+              if (!hasSchoolInfo) {
+                navigate("/settings");
+              }
+            }}
             className={cn(
               "flex items-center rounded-xl border border-gray-100 bg-white p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
-              isSidebarCollapsed ? "justify-center" : "gap-3"
+              isSidebarCollapsed ? "justify-center" : "gap-3",
+              !hasSchoolInfo && "cursor-pointer hover:bg-gray-50"
             )}
           >
             {schoolAvatar}
             {!isSidebarCollapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="truncate text-[13px] font-bold text-gray-800 leading-tight">
-                  {user?.institutionName || "Delhi Public School"}
-                </span>
-                <span className="truncate text-[11px] text-gray-500 regular leading-tight">
-                  {user?.branch || "Bokaro Steel City"}
-                </span>
+                {hasSchoolInfo ? (
+                  <>
+                    <span className="truncate text-[13px] font-bold text-gray-800 leading-tight">
+                      {user?.schoolName || user?.institutionName}
+                    </span>
+                    <span className="truncate text-[11px] text-gray-500 regular leading-tight">
+                      {user?.city || user?.branch}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[13px] font-bold text-gray-500 leading-tight">
+                      Set up your profile
+                    </span>
+                  </>
+                )}
               </div>
             )}
           </div>
