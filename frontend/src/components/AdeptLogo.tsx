@@ -10,7 +10,7 @@ export const AdeptLogo: React.FC<AdeptLogoProps> = ({ variant }) => {
     return (
       <div className="flex items-center gap-3">
         <img src="/logo.png" alt="AdeptAi Logo" className="h-10 w-10 object-contain rounded-xl shadow-sm rotate-180" />
-        <span className="text-xl font-extrabold tracking-tight text-[#111111] font-sans">
+        <span className="text-xl font-extrabold tracking-tight text-[#111111] dark:text-white font-sans">
           AdeptAi
         </span>
       </div>
@@ -33,7 +33,7 @@ export const AdeptLogo: React.FC<AdeptLogoProps> = ({ variant }) => {
   return (
     <div className="flex items-center gap-3">
       <img src="/logo.png" alt="AdeptAi Logo" className="h-10 w-10 object-contain rounded-xl shadow-sm rotate-180" />
-      <span className="text-xl font-extrabold tracking-tight text-[#111111] font-sans">
+      <span className="text-xl font-extrabold tracking-tight text-[#111111] dark:text-white font-sans">
         AdeptAi
       </span>
     </div>

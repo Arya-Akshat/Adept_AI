@@ -90,9 +90,9 @@ const Toolkit: React.FC = () => {
       <div className="mb-6 flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[#EA580C]" />
-          <h1 className="text-xl font-bold text-gray-800">AI Teacher's Toolkit</h1>
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">AI Teacher's Toolkit</h1>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-455">
           Access syllabus extraction, study roadmap pipelines, and preview upcoming AI tools.
         </p>
       </div>
@@ -104,8 +104,8 @@ const Toolkit: React.FC = () => {
             onClick={() => handleToolClick(tool)}
             className={`flex flex-col justify-between rounded-2xl border p-6 text-left shadow-sm transition-all group ${
               tool.comingSoon
-                ? "border-gray-100 bg-gray-50/50 opacity-70 cursor-not-allowed"
-                : "border-gray-100 bg-white hover:shadow-md hover:border-orange-200 cursor-pointer"
+                ? "border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 opacity-70 cursor-not-allowed"
+                : "border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:shadow-md dark:hover:shadow-lg hover:border-orange-200 dark:hover:border-orange-900 cursor-pointer"
             }`}
           >
             <div>
@@ -113,8 +113,8 @@ const Toolkit: React.FC = () => {
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
                     tool.comingSoon
-                      ? "bg-gray-100 text-gray-400"
-                      : "bg-orange-50 text-orange-500 group-hover:bg-orange-500 group-hover:text-white"
+                      ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500"
+                      : "bg-orange-50 dark:bg-orange-950/20 text-orange-500 dark:text-orange-400 group-hover:bg-orange-500 group-hover:text-white"
                   }`}
                 >
                   {tool.icon}
@@ -122,21 +122,21 @@ const Toolkit: React.FC = () => {
                 <span
                   className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                     tool.comingSoon
-                      ? "text-gray-500 bg-gray-100 border-gray-200"
-                      : "text-orange-700 bg-orange-50 border-orange-100"
+                      ? "text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                      : "text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/20 border-orange-100 dark:border-orange-900/30"
                   }`}
                 >
                   {tool.badge}
                 </span>
               </div>
-              <h3 className="text-sm font-bold text-gray-900 mb-1.5">{tool.title}</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">{tool.desc}</p>
+              <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1.5">{tool.title}</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{tool.desc}</p>
             </div>
             <div
               className={`mt-5 flex items-center gap-1 text-xs font-semibold ${
                 tool.comingSoon
-                  ? "text-gray-400"
-                  : "text-orange-500 group-hover:gap-2 transition-all"
+                  ? "text-gray-400 dark:text-gray-550"
+                  : "text-orange-500 dark:text-orange-400 group-hover:gap-2 transition-all"
               }`}
             >
               {tool.comingSoon ? "Coming Soon" : "Go to Page"}

@@ -118,3 +118,88 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Dark mode utility overrides for legacy hardcoded Tailwind classes */
+.dark .bg-white {
+  background-color: hsl(var(--card)) !important;
+}
+
+.dark .text-gray-900 {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-gray-800 {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-gray-700 {
+  color: hsl(var(--foreground) / 0.8) !important;
+}
+
+.dark .text-gray-600 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(var(--muted-foreground) / 0.8) !important;
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.dark .bg-gray-50\/20 {
+  background-color: hsl(var(--secondary) / 0.2) !important;
+}
+
+.dark .bg-gray-50\/30 {
+  background-color: hsl(var(--secondary) / 0.3) !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.dark .hover\:border-black\/30:hover {
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .hover\:text-black:hover {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .group-hover\:text-black:hover,
+.dark .group-hover\:text-black {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .bg-white\/10 {
+  background-color: hsl(var(--card) / 0.1) !important;
+}
+
+.dark .text-black {
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .bg-black {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.dark .hover\:bg-gray-900:hover {
+  background-color: hsl(var(--primary) / 0.9) !important;
+}
+
