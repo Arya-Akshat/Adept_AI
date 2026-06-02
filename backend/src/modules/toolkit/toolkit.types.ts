@@ -30,3 +30,15 @@ export const PresentationRequestSchema = z.object({
 });
 
 export type PresentationRequest = z.infer<typeof PresentationRequestSchema>;
+
+export const QuestionBankRequestSchema = z.object({
+  courseId: z.string().min(1, "Course ID is required"),
+  fileIds: z.array(z.string()).min(1, "At least one file must be selected"),
+  questionCount: z.number().min(3).max(25).default(10),
+  questionTypes: z.array(z.enum(["mcq", "short", "long"])).min(1, "At least one question type is required"),
+  difficulty: z.enum(["easy", "medium", "hard", "mixed"]).default("mixed"),
+  topicFocus: z.string().optional(),
+});
+
+export type QuestionBankRequest = z.infer<typeof QuestionBankRequestSchema>;
+

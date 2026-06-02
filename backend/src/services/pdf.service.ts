@@ -19,7 +19,7 @@ const buildAssessmentPdfDocument = (paper: GeneratedPaper) => {
   doc
     .fontSize(18)
     .font("Helvetica-Bold")
-    .text("VEDA AI ACADEMY", { align: "center" });
+    .text("ADEPT AI ACADEMY", { align: "center" });
   doc
     .fontSize(11)
     .font("Helvetica")
@@ -258,7 +258,7 @@ const buildRubricPdfDocument = (rubric: RubricDocument) => {
   doc
     .fontSize(18)
     .font("Helvetica-Bold")
-    .text("VEDA AI ACADEMY", { align: "center" });
+    .text("ADEPT AI ACADEMY", { align: "center" });
   doc
     .fontSize(11)
     .font("Helvetica")

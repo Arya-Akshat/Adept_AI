@@ -243,7 +243,7 @@ export const AssignmentOutput: React.FC = () => {
         </div>
         
         <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-          Please do not close this window. VedaAI is structuring sections, generating questions, and formatting your exam sheet.
+          Please do not close this window. AdeptAi is structuring sections, generating questions, and formatting your exam sheet.
         </p>
       </div>
     );
@@ -335,7 +335,7 @@ export const AssignmentOutput: React.FC = () => {
           {/* Centered School Header */}
           <div className="text-center mb-6">
             <h1 className="text-xl font-bold font-serif mb-1 uppercase tracking-wide">
-              Delhi Public School, Sector-4, Bokaro
+              {user?.institutionName || "Delhi Public School"}{user?.branch ? `, ${user.branch}` : user?.institutionName ? "" : ", Sector-4, Bokaro"}
             </h1>
             <h2 className="text-base font-semibold font-serif mb-1">
               Subject: {paper.metadata.subject || assessment.subject}

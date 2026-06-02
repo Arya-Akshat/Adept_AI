@@ -158,15 +158,15 @@ export const useAssessmentStore = create<AssessmentFormState>((set, get) => ({
         formData.append("file", state.sourceFile);
         
         // Post to /api/pdfs/upload using Axios direct post
-        const uploadRes = await api.post<{ pdfs: Array<{ id: string; filename: string }> }>(
+        const uploadRes = await api.post<{ success: boolean; data: { pdfId: string } }>(
           "/api/pdfs/upload",
           formData,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
 
-        if (uploadRes.data && uploadRes.data.pdfs && uploadRes.data.pdfs.length > 0) {
+        if (uploadRes.data && uploadRes.data.success && uploadRes.data.data) {
           // Pass the id returned as sourceContent so backend can find it in MongoDB
-          finalSourceContent = uploadRes.data.pdfs[0].id;
+          finalSourceContent = uploadRes.data.data.pdfId;
           // Always send sourceType as "pdf" for uploaded files so backend downloads from Supabase
           finalSourceType = "pdf";
         }

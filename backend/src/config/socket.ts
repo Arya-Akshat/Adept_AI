@@ -21,6 +21,11 @@ export const initializeSocket = (httpServer: HttpServer): SocketServer => {
       logger.debug({ socketId: socket.id, jobId }, "Socket: Client joined room");
     });
 
+    socket.on("leave", (jobId: string) => {
+      socket.leave(jobId);
+      logger.debug({ socketId: socket.id, jobId }, "Socket: Client left room");
+    });
+
     socket.on("disconnect", (reason) => {
       logger.info({ socketId: socket.id, reason }, "Socket: Client disconnected");
     });

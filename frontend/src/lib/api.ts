@@ -220,7 +220,7 @@ export const userApi = {
   }) => api.patch<User>("/user", data),
 };
 
-// VedaAI Assessment endpoints
+// AdeptAi Assessment endpoints
 export const assessmentApi = {
   create: (data: {
     title: string;
@@ -267,9 +267,15 @@ export const coreApi = {
   parsePDF: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return api.post('/api/parsePDF', formData, {
+    return api.post('/api/pdfs/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    }).then(res => ({
+      ...res,
+      data: {
+        pdfId: res.data?.data?.pdfId,
+        ...res.data?.data
+      }
+    }));
   },
   parseImg: (file: File, courseId?: string | null) => {
     const formData = new FormData();
@@ -277,9 +283,15 @@ export const coreApi = {
     if (courseId) {
       formData.append('courseId', courseId);
     }
-    return api.post('/api/parseImg', formData, {
+    return api.post('/api/pdfs/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    }).then(res => ({
+      ...res,
+      data: {
+        pdfId: res.data?.data?.pdfId,
+        ...res.data?.data
+      }
+    }));
   },
   parseLink: () => api.post('/api/parseLink'),
   getToken: () => api.get('/api/getToken'),
@@ -318,6 +330,12 @@ export const pdfApi = {
     api.patch<{ success: boolean; data: { studied: boolean } }>(`/api/pdfs/${pdfId}/topic/studied`, { unitIndex, topicIndex, studied }),
   assignFileToCourse: (pdfId: string, courseId: string | null) =>
     api.patch<{ success: boolean; data: { courseId: string | null } }>(`/api/pdfs/${pdfId}/assign-course`, { courseId }),
+  saveAnswer: (pdfId: string, question: string, answer: string) =>
+    api.post<any>(`/api/pdfs/${pdfId}/saved-answers`, { question, answer }),
+  listSavedAnswers: (pdfId: string) =>
+    api.get<any[]>(`/api/pdfs/${pdfId}/saved-answers`),
+  deleteSavedAnswer: (pdfId: string, answerId: string) =>
+    api.delete<{ message: string }>(`/api/pdfs/${pdfId}/saved-answers/${answerId}`),
 };
 
 // Toolkit endpoints
@@ -409,6 +427,42 @@ export const toolkitApi = {
 
   downloadPresentationPptx: (data: { metadata: { title: string; subject?: string }; slides: any[] }) =>
     api.post("/api/toolkit/presentation/download", data, { responseType: "blob" }),
+  getPresentation: (id: string) =>
+    api.get<{ success: boolean; data: any }>(`/api/toolkit/presentation/${id}`),
+
+  generateQuestionBank: (data: {
+    courseId: string;
+    fileIds: string[];
+    questionCount: number;
+    questionTypes: ("mcq" | "short" | "long")[];
+    difficulty: "easy" | "medium" | "hard" | "mixed";
+    topicFocus?: string;
+  }) =>
+    api.post<{
+      success: boolean;
+      data: {
+        _id: string;
+        metadata: {
+          title: string;
+          subject: string;
+          questionCount: number;
+          generatedAt: string;
+        };
+        questions: {
+          questionNumber: number;
+          questionText: string;
+          type: "mcq" | "short" | "long";
+          cognitiveLevel: "remembering" | "understanding" | "applying" | "analyzing" | "evaluating" | "creating";
+          options?: string[];
+          correctAnswer: string;
+          marks: number;
+          difficulty: "easy" | "medium" | "hard";
+        }[];
+      };
+    }>("/api/toolkit/question-bank", data),
+
+  getQuestionBank: (id: string) =>
+    api.get<{ success: boolean; data: any }>(`/api/toolkit/question-bank/${id}`),
 };
 
 // Course/Subject management endpoints
@@ -421,4 +475,9 @@ export const courseApi = {
     api.patch<any>(`/api/courses/${courseId}`, data),
   deleteCourse: (courseId: string) =>
     api.delete<{ message: string }>(`/api/courses/${courseId}`),
+  listPresentations: (courseId: string) =>
+    api.get<any[]>(`/api/courses/${courseId}/presentations`),
+  listQuestionBanks: (courseId: string) =>
+    api.get<any[]>(`/api/courses/${courseId}/question-banks`),
 };
+

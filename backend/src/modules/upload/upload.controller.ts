@@ -10,7 +10,7 @@ import appAssert from "../../utils/appAssert";
 import catchErrors from "../../utils/catchErrors";
 import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import logger from "../../utils/logger";
-import { API } from "../../services/gemini.service";
+import { API } from "../../config/apiClient";
 import { v4 as uuidv4 } from "uuid";
 import FormData from "form-data";
 
@@ -24,119 +24,7 @@ import { emitRoadmapQueued } from "../roadmap/roadmap.socket";
 
 type fileSchema = Express.Multer.File[]
 
-export const pdfHandler = catchErrors(async (req, res) => {
-    const files = req.files as Express.Multer.File[];
-    appAssert(files && files.length > 0, BAD_REQUEST, "No files sent");
-    appAssert(files[0].size > 100, BAD_REQUEST, "File is too small (likely corrupt or empty)");
-    logger.debug({ fileCount: files.length }, "PDF upload received");
-
-    const firstFile = files[0];
-    const pdfId = uuidv4();
-    const filename = `${pdfId}_${firstFile.originalname}`;
-
-    // Upload to Supabase
-    const publicUrl = await uploadFileToSupabase("adept-files", filename, firstFile.buffer, firstFile.mimetype);
-    logger.info({ filename, publicUrl }, "File uploaded to Supabase");
-
-    // Save to MongoDB
-    const libraryFile = await LibraryFile.create({
-        userId: req.userId,
-        filename: filename,
-        originalName: firstFile.originalname,
-        supabaseUrl: publicUrl,
-        fileSize: firstFile.size,
-        isSyllabus: false,
-        hasRoadmap: false
-    });
-
-    const formData = new FormData();
-    formData.append("userId", req.userId.toString());
-    formData.append("pdf_file", firstFile.buffer, { filename: firstFile.originalname });
-
-    const response = await API.post("/getRoadmap", formData, {
-        headers: { ...formData.getHeaders() },
-    });
-    appAssert(response, INTERNAL_SERVER_ERROR, "Parsing PDF failed");
-
-    const roadmapData = (response.data as any).body;
-    
-    // Save roadmap JSON to MongoDB
-    libraryFile.hasRoadmap = true;
-    libraryFile.roadmapData = roadmapData;
-    await libraryFile.save();
-
-    // Also update the active user roadmap
-    // The frontend currently reads finalData.json. We will update getRoadmapHandler to fetch the latest roadmap.
-    
-    return res.status(OK).json({ message: "File parsed successfully " });
-});
-
-export const imgHandler = catchErrors(async (req, res) => {
-    const files = req.files as Express.Multer.File[];
-    appAssert(files && files.length > 0, BAD_REQUEST, "No image file sent");
-    appAssert(files[0].size > 100, BAD_REQUEST, "File is too small (likely corrupt or empty)");
-
-    const file = files[0];
-    const ext = path.extname(file.originalname).toLowerCase();
-    appAssert(ext === '.jpg' || ext === '.jpeg' || ext === '.png', BAD_REQUEST, "Only .jpg, .jpeg, or .png files are allowed");
-
-    const tempPdfId = uuidv4();
-    const filename = `${tempPdfId}${ext}`;
-
-    // Upload to Supabase
-    const publicUrl = await uploadFileToSupabase("adept-files", filename, file.buffer, file.mimetype);
-
-    // Save to temp file and extract text (OCR)
-    const tempPath = path.join(os.tmpdir(), `roadmap_upload_${Date.now()}${ext}`);
-    fs.writeFileSync(tempPath, file.buffer);
-
-    let extractedText = "";
-    try {
-        extractedText = await extractTextFromUpload(tempPath, file.mimetype);
-    } finally {
-        if (fs.existsSync(tempPath)) {
-            fs.unlinkSync(tempPath);
-        }
-    }
-
-    const vectorStatus = "na";
-    const courseId = req.body.courseId || undefined;
-
-    // Save to MongoDB
-    const libraryFile = await LibraryFile.create({
-        userId: req.userId,
-        courseId,
-        filename: filename,
-        originalName: file.originalname,
-        supabaseUrl: publicUrl,
-        fileSize: file.size,
-        isSyllabus: true,
-        hasRoadmap: false,
-        roadmapStatus: "queued",
-        vectorStatus,
-    });
-
-    const pdfId = (libraryFile._id as any).toString();
-
-    // Queue BullMQ job
-    const roadmapQueue = getRoadmapQueue();
-    await roadmapQueue.add(`roadmap-gen-${pdfId}`, {
-        pdfId,
-        userId: req.userId.toString(),
-        filePath: filename,
-        extractedText,
-        fileType: "image"
-    });
-
-    // Emit socket event
-    emitRoadmapQueued(pdfId);
-
-    return res.status(OK).json({
-        message: `Image saved and queued for roadmap generation`,
-        pdfId: libraryFile._id,
-        fileName: file.originalname
-    });
-});
+// Removed pdfHandler and imgHandler as they were deprecated and replaced by the async /api/pdfs/upload queue pipeline.
 
 export const connectionHandler = catchErrors(async (req, res) => {
     const response = async () => API.get("/")

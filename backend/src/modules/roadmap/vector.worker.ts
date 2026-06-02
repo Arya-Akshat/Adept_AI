@@ -3,7 +3,7 @@ import { getRedisClient } from "../../config/redis";
 import logger from "../../utils/logger";
 import { VECTOR_WORKER_CONCURRENCY } from "../../config/env";
 import LibraryFile from "../../models/LibraryFile";
-import { API } from "../../services/gemini.service";
+import { API } from "../../config/apiClient";
 import {
   emitVectorProcessing,
   emitVectorReady,
@@ -51,7 +51,26 @@ const processVectorJob = async (job: Job<VectorJobData>): Promise<void> => {
       throw new Error("FastAPI document ingestion failed or returned invalid response");
     }
 
-    // 4. On success: Update DB
+    // 4. On success: Generate FAQs
+    try {
+      logger.info({ pdfId }, "Worker: Generating FAQ for document");
+      const systemPrompt = "You are an AI assistant helping students study. You must generate exactly 5 likely study questions or doubts students will have about the provided content. Return the result strictly in the requested JSON format. The output must strictly match this JSON schema: { \"faqs\": [\"string\", \"string\", \"string\", \"string\", \"string\"] }. Do not write any markdown code fences, do not write any introductory or concluding text, write only the raw JSON string.";
+      const sampleText = extractedText.substring(0, 10000);
+      const userPrompt = `Based on the following document context, generate the top 5 most important, conceptually deep, or common questions/doubts students would ask about this document:\n\n---\n${sampleText}\n---\n`;
+      
+      const { generateCustomJson } = await import("../../services/groq.service");
+      const faqJson = await generateCustomJson(systemPrompt, userPrompt, 1000);
+      const cleaned = faqJson.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.faqs && Array.isArray(parsed.faqs)) {
+        pdf.faqs = parsed.faqs.slice(0, 5);
+        logger.info({ pdfId, faqs: pdf.faqs }, "Worker: FAQs generated successfully");
+      }
+    } catch (faqErr: any) {
+      logger.error({ pdfId, error: faqErr.message }, "Worker: Failed to generate FAQs, skipping");
+    }
+
+    // 5. Update DB status to ready
     pdf.vectorStatus = "ready";
     await pdf.save();
 

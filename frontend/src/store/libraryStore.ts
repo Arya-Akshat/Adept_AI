@@ -3,6 +3,7 @@ import { create } from "zustand";
 export interface LibraryFileItem {
   id: string;
   userId: string;
+  courseId?: string;
   filename: string;
   originalName: string;
   uploadDate: string;

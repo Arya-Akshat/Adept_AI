@@ -7,7 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { VedaLogo } from "./VedaLogo";
+import { AdeptLogo } from "./AdeptLogo";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { api, assessmentApi } from "@/lib/api";
@@ -197,9 +197,9 @@ export const Sidebar: React.FC = () => {
             className={cn("cursor-pointer overflow-hidden", isSidebarCollapsed ? "px-0" : "px-2")}
           >
             {isSidebarCollapsed ? (
-              <img src="/logo.png" alt="VedaAI" className="h-9 w-9 object-contain rounded-xl shadow-sm" />
+              <img src="/logo.png" alt="AdeptAi" className="h-9 w-9 object-contain rounded-xl shadow-sm rotate-180" />
             ) : (
-              <VedaLogo variant={logoVariant} />
+              <AdeptLogo variant={logoVariant} />
             )}
           </div>
 

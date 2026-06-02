@@ -35,6 +35,8 @@ import Settings from "./pages/Settings";
 import LessonPlanPage from "./pages/LessonPlanPage";
 import RubricPage from "./pages/RubricPage";
 import SlideGeneratorPage from "./pages/SlideGeneratorPage";
+import QuestionBankPage from "./pages/QuestionBankPage";
+
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,7 @@ const App: React.FC = () => (
                 <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
                 <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />
                 <Route path="/toolkit/slide-generator" element={<ProtectedRoute><SlideGeneratorPage /></ProtectedRoute>} />
+                <Route path="/toolkit/question-bank" element={<ProtectedRoute><QuestionBankPage /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                 {/* Catch-all fallback */}

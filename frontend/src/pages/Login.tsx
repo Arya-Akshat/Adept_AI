@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { VedaLogo } from '@/components/VedaLogo';
+import { AdeptLogo } from '@/components/AdeptLogo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ const Login = () => {
     <div className="flex min-h-screen w-full bg-[#f5f5f5]">
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-[#111111] p-12">
-        <VedaLogo variant={3} />
+        <AdeptLogo variant={3} />
         <div>
           <h2 className="text-4xl font-extrabold text-white leading-tight mb-4">
             AI-powered tools<br />for every teacher.
@@ -43,7 +43,7 @@ const Login = () => {
             Generate assessments, create study roadmaps, and get AI-assisted grading — all in one place.
           </p>
         </div>
-        <p className="text-gray-600 text-xs">© 2025 VedaAI. All rights reserved.</p>
+        <p className="text-gray-600 text-xs">© 2025 AdeptAi. All rights reserved.</p>
       </div>
 
       {/* Right Panel */}
@@ -51,11 +51,11 @@ const Login = () => {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-8 lg:hidden">
-            <VedaLogo variant={2} />
+            <AdeptLogo variant={2} />
           </div>
 
           <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Welcome back</h1>
-          <p className="text-sm text-gray-500 mb-8">Sign in to your VedaAI account</p>
+          <p className="text-sm text-gray-500 mb-8">Sign in to your AdeptAi account</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">

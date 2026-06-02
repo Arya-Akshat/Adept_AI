@@ -17,7 +17,7 @@ export const useUIStore = create<UIState>()(
         set({ isSidebarCollapsed: collapsed }),
     }),
     {
-      name: "veda-ui-state",
+      name: "adept-ui-state",
     }
   )
 );

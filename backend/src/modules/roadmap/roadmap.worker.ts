@@ -4,7 +4,7 @@ import logger from "../../utils/logger";
 import { ROADMAP_WORKER_CONCURRENCY } from "../../config/env";
 import LibraryFile from "../../models/LibraryFile";
 import { downloadFileFromSupabase } from "../../services/supabase.service";
-import { API } from "../../services/gemini.service";
+import { API } from "../../config/apiClient";
 import FormData from "form-data";
 import { getVectorQueue } from "../../queues";
 import {

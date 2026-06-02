@@ -153,6 +153,7 @@ Requirements:
 };
 
 import LibraryFile from "../../models/LibraryFile";
+import Presentation from "../../models/Presentation";
 import appAssert from "../../utils/appAssert";
 import type { PresentationRequest } from "./toolkit.types";
 
@@ -160,7 +161,7 @@ export const generatePresentation = async (
   teacherId: string,
   payload: PresentationRequest
 ) => {
-  const { fileIds, slideCount = 8, topicFocus } = payload;
+  const { courseId, fileIds, slideCount = 8, topicFocus } = payload;
   appAssert(fileIds && fileIds.length > 0, 400, "Please select at least one study material");
 
   // Fetch the selected files from DB
@@ -205,8 +206,8 @@ export const generatePresentation = async (
           {
             slideNumber: "number",
             title: "string",
-            bulletPoints: ["string (max 3-4 items, concise, impact-driven)"],
-            teacherNotes: "string (explanatory script or teaching details for the teacher)",
+            bulletPoints: ["string (5-7 items per slide, each a full informative sentence of 15-25 words explaining the concept clearly — not just a label or keyword)"],
+            teacherNotes: "string (detailed explanatory script or teaching details for the teacher, 3-5 sentences)",
             suggestedImagePrompt: "string (highly descriptive image prompt for creating visual slides or icons)",
           },
         ],
@@ -225,12 +226,13 @@ export const generatePresentation = async (
   
   Requirements:
   - Generate exactly ${slideCount} slides.
-  - Slide 1 should be a Title slide.
-  - Slide ${slideCount} should be a Summary / Conclusion slide.
-  - Keep slide bullets concise, engaging, and professional.
+  - Slide 1 should be a Title slide with overview bullet points of what the presentation covers.
+  - Slide ${slideCount} should be a Summary / Conclusion slide with key takeaways.
+  - Each slide must have 5-7 bullet points. Every bullet point must be a complete, informative sentence (15-25 words) that explains the concept — NOT a single word or short phrase. Include facts, definitions, examples, or mechanisms.
+  - teacherNotes must contain a detailed teaching script for that slide (3-5 sentences).
   - suggestedImagePrompt must be a detailed, visual prompt describing a clean, educational graphic or diagram related to that slide.`;
 
-  const rawJson = await generateCustomJson(systemPrompt, userPrompt, 3000);
+  const rawJson = await generateCustomJson(systemPrompt, userPrompt, 6000);
   try {
     const cleaned = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
     const data = JSON.parse(cleaned);
@@ -240,9 +242,136 @@ export const generatePresentation = async (
     data.metadata.slideCount = slideCount;
     data.metadata.generatedAt = new Date().toISOString();
 
-    return data;
+    // Save to DB
+    const presentation = new Presentation({
+      teacherId,
+      courseId,
+      metadata: {
+        title: data.metadata.title || `Presentation - ${topicFocus || "Overview"}`,
+        subject: data.metadata.subject || "General Subject",
+        slideCount: data.metadata.slideCount,
+        generatedAt: new Date(data.metadata.generatedAt),
+      },
+      slides: data.slides,
+    });
+    await presentation.save();
+
+    return presentation;
   } catch (err: any) {
     logger.error({ error: err.message, rawJson }, "Presentation parsing failed");
     throw new AppError(500, "Failed to parse AI generated presentation outline");
   }
 };
+
+import QuestionBank from "../../models/QuestionBank";
+import type { QuestionBankRequest } from "./toolkit.types";
+
+export const generateQuestionBank = async (
+  teacherId: string,
+  payload: QuestionBankRequest
+) => {
+  const { courseId, fileIds, questionCount = 10, questionTypes, difficulty, topicFocus } = payload;
+  appAssert(fileIds && fileIds.length > 0, 400, "Please select at least one study material");
+  appAssert(questionTypes && questionTypes.length > 0, 400, "Please select at least one question type");
+
+  // Fetch the selected files from DB
+  const files = await LibraryFile.find({
+    _id: { $in: fileIds },
+    userId: teacherId,
+  });
+
+  appAssert(files.length > 0, 404, "No study materials found");
+
+  // Compile context from their roadmaps
+  let combinedContext = "";
+  files.forEach((file) => {
+    combinedContext += `Source Material: ${file.originalName}\n`;
+    if (file.roadmapData) {
+      // Traverse unit/topic structure of the roadmap
+      Object.entries(file.roadmapData).forEach(([unitIdx, unitObj]: [string, any]) => {
+        combinedContext += `Unit ${parseInt(unitIdx, 10) + 1}:\n`;
+        if (unitObj && typeof unitObj === "object") {
+          Object.entries(unitObj).forEach(([topicIdx, topicObj]: [string, any]) => {
+            if (topicObj && typeof topicObj === "object") {
+              combinedContext += `- Topic: ${topicObj.title || ""}\n  Summary: ${topicObj.summary || ""}\n`;
+            }
+          });
+        }
+      });
+    }
+    combinedContext += "\n";
+  });
+
+  const systemPrompt =
+    "You are an expert assessment developer. You must generate a highly structured question bank strictly in the requested JSON format based on the provided course material. Do not write any markdown code fences, do not write any introductory or concluding text, write only the raw JSON string. The output must strictly match this JSON schema:\n" +
+    JSON.stringify(
+      {
+        metadata: {
+          title: "string",
+          subject: "string",
+          questionCount: "number",
+          generatedAt: "string",
+        },
+        questions: [
+          {
+            questionNumber: "number",
+            questionText: "string",
+            type: "mcq | short | long",
+            cognitiveLevel: "remembering | understanding | applying | analyzing | evaluating | creating",
+            options: ["string (only for MCQ questions, 4 options)"],
+            correctAnswer: "string (correct option letter for MCQ e.g., 'A', or sample answer/rubric points for short/long questions)",
+            marks: "number",
+            difficulty: "easy | medium | hard",
+          },
+        ],
+      },
+      null,
+      2
+    );
+
+  const userPrompt = `Generate a question bank with exactly ${questionCount} questions of types [${questionTypes.join(", ")}] and difficulty level "${difficulty}" using the following course materials:
+  
+  ---
+  ${combinedContext}
+  ---
+  
+  Focus / Topic Scope: ${topicFocus || "A comprehensive overview of the materials."}
+  
+  Requirements:
+  - Generate exactly ${questionCount} questions.
+  - Distribute questions among types: [${questionTypes.join(", ")}].
+  - Assign marks: MCQs = 1 mark, Short Answer = 2-3 marks, Long Answer = 5-10 marks.
+  - Assign realistic cognitive levels according to Bloom's Taxonomy.
+  - If a question is an MCQ, the options array must contain exactly 4 options.`;
+
+  const rawJson = await generateCustomJson(systemPrompt, userPrompt, 6000);
+  try {
+    const cleaned = rawJson.replace(/```json/g, "").replace(/```/g, "").trim();
+    const data = JSON.parse(cleaned);
+
+    // Populate metadata
+    if (!data.metadata) data.metadata = {};
+    data.metadata.questionCount = questionCount;
+    data.metadata.generatedAt = new Date().toISOString();
+
+    // Save to DB
+    const questionBank = new QuestionBank({
+      teacherId,
+      courseId,
+      metadata: {
+        title: data.metadata.title || `Question Bank - ${topicFocus || "Overview"}`,
+        subject: data.metadata.subject || "General Subject",
+        questionCount: data.metadata.questionCount,
+        generatedAt: new Date(data.metadata.generatedAt),
+      },
+      questions: data.questions,
+    });
+    await questionBank.save();
+
+    return questionBank;
+  } catch (err: any) {
+    logger.error({ error: err.message, rawJson }, "Question Bank parsing failed");
+    throw new AppError(500, "Failed to parse AI generated question bank");
+  }
+};
+

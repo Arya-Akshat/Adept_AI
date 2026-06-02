@@ -17,6 +17,7 @@ import {
   Move,
   X,
   FileUp,
+  Presentation,
 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -80,6 +81,10 @@ const RoadmapPage = () => {
   // Course/Folder state variables
   const [courses, setCourses] = useState<any[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [presentations, setPresentations] = useState<any[]>([]);
+  const [loadingPresentations, setLoadingPresentations] = useState(false);
+  const [questionBanks, setQuestionBanks] = useState<any[]>([]);
+  const [loadingQuestionBanks, setLoadingQuestionBanks] = useState(false);
   const [createCourseOpen, setCreateCourseOpen] = useState(false);
   const [editCourseOpen, setEditCourseOpen] = useState(false);
   const [courseToEdit, setCourseToEdit] = useState<any | null>(null);
@@ -101,6 +106,33 @@ const RoadmapPage = () => {
     fetchPDFs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Fetch presentations & question banks when course changes
+  useEffect(() => {
+    if (selectedCourseId) {
+      const fetchCourseAssets = async () => {
+        try {
+          setLoadingPresentations(true);
+          setLoadingQuestionBanks(true);
+          const [presRes, qbRes] = await Promise.all([
+            courseApi.listPresentations(selectedCourseId),
+            courseApi.listQuestionBanks(selectedCourseId)
+          ]);
+          setPresentations(presRes.data || []);
+          setQuestionBanks(qbRes.data || []);
+        } catch (error) {
+          console.error("Failed to load course presentations or question banks:", error);
+        } finally {
+          setLoadingPresentations(false);
+          setLoadingQuestionBanks(false);
+        }
+      };
+      fetchCourseAssets();
+    } else {
+      setPresentations([]);
+      setQuestionBanks([]);
+    }
+  }, [selectedCourseId]);
 
   // Restore roadmap view when navigating back from TopicDetail
   useEffect(() => {
@@ -382,10 +414,12 @@ const RoadmapPage = () => {
     try {
       const courseVal = targetCourseId === 'unassigned' ? null : targetCourseId;
       await pdfApi.assignFileToCourse(pdfToAssign.id, courseVal);
-      toast({ title: 'Success', description: 'Material moved successfully' });
       setAssignDialogOpen(false);
       setPdfToAssign(null);
       await fetchPDFs();
+      // Navigate to the destination folder so the user sees the file there
+      setSelectedCourseId(targetCourseId);
+      toast({ title: 'Success', description: `Material moved to ${targetCourseId === 'unassigned' ? 'Unassigned Materials' : courses.find(c => c._id === targetCourseId)?.name || 'course'}` });
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to move material', variant: 'destructive' });
     }
@@ -609,7 +643,7 @@ const RoadmapPage = () => {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {courses.map((course) => {
                 const colorStyles = getCourseColorStyles(course.color);
-                const courseFiles = files.filter(f => f.courseId === course._id);
+                const courseFiles = files.filter(f => f.courseId?.toString() === course._id?.toString());
                 return (
                   <div
                     key={course._id}
@@ -716,7 +750,7 @@ const RoadmapPage = () => {
               const currentCourse = isUnassigned ? null : courses.find(c => c._id === selectedCourseId);
               const colorStyles = currentCourse ? getCourseColorStyles(currentCourse.color) : { text: 'text-gray-500', bg: 'bg-gray-50', border: 'border-gray-200' };
               
-              const coursePdfs = files.filter(f => isUnassigned ? !f.courseId : f.courseId === selectedCourseId);
+              const coursePdfs = files.filter(f => isUnassigned ? !f.courseId : f.courseId?.toString() === selectedCourseId?.toString());
               const coursePdfFiles = coursePdfs.filter(f => !f.isSyllabus);
               const courseImageFiles = coursePdfs.filter(f => f.isSyllabus);
               
@@ -846,7 +880,7 @@ const RoadmapPage = () => {
 
                   {/* Materials List */}
                   <div className="space-y-6 pb-20">
-                    {coursePdfs.length === 0 ? (
+                    {coursePdfs.length === 0 && presentations.length === 0 ? (
                       <div className="text-center py-12 rounded-2xl border border-dashed border-gray-100 bg-white">
                         <FileText className="mx-auto h-12 w-12 text-gray-300 mb-3" />
                         <h3 className="text-sm font-bold text-gray-900">No materials inside this course yet</h3>
@@ -1066,6 +1100,128 @@ const RoadmapPage = () => {
                                 </div>
                               ))}
                             </div>
+                          </div>
+                        )}
+
+                        {/* PPT Corner section */}
+                        {presentations.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-4 mt-8">
+                              <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                                PPT Corner (Presentations)
+                              </span>
+                              <div className="flex-1 h-px bg-gray-100" />
+                            </div>
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                              {presentations.map((pres) => (
+                                <div key={pres._id} className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-start gap-3 mb-4">
+                                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-[#EA580C] shrink-0">
+                                        <Presentation className="h-5 w-5" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold text-gray-900 truncate">
+                                          {pres.metadata?.title || 'Lecture Presentation'}
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-0.5">
+                                          {pres.metadata?.slideCount || pres.slides?.length || 0} Slides · Subject: {pres.metadata?.subject || 'General'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex flex-col gap-2 mt-2">
+                                    <Button
+                                      className="w-full text-xs font-semibold rounded-xl bg-black text-white hover:bg-gray-900"
+                                      onClick={() => navigate(`/toolkit/slide-generator?id=${pres._id}`)}
+                                    >
+                                      View Presentation Slides →
+                                    </Button>
+                                    <p className="text-[10px] text-gray-400 text-center">
+                                      Generated {new Date(pres.createdAt || pres.metadata?.generatedAt).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Question Bank Corner section */}
+                        {questionBanks.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-3 mb-4 mt-8">
+                              <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                                Question Bank Corner (Question Banks)
+                              </span>
+                              <div className="flex-1 h-px bg-gray-100" />
+                            </div>
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                              {questionBanks.map((qb) => (
+                                <div key={qb._id} className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-start gap-3 mb-4">
+                                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-[#EA580C] shrink-0">
+                                        <BookOpen className="h-5 w-5" />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-semibold text-gray-900 truncate">
+                                          {qb.metadata?.title || 'Question Bank'}
+                                        </p>
+                                        <p className="text-xs text-gray-400 mt-0.5">
+                                          {qb.metadata?.questionCount || qb.questions?.length || 0} Questions · Subject: {qb.metadata?.subject || 'General'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex flex-col gap-2 mt-2">
+                                    <Button
+                                      className="w-full text-xs font-semibold rounded-xl bg-black text-white hover:bg-gray-900"
+                                      onClick={() => navigate(`/toolkit/question-bank?id=${qb._id}`)}
+                                    >
+                                      View Question Bank →
+                                    </Button>
+                                    <p className="text-[10px] text-gray-400 text-center">
+                                      Generated {new Date(qb.createdAt || qb.metadata?.generatedAt).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {presentations.length === 0 && coursePdfFiles.length > 0 && (
+                          <div className="rounded-2xl border border-dashed border-gray-100 bg-gray-50/20 p-5 text-center mt-6">
+                            <Presentation className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                            <h4 className="text-xs font-bold text-gray-700">Need slides for this course?</h4>
+                            <p className="text-[11px] text-gray-400 mt-0.5 mb-3">Generate editable PowerPoint decks automatically using your PDFs.</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs font-semibold rounded-xl border-gray-200"
+                              onClick={() => navigate('/toolkit/slide-generator')}
+                            >
+                              Open AI Slide Generator
+                            </Button>
+                          </div>
+                        )}
+
+                        {questionBanks.length === 0 && coursePdfFiles.length > 0 && (
+                          <div className="rounded-2xl border border-dashed border-gray-100 bg-gray-50/20 p-5 text-center mt-6">
+                            <BookOpen className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+                            <h4 className="text-xs font-bold text-gray-700">Need a Question Bank for this course?</h4>
+                            <p className="text-[11px] text-gray-400 mt-0.5 mb-3">Generate custom MCQs, short and long answers using your PDFs.</p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs font-semibold rounded-xl border-gray-200"
+                              onClick={() => navigate('/toolkit/question-bank')}
+                            >
+                              Open AI Question Bank Generator
+                            </Button>
                           </div>
                         )}
                       </>

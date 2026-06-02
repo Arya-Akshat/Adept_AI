@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import sys
 import io
+import logging
 
 # Add current directory to path for sub-module loading
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -13,16 +14,43 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from rag.doubt_solver import solve_doubt_stream
 
 # Initialize FastAPI app
-app = FastAPI(title="VedaAI AI Engine")
+app = FastAPI(title="AdeptAi AI Engine")
 
-# Configure CORS
+# Configure CORS origins
+origins = [
+    "http://localhost:8080",
+    "http://localhost:5173",
+    "http://localhost:4004",
+    "http://localhost:3000",
+    "https://adept-ai-seven.vercel.app",
+]
+
+# Add env-specific origins if configured
+for env_var in ["FRONTEND_URL", "APP_ORIGIN"]:
+    val = os.getenv(env_var)
+    if val:
+        val_clean = val.rstrip("/")
+        if val_clean not in origins:
+            origins.append(val_clean)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    logger = logging.getLogger("main")
+    logger.info("FastAPI startup: Pre-warming embedding model...")
+    try:
+        from rag.embedder import load_embedding_model
+        load_embedding_model()
+        logger.info("Embedding model pre-warmed successfully on startup.")
+    except Exception as e:
+        logger.error(f"Failed to pre-warm embedding model: {e}")
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -384,7 +412,7 @@ from fastapi.responses import StreamingResponse
 import json
 
 @app.post("/doubt-solver/stream")
-async def doubt_solver_stream(request: DoubtRequest):
+async def doubt_solver_stream(request: DoubtRequest, req: Request):
     if not request.pdfId or not request.question:
         raise HTTPException(status_code=400, detail="pdfId and question are required")
     if len(request.question) > 500:
@@ -404,6 +432,9 @@ async def doubt_solver_stream(request: DoubtRequest):
             logger.error(f"Error in doubt stream: {e}")
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
+    origin = req.headers.get("origin")
+    allowed_origin = origin if origin in origins else (origins[0] if origins else "*")
+
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
@@ -411,7 +442,8 @@ async def doubt_solver_stream(request: DoubtRequest):
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": allowed_origin,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "*"
         }

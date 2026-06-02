@@ -115,7 +115,7 @@ const InputNotes = () => {
               <div>
                 <h3 className="font-semibold text-gray-800">Want to align with a syllabus? (Optional)</h3>
                 <p className="text-sm text-muted-foreground">
-                  You can upload a syllabus image first so VedaAI aligns your roadmap with it.
+                  You can upload a syllabus image first so AdeptAi aligns your roadmap with it.
                 </p>
               </div>
               <Button onClick={() => navigate('/syllabus')} variant="outline">

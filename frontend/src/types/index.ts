@@ -24,6 +24,7 @@ export interface PDF {
   vectorError?: string;
   supabaseUrl?: string;
   courseId?: string;
+  faqs?: string[];
 }
 
 export interface RoadmapItem {

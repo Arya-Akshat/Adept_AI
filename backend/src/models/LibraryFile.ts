@@ -15,6 +15,7 @@ export interface ILibraryFile extends Document {
   vectorStatus: "not_started" | "queued" | "processing" | "ready" | "failed" | "na";
   roadmapError?: string;
   vectorError?: string;
+  faqs?: string[];
 }
 
 const LibraryFileSchema = new Schema<ILibraryFile>(
@@ -79,6 +80,7 @@ const LibraryFileSchema = new Schema<ILibraryFile>(
     vectorError: {
       type: String,
     },
+    faqs: [{ type: String }],
   },
   { timestamps: true }
 );

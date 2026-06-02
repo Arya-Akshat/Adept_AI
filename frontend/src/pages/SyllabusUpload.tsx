@@ -68,13 +68,13 @@ const SyllabusUpload = () => {
         <div className="mx-auto max-w-lg mt-16 flex flex-col items-center gap-6 text-center">
           <div className="relative">
             <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
-              <span className="text-3xl font-extrabold text-white font-serif">V</span>
+              <span className="text-3xl font-extrabold text-white font-serif">A</span>
             </div>
             <div className="absolute -inset-2 rounded-full border-2 border-orange-300 border-t-transparent animate-spin" />
           </div>
           <h2 className="text-xl font-bold text-gray-900">Extracting topics…</h2>
           <p className="text-sm text-gray-500 max-w-xs">
-            VedaAI is reading <span className="font-semibold text-gray-700">"{fileName}"</span> and extracting the topic structure.
+            AdeptAi is reading <span className="font-semibold text-gray-700">"{fileName}"</span> and extracting the topic structure.
           </p>
         </div>
       </Layout>
@@ -151,7 +151,7 @@ const SyllabusUpload = () => {
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-2xl font-bold text-gray-900">Upload Your Syllabus</h1>
           <p className="text-sm text-gray-500">
-            Upload a photo or scan of your syllabus. VedaAI will extract all topics automatically.
+            Upload a photo or scan of your syllabus. AdeptAi will extract all topics automatically.
           </p>
         </div>
 

@@ -52,8 +52,9 @@ const Toolkit: React.FC = () => {
       title: "AI Question Bank Generator",
       desc: "Generate custom banks of MCQs, short answers, and essay prompts categorized by cognitive complexity.",
       icon: <BookOpen className="h-5 w-5" />,
-      badge: "Coming Soon",
-      comingSoon: true,
+      badge: "Question Bank",
+      path: "/toolkit/question-bank",
+      comingSoon: false,
     },
     {
       title: "Classroom Analytics Insight",

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { VedaLogo } from '@/components/VedaLogo';
+import { AdeptLogo } from '@/components/AdeptLogo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -36,16 +36,16 @@ const Register = () => {
     <div className="flex min-h-screen w-full bg-[#f5f5f5]">
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-[#111111] p-12">
-        <VedaLogo variant={3} />
+        <AdeptLogo variant={3} />
         <div>
           <h2 className="text-4xl font-extrabold text-white leading-tight mb-4">
             Start teaching smarter<br />with AI by your side.
           </h2>
           <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-            Join thousands of educators using VedaAI to save time, personalize learning, and deliver better outcomes.
+            Join thousands of educators using AdeptAi to save time, personalize learning, and deliver better outcomes.
           </p>
         </div>
-        <p className="text-gray-600 text-xs">© 2025 VedaAI. All rights reserved.</p>
+        <p className="text-gray-600 text-xs">© 2025 AdeptAi. All rights reserved.</p>
       </div>
 
       {/* Right Panel */}
@@ -53,7 +53,7 @@ const Register = () => {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-8 lg:hidden">
-            <VedaLogo variant={2} />
+            <AdeptLogo variant={2} />
           </div>
 
           <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Create your account</h1>

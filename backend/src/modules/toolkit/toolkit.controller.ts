@@ -1,14 +1,34 @@
 import { CREATED, NOT_FOUND, BAD_REQUEST } from "../../constants/http";
 import { sendSuccess } from "../../utils/response";
-import { generateLessonPlan, generateRubric, generatePresentation } from "./toolkit.service";
+import { generateLessonPlan, generateRubric, generatePresentation, generateQuestionBank } from "./toolkit.service";
 import { AppError } from "../../utils/errors";
 import RubricModel from "../../models/Rubric";
+import PresentationModel from "../../models/Presentation";
+import QuestionBankModel from "../../models/QuestionBank";
 import { createRubricPDFStream } from "../../services/pdf.service";
 import appAssert from "../../utils/appAssert";
 
 export const generateLessonPlanHandler = async (req: any, res: any) => {
   const data = await generateLessonPlan(req.body);
   sendSuccess(res, data, CREATED);
+};
+
+export const getPresentationHandler = async (req: any, res: any) => {
+  const presentation = await PresentationModel.findOne({
+    _id: req.params.id,
+    teacherId: req.userId,
+  });
+  appAssert(presentation, NOT_FOUND, "Presentation not found");
+  sendSuccess(res, presentation);
+};
+
+export const getQuestionBankHandler = async (req: any, res: any) => {
+  const questionBank = await QuestionBankModel.findOne({
+    _id: req.params.id,
+    teacherId: req.userId,
+  });
+  appAssert(questionBank, NOT_FOUND, "Question Bank not found");
+  sendSuccess(res, questionBank);
 };
 
 export const generateRubricHandler = async (req: any, res: any) => {
@@ -20,6 +40,12 @@ export const generatePresentationHandler = async (req: any, res: any) => {
   const data = await generatePresentation(req.userId, req.body);
   sendSuccess(res, data, CREATED);
 };
+
+export const generateQuestionBankHandler = async (req: any, res: any) => {
+  const data = await generateQuestionBank(req.userId, req.body);
+  sendSuccess(res, data, CREATED);
+};
+
 
 export const downloadRubricPdfHandler = async (req: any, res: any) => {
   const rubric = await RubricModel.findOne({

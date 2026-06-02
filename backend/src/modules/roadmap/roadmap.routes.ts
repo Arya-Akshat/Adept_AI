@@ -10,6 +10,9 @@ import {
   explainTopicHandler,
   getPdfStatusHandler,
   toggleTopicStudiedHandler,
+  saveAnswerHandler,
+  listSavedAnswersHandler,
+  deleteSavedAnswerHandler,
 } from "./roadmap.controller";
 import multer from "multer";
 
@@ -43,6 +46,11 @@ pdfRoutes.post("/:pdfId/topic/:unitIndex/:topicIndex/explain", explainTopicHandl
 
 // Toggle topic studied status
 pdfRoutes.patch("/:pdfId/topic/studied", toggleTopicStudiedHandler);
+
+// Saved Answers (Doubts Bookmarking)
+pdfRoutes.post("/:pdfId/saved-answers", saveAnswerHandler);
+pdfRoutes.get("/:pdfId/saved-answers", listSavedAnswersHandler);
+pdfRoutes.delete("/:pdfId/saved-answers/:answerId", deleteSavedAnswerHandler);
 
 // Assign file to course folder
 import { assignFileToCourseHandler } from "../course/course.controller";

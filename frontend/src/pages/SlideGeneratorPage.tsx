@@ -72,7 +72,15 @@ const SlideGeneratorPage: React.FC = () => {
         setCourses(courseRes.data || []);
         setFiles(pdfRes.data as any);
         
-        if (courseRes.data && courseRes.data.length > 0) {
+        const queryParams = new URLSearchParams(window.location.search);
+        const presId = queryParams.get("id");
+        if (presId) {
+          const res = await toolkitApi.getPresentation(presId);
+          if (res.data && res.data.success && res.data.data) {
+            setGeneratedPresentation(res.data.data as PresentationData);
+            setSelectedCourseId(res.data.data.courseId || courseRes.data[0]?._id || "");
+          }
+        } else if (courseRes.data && courseRes.data.length > 0) {
           setSelectedCourseId(courseRes.data[0]._id);
         }
       } catch (err) {
@@ -296,7 +304,7 @@ const SlideGeneratorPage: React.FC = () => {
                   /* Title Slide (Dark slate theme) */
                   <div className="absolute inset-0 bg-[#0F172A] text-white p-12 flex flex-col justify-between select-none">
                     <div className="flex justify-between items-center text-xs tracking-wider text-slate-400 uppercase font-semibold">
-                      <span>VedaAI Slide Generator</span>
+                      <span>AdeptAi Slide Generator</span>
                       <span>Slide {generatedPresentation.slides[currentSlideIndex].slideNumber}</span>
                     </div>
                     
@@ -306,7 +314,7 @@ const SlideGeneratorPage: React.FC = () => {
                       </h2>
                       <div className="h-1 w-24 bg-[#EA580C] mx-auto rounded-full" />
                       <p className="text-sm text-slate-400 font-medium">
-                        Presented by VedaAI · Course Subject: {generatedPresentation.metadata.subject}
+                        Presented by AdeptAi · Course Subject: {generatedPresentation.metadata.subject}
                       </p>
                     </div>
                     
@@ -344,7 +352,7 @@ const SlideGeneratorPage: React.FC = () => {
 
                     <div className="text-[10px] text-gray-400 flex items-center justify-between border-t border-gray-50 pt-3">
                       <span>Image Prompt suggestion: <span className="italic truncate max-w-md inline-block align-bottom">{generatedPresentation.slides[currentSlideIndex].suggestedImagePrompt}</span></span>
-                      <span className="font-semibold text-gray-500 font-mono">VedaAI</span>
+                      <span className="font-semibold text-gray-500 font-mono">AdeptAi</span>
                     </div>
                   </div>
                 )}

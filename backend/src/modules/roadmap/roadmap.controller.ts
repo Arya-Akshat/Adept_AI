@@ -3,6 +3,7 @@ import fs from "fs";
 import os from "os";
 import {
   BAD_REQUEST,
+  CREATED,
   INTERNAL_SERVER_ERROR,
   NOT_FOUND,
   OK,
@@ -13,7 +14,7 @@ import { AppError } from "../../utils/errors";
 import { RAW_DATA_PATH, PROCESSED_DATA_PATH } from "../../constants/env";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../utils/logger";
-import { API } from "../../services/gemini.service";
+import { API } from "../../config/apiClient";
 import FormData from "form-data";
 
 import LibraryFile from "../../models/LibraryFile";
@@ -143,7 +144,8 @@ export const getPdfMetadataHandler = catchErrors(async (req, res) => {
         roadmapStatus: pdf.roadmapStatus,
         vectorStatus: pdf.vectorStatus,
         roadmapError: pdf.roadmapError,
-        vectorError: pdf.vectorError
+        vectorError: pdf.vectorError,
+        faqs: pdf.faqs || []
     });
 });
 
@@ -340,5 +342,51 @@ export const toggleTopicStudiedHandler = catchErrors(async (req, res) => {
         }
     });
 });
+
+import SavedAnswer from "../../models/SavedAnswer";
+
+export const saveAnswerHandler = catchErrors(async (req, res) => {
+    const { pdfId } = req.params;
+    const { question, answer } = req.body;
+
+    appAssert(question && answer, BAD_REQUEST, "Question and Answer are required");
+
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
+    appAssert(pdf, NOT_FOUND, "PDF not found");
+
+    const saved = await SavedAnswer.findOneAndUpdate(
+        { userId: req.userId, pdfId, question },
+        { answer, savedAt: new Date() },
+        { upsert: true, new: true }
+    );
+
+    return res.status(CREATED).json(saved);
+});
+
+export const listSavedAnswersHandler = catchErrors(async (req, res) => {
+    const { pdfId } = req.params;
+
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
+    appAssert(pdf, NOT_FOUND, "PDF not found");
+
+    const savedAnswers = await SavedAnswer.find({ userId: req.userId, pdfId }).sort({ savedAt: -1 });
+
+    return res.status(OK).json(savedAnswers);
+});
+
+export const deleteSavedAnswerHandler = catchErrors(async (req, res) => {
+    const { pdfId, answerId } = req.params;
+
+    const saved = await SavedAnswer.findOneAndDelete({
+        _id: answerId,
+        userId: req.userId,
+        pdfId,
+    });
+
+    appAssert(saved, NOT_FOUND, "Saved answer not found");
+
+    return res.status(OK).json({ message: "Answer removed from saved list" });
+});
+
 
 

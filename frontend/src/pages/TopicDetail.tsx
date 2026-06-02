@@ -226,7 +226,7 @@ const TopicDetail = () => {
           <div className="relative mb-10">
             <div className="h-24 w-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 opacity-20 blur-2xl absolute inset-0 animate-pulse" />
             <div className="relative h-24 w-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg">
-              <span className="text-4xl font-extrabold text-white font-serif">V</span>
+              <span className="text-4xl font-extrabold text-white font-serif">A</span>
             </div>
             <div className="absolute -inset-2 rounded-full border-2 border-orange-300 border-t-transparent animate-spin" />
           </div>
@@ -236,7 +236,7 @@ const TopicDetail = () => {
               <span className="text-xs font-semibold text-orange-700 truncate max-w-xs">{topicTitle}</span>
             </div>
           )}
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 mt-4">VedaAI is preparing your material</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2 mt-4">AdeptAi is preparing your material</h2>
           <p className="text-sm text-gray-500 max-w-sm leading-relaxed mb-10">
             Hang tight — we're generating a personalised explanation with key concepts, examples and curated videos.
           </p>

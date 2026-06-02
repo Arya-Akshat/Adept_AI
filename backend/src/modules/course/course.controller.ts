@@ -83,3 +83,37 @@ export const assignFileToCourseHandler = catchErrors(async (req: any, res: Respo
     courseId: file.courseId || null,
   });
 });
+
+import Presentation from "../../models/Presentation";
+import QuestionBank from "../../models/QuestionBank";
+
+// List Course presentations
+export const listCoursePresentationsHandler = catchErrors(async (req: any, res: Response) => {
+  const { courseId } = req.params;
+
+  const query: any = { teacherId: req.userId };
+  if (courseId === "unassigned") {
+    query.courseId = { $exists: false };
+  } else {
+    query.courseId = courseId;
+  }
+
+  const presentations = await Presentation.find(query).sort({ createdAt: -1 });
+  return res.status(OK).json(presentations);
+});
+
+// List Course question banks
+export const listCourseQuestionBanksHandler = catchErrors(async (req: any, res: Response) => {
+  const { courseId } = req.params;
+
+  const query: any = { teacherId: req.userId };
+  if (courseId === "unassigned") {
+    query.courseId = { $exists: false };
+  } else {
+    query.courseId = courseId;
+  }
+
+  const questionBanks = await QuestionBank.find(query).sort({ createdAt: -1 });
+  return res.status(OK).json(questionBanks);
+});
+

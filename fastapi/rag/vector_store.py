@@ -29,14 +29,13 @@ def get_qdrant_client():
             logger.info("Connected to Qdrant successfully.")
             return client
         except Exception as e:
-            logger.warning(
-                f"Qdrant connection failed: {e}. "
-                "Falling back to in-memory storage. "
-                "Vectors will NOT persist across restarts."
+            logger.error(
+                f"CRITICAL: Qdrant connection to {QDRANT_URL} failed: {e}. "
+                "Failing fast to prevent silent data loss."
             )
-            return QdrantClient(":memory:")
+            raise e
             
-    logger.info("Initializing in-memory Qdrant client...")
+    logger.warning("QDRANT_URL not configured. Initializing in-memory Qdrant client (VECTORS WILL NOT PERSIST)...")
     return QdrantClient(":memory:")
 
 client = get_qdrant_client()
