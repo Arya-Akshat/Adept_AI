@@ -72,6 +72,9 @@ const REFERRAL_OPTIONS = [
   "Other",
 ];
 
+// Create motion component from standard Shadcn Button
+const MotionButton = motion(Button);
+
 export const OnboardingPage: React.FC = () => {
   const { user, loading, completeOnboarding } = useAuth();
   const navigate = useNavigate();
@@ -308,6 +311,18 @@ export const OnboardingPage: React.FC = () => {
     }),
   };
 
+  const getBlobOneColor = () => {
+    if (step === 1) return "bg-orange-100";
+    if (step === 2) return "bg-emerald-100";
+    return "bg-rose-100";
+  };
+
+  const getBlobTwoColor = () => {
+    if (step === 1) return "bg-gray-300";
+    if (step === 2) return "bg-sky-200";
+    return "bg-amber-200";
+  };
+
   const activeHighlightData = FEATURE_HIGHLIGHTS[activeHighlight];
   const ActiveIcon = activeHighlightData.icon;
 
@@ -333,8 +348,8 @@ export const OnboardingPage: React.FC = () => {
         }
       `}</style>
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[20%] left-[10%] w-[350px] h-[350px] rounded-full bg-orange-100 opacity-[0.12] blur-[80px] blob-one" />
-        <div className="absolute bottom-[25%] right-[15%] w-[400px] h-[400px] rounded-full bg-gray-300 opacity-[0.15] blur-[90px] blob-two" />
+        <div className={`absolute top-[20%] left-[10%] w-[350px] h-[350px] rounded-full opacity-[0.12] blur-[80px] blob-one transition-colors duration-700 ease-in-out ${getBlobOneColor()}`} />
+        <div className={`absolute bottom-[25%] right-[15%] w-[400px] h-[400px] rounded-full opacity-[0.15] blur-[90px] blob-two transition-colors duration-700 ease-in-out ${getBlobTwoColor()}`} />
       </div>
 
       {/* Main Container */}
@@ -408,8 +423,8 @@ export const OnboardingPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Testimonial Feature Highlights Carousel */}
-          <div className="z-10 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md relative overflow-hidden">
+          {/* Premium Glassmorphic Testimonial Feature Highlights Carousel */}
+          <div className="z-10 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] relative overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeHighlight}
@@ -465,8 +480,10 @@ export const OnboardingPage: React.FC = () => {
               />
 
               {[1, 2, 3].map((s) => (
-                <button
+                <motion.button
                   key={s}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
                   disabled={s > step && s !== 2 && s !== 1} // Disallow jumping forward
                   onClick={() => {
                     if (s < step) {
@@ -486,7 +503,7 @@ export const OnboardingPage: React.FC = () => {
                   }`}
                 >
                   {s < step ? "✓" : s}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -531,13 +548,15 @@ export const OnboardingPage: React.FC = () => {
                           {avatarBase64 ? (
                             <>
                               <img src={avatarBase64} alt="Avatar Preview" className="h-full w-full object-cover" />
-                              <button
+                              <motion.button
                                 type="button"
+                                whileHover={{ scale: 1.15 }}
+                                whileTap={{ scale: 0.9 }}
                                 onClick={() => setAvatarBase64("")}
                                 className="absolute top-1 right-1 bg-black text-white p-1 rounded-full hover:bg-gray-800 transition-colors shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black"
                               >
                                 <X className="h-3 w-3" />
-                              </button>
+                              </motion.button>
                             </>
                           ) : (
                             <label className="flex flex-col items-center justify-center cursor-pointer h-full w-full focus-within:ring-2 focus-within:ring-black focus-within:ring-offset-2 rounded-full">
@@ -580,22 +599,26 @@ export const OnboardingPage: React.FC = () => {
                     </div>
 
                     <div className="pt-6 space-y-3">
-                      <Button
+                      <MotionButton
                         onClick={nextStep}
                         disabled={!isStep1Valid}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         className="w-full rounded-full bg-black hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 text-white font-bold py-3.5 h-auto text-sm flex items-center justify-center gap-1.5 shadow-md"
                       >
                         <span>Continue</span>
                         <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <button
+                      </MotionButton>
+                      <motion.button
                         type="button"
                         onClick={nextStep}
                         disabled={!isStep1Valid}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         className="w-full text-center text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-700"
                       >
                         Skip for now
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                 )}
@@ -654,18 +677,20 @@ export const OnboardingPage: React.FC = () => {
                           {SUBJECT_OPTIONS.map((sub) => {
                             const isSelected = primarySubject === sub;
                             return (
-                              <button
+                              <motion.button
                                 key={sub}
                                 type="button"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                                 onClick={() => setPrimarySubject(sub)}
                                 className={`rounded-xl border py-2.5 px-3 text-xs font-bold text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
                                   isSelected
-                                    ? "bg-black border-black text-white scale-[0.98] shadow-inner"
+                                    ? "bg-black border-black text-white shadow-inner"
                                     : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
                                 }`}
                               >
                                 {sub}
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -683,9 +708,11 @@ export const OnboardingPage: React.FC = () => {
                           {CLASS_OPTIONS.map((cls) => {
                             const isSelected = classesTeaching.includes(cls);
                             return (
-                              <button
+                              <motion.button
                                 key={cls}
                                 type="button"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                                 onClick={() => {
                                   if (isSelected) {
                                     setClassesTeaching(classesTeaching.filter((c) => c !== cls));
@@ -695,12 +722,12 @@ export const OnboardingPage: React.FC = () => {
                                 }}
                                 className={`rounded-xl border py-2.5 px-3 text-xs font-bold text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
                                   isSelected
-                                    ? "bg-black border-black text-white scale-[0.98] shadow-inner"
+                                    ? "bg-black border-black text-white shadow-inner"
                                     : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
                                 }`}
                               >
                                 {cls}
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -715,9 +742,11 @@ export const OnboardingPage: React.FC = () => {
                           {BOARD_OPTIONS.map((brd) => {
                             const isSelected = schoolBoard === brd;
                             return (
-                              <button
+                              <motion.button
                                 key={brd}
                                 type="button"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                                 onClick={() => setSchoolBoard(isSelected ? "" : brd)}
                                 className={`rounded-xl border py-2 px-1 text-xs font-bold text-center truncate transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
                                   isSelected
@@ -726,7 +755,7 @@ export const OnboardingPage: React.FC = () => {
                                 }`}
                               >
                                 {brd}
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -741,9 +770,11 @@ export const OnboardingPage: React.FC = () => {
                           {STUDENT_OPTIONS.map((st) => {
                             const isSelected = approximateStudents === st;
                             return (
-                              <button
+                              <motion.button
                                 key={st}
                                 type="button"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                                 onClick={() => setApproximateStudents(isSelected ? "" : st)}
                                 className={`rounded-xl border py-2 px-1 text-[11px] font-bold text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
                                   isSelected
@@ -752,7 +783,7 @@ export const OnboardingPage: React.FC = () => {
                                 }`}
                               >
                                 {st}
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -767,9 +798,11 @@ export const OnboardingPage: React.FC = () => {
                           {REFERRAL_OPTIONS.map((ref) => {
                             const isSelected = referralSource === ref;
                             return (
-                              <button
+                              <motion.button
                                 key={ref}
                                 type="button"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
                                 onClick={() => setReferralSource(isSelected ? "" : ref)}
                                 className={`rounded-xl border py-2 px-1 text-xs font-bold text-center truncate transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 ${
                                   isSelected
@@ -778,7 +811,7 @@ export const OnboardingPage: React.FC = () => {
                                 }`}
                               >
                                 {ref}
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -786,22 +819,26 @@ export const OnboardingPage: React.FC = () => {
                     </div>
 
                     <div className="pt-6 flex gap-3">
-                      <Button
+                      <MotionButton
                         type="button"
                         onClick={prevStep}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         className="rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-800 font-bold py-3.5 px-6 h-auto text-sm flex items-center justify-center gap-1.5 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                       >
                         <ArrowLeft className="h-4 w-4" />
                         <span>Back</span>
-                      </Button>
-                      <Button
+                      </MotionButton>
+                      <MotionButton
                         onClick={nextStep}
                         disabled={!isStep2Valid}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         className="flex-1 rounded-full bg-black hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 text-white font-bold py-3.5 h-auto text-sm flex items-center justify-center gap-1.5 shadow-md"
                       >
                         <span>Continue</span>
                         <ChevronRight className="h-4 w-4" />
-                      </Button>
+                      </MotionButton>
                     </div>
                   </div>
                 )}
@@ -818,8 +855,8 @@ export const OnboardingPage: React.FC = () => {
                       </p>
                     </div>
 
-                    {/* Summary Info Card */}
-                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-5 space-y-2">
+                    {/* Premium Light-Glass Summary Info Card */}
+                    <div className="bg-black/5 border border-black/10 backdrop-blur-sm rounded-2xl p-5 space-y-2 shadow-inner">
                       <div className="flex items-center gap-2 text-sm font-extrabold text-gray-800">
                         {avatarBase64 ? (
                           <img src={avatarBase64} alt="Avatar" className="h-6 w-6 rounded-full object-cover border border-amber-200" />
@@ -849,7 +886,10 @@ export const OnboardingPage: React.FC = () => {
                       <h3 className="text-xs font-extrabold text-gray-400 uppercase tracking-widest">Workspace Previews</h3>
                       
                       <div className="grid grid-cols-1 gap-3">
-                        <div className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow">
+                        <motion.div
+                          whileHover={{ scale: 1.02, translateY: -2 }}
+                          className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-default"
+                        >
                           <div className="p-2 bg-orange-50 border border-orange-100 text-[#EA580C] rounded-lg shrink-0">
                             <FileText className="h-5 w-5" />
                           </div>
@@ -857,9 +897,12 @@ export const OnboardingPage: React.FC = () => {
                             <h4 className="text-xs font-extrabold text-gray-800">Assessment Creator</h4>
                             <p className="text-[10px] text-gray-400 leading-normal mt-0.5">Generate structured question papers in seconds.</p>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow">
+                        <motion.div
+                          whileHover={{ scale: 1.02, translateY: -2 }}
+                          className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-default"
+                        >
                           <div className="p-2 bg-orange-50 border border-orange-100 text-[#EA580C] rounded-lg shrink-0">
                             <MessageSquare className="h-5 w-5" />
                           </div>
@@ -867,9 +910,12 @@ export const OnboardingPage: React.FC = () => {
                             <h4 className="text-xs font-extrabold text-gray-800">Doubt Solver</h4>
                             <p className="text-[10px] text-gray-400 leading-normal mt-0.5">AI answers student doubts directly from your materials.</p>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        <div className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow">
+                        <motion.div
+                          whileHover={{ scale: 1.02, translateY: -2 }}
+                          className="flex items-center gap-4 bg-white border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)] rounded-xl p-3.5 hover:shadow-md transition-shadow cursor-default"
+                        >
                           <div className="p-2 bg-orange-50 border border-orange-100 text-[#EA580C] rounded-lg shrink-0">
                             <Calendar className="h-5 w-5" />
                           </div>
@@ -877,15 +923,17 @@ export const OnboardingPage: React.FC = () => {
                             <h4 className="text-xs font-extrabold text-gray-800">Lesson Planner</h4>
                             <p className="text-[10px] text-gray-400 leading-normal mt-0.5">Plan lessons and grading rubrics with one click.</p>
                           </div>
-                        </div>
+                        </motion.div>
                       </div>
                     </div>
 
                     {/* Action buttons */}
                     <div className="pt-6 space-y-3">
-                      <Button
+                      <MotionButton
                         onClick={handleSubmit}
                         disabled={isSubmitting}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         className="w-full rounded-full bg-black hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 text-white font-extrabold py-4 h-auto text-sm shadow-lg flex items-center justify-center gap-2"
                       >
                         {isSubmitting ? (
@@ -899,7 +947,7 @@ export const OnboardingPage: React.FC = () => {
                             <ChevronRight className="h-4 w-4" />
                           </>
                         )}
-                      </Button>
+                      </MotionButton>
                       
                       {isSubmitting && submitTimeElapsed && (
                         <p className="text-center text-xs text-orange-600 font-bold animate-pulse">
@@ -908,13 +956,15 @@ export const OnboardingPage: React.FC = () => {
                       )}
 
                       {!isSubmitting && (
-                        <button
+                        <motion.button
                           type="button"
                           onClick={prevStep}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           className="w-full text-center text-xs font-bold text-gray-500 hover:text-gray-800 transition-colors py-1 flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-700"
                         >
                           <ArrowLeft className="h-3 w-3" /> Go back and edit details
-                        </button>
+                        </motion.button>
                       )}
                     </div>
                   </div>
@@ -925,7 +975,7 @@ export const OnboardingPage: React.FC = () => {
 
           {/* Footer copyright */}
           <div className="w-full text-center text-[10px] text-gray-400 mt-6 shrink-0">
-            © 2026 AdeptAi. All rights reserved.
+            © 2026 AdeptAI. All rights reserved.
           </div>
         </div>
       </div>
