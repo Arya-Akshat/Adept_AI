@@ -12,8 +12,11 @@ import {
   FileText,
   Upload,
   FileUp,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,6 +39,7 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 export const Navbar = () => {
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -44,34 +48,46 @@ export const Navbar = () => {
     (location.pathname.startsWith("/assignments/") ? "Assignment" : "Dashboard");
 
   return (
-    <nav className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-3 shadow-sm mb-3">
+    <nav className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-5 py-3 shadow-sm mb-3">
       {/* Left: back + page title */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
+      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
         <button
           onClick={() => navigate(-1)}
-          className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+          className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 12L6 8L10 4" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 12L6 8L10 4" className="stroke-gray-500 dark:stroke-gray-400" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <LayoutGrid className="h-4 w-4 text-gray-400" />
-        <span className="font-medium text-gray-700">{pageTitle}</span>
+        <LayoutGrid className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+        <span className="font-medium text-gray-700 dark:text-gray-200">{pageTitle}</span>
       </div>
 
-      {/* Right: bell + Quick Actions */}
+      {/* Right: theme toggle + bell + Quick Actions */}
       <div className="flex items-center gap-3">
-        <button className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-          <Bell className="h-4 w-4 text-gray-500" />
+        <button
+          onClick={toggleTheme}
+          className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+          title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+        >
+          {theme === "light" ? (
+            <Moon className="h-4 w-4" />
+          ) : (
+            <Sun className="h-4 w-4" />
+          )}
+        </button>
+
+        <button className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+          <Bell className="h-4 w-4 text-gray-500 dark:text-gray-400" />
           <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-orange-500" />
         </button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/50 hover:bg-orange-100/50 px-3 py-1.5 text-xs font-semibold text-orange-700 transition-all shadow-[0_1px_2px_rgba(234,88,12,0.05)] hover:shadow-sm">
-              <Sparkles className="h-3.5 w-3.5 text-orange-600" />
+            <button className="flex items-center gap-1.5 rounded-full border border-orange-200 dark:border-orange-900 bg-orange-50/50 dark:bg-orange-950/20 hover:bg-orange-100/50 dark:hover:bg-orange-950/40 px-3 py-1.5 text-xs font-semibold text-orange-700 dark:text-orange-400 transition-all shadow-[0_1px_2px_rgba(234,88,12,0.05)] hover:shadow-sm">
+              <Sparkles className="h-3.5 w-3.5 text-orange-600 dark:text-orange-500" />
               <span>Quick Actions</span>
-              <ChevronDown className="h-3.5 w-3.5 text-orange-400" />
+              <ChevronDown className="h-3.5 w-3.5 text-orange-400 dark:text-orange-500" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-lg border border-gray-100 bg-white">

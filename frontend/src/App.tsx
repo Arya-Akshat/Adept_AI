@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
@@ -44,49 +45,51 @@ const queryClient = new QueryClient();
 const App: React.FC = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <ErrorBoundary>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/landing" element={<Landing />} />
-                <Route path="/onboarding" element={<OnboardingPage />} />
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <ErrorBoundary>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/landing" element={<Landing />} />
+                  <Route path="/onboarding" element={<OnboardingPage />} />
 
-                {/* Dashboard and Assignment Routes */}
-                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/assignments" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/assignments/create" element={<ProtectedRoute><CreateAssignment /></ProtectedRoute>} />
-                <Route path="/assignments/:id" element={<ProtectedRoute><AssignmentOutput /></ProtectedRoute>} />
+                  {/* Dashboard and Assignment Routes */}
+                  <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/assignments" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/assignments/create" element={<ProtectedRoute><CreateAssignment /></ProtectedRoute>} />
+                  <Route path="/assignments/:id" element={<ProtectedRoute><AssignmentOutput /></ProtectedRoute>} />
 
-                {/* Syllabus & Study Roadmap Helper Routes */}
-                <Route path="/library" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
-                <Route path="/syllabus" element={<ProtectedRoute><SyllabusUpload /></ProtectedRoute>} />
-                <Route path="/input-notes" element={<ProtectedRoute><InputNotes /></ProtectedRoute>} />
-                <Route path="/library/:pdfId/topic/:unitIndex/:topicIndex" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
-                <Route path="/library/:pdfId/doubt" element={<ProtectedRoute><DoubtSolverPage /></ProtectedRoute>} />
-                <Route path="/roadmap" element={<Navigate to="/library" replace />} />
+                  {/* Syllabus & Study Roadmap Helper Routes */}
+                  <Route path="/library" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
+                  <Route path="/syllabus" element={<ProtectedRoute><SyllabusUpload /></ProtectedRoute>} />
+                  <Route path="/input-notes" element={<ProtectedRoute><InputNotes /></ProtectedRoute>} />
+                  <Route path="/library/:pdfId/topic/:unitIndex/:topicIndex" element={<ProtectedRoute><TopicDetail /></ProtectedRoute>} />
+                  <Route path="/library/:pdfId/doubt" element={<ProtectedRoute><DoubtSolverPage /></ProtectedRoute>} />
+                  <Route path="/roadmap" element={<Navigate to="/library" replace />} />
 
-                {/* Sidebar Navigation Pages */}
-                <Route path="/groups" element={<ProtectedRoute><MyGroups /></ProtectedRoute>} />
-                <Route path="/toolkit" element={<ProtectedRoute><Toolkit /></ProtectedRoute>} />
-                <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
-                <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />
-                <Route path="/toolkit/slide-generator" element={<ProtectedRoute><SlideGeneratorPage /></ProtectedRoute>} />
-                <Route path="/toolkit/question-bank" element={<ProtectedRoute><QuestionBankPage /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                  {/* Sidebar Navigation Pages */}
+                  <Route path="/groups" element={<ProtectedRoute><MyGroups /></ProtectedRoute>} />
+                  <Route path="/toolkit" element={<ProtectedRoute><Toolkit /></ProtectedRoute>} />
+                  <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
+                  <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />
+                  <Route path="/toolkit/slide-generator" element={<ProtectedRoute><SlideGeneratorPage /></ProtectedRoute>} />
+                  <Route path="/toolkit/question-bank" element={<ProtectedRoute><QuestionBankPage /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
-                {/* Catch-all fallback */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </ErrorBoundary>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+                  {/* Catch-all fallback */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </ErrorBoundary>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );

@@ -4,7 +4,7 @@ import { Navbar } from "./Navbar";
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#E5E7EB] font-sans p-3 gap-3">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#E5E7EB] dark:bg-gray-950 font-sans p-3 gap-3">
       {/* Floating Sidebar — card with rounded corners and gap from edges */}
       <div className="flex-shrink-0 h-full">
         <Sidebar />
