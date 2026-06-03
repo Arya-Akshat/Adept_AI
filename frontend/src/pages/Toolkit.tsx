@@ -57,19 +57,19 @@ const Toolkit: React.FC = () => {
       comingSoon: false,
     },
     {
-      title: "Classroom Analytics Insight",
-      desc: "Visualize student performance patterns and conceptual gaps using automatic grading logs.",
-      icon: <BarChart3 className="h-5 w-5" />,
-      badge: "Coming Soon",
-      comingSoon: true,
-    },
-    {
       title: "AI Lecture Slide Creator",
       desc: "Upload textbook chapters or notes to structure and export engaging presentation slides.",
       icon: <Presentation className="h-5 w-5" />,
       badge: "Slide Creator",
       path: "/toolkit/slide-generator",
       comingSoon: false,
+    },
+    {
+      title: "Classroom Analytics Insight",
+      desc: "Visualize student performance patterns and conceptual gaps using automatic grading logs.",
+      icon: <BarChart3 className="h-5 w-5" />,
+      badge: "Coming Soon",
+      comingSoon: true,
     },
   ];
 
