@@ -132,7 +132,7 @@ export const Settings: React.FC = () => {
         </p>
       </div>
 
-      <div className="max-w-2xl bg-white rounded-2xl border border-gray-100 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] pb-12 mb-20 font-sans">
+      <div className="max-w-2xl bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] pb-12 mb-20 font-sans">
         <form onSubmit={handleSave} className="space-y-6">
           {/* Profile Section */}
           <div className="space-y-4">
@@ -190,7 +190,7 @@ export const Settings: React.FC = () => {
                   type="email"
                   value={user?.email || ""}
                   disabled
-                  className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-400 focus:outline-none"
+                  className="rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 px-3 py-2.5 text-xs text-gray-400 focus:outline-none"
                 />
               </div>
             </div>
@@ -238,8 +238,8 @@ export const Settings: React.FC = () => {
                         onClick={() => setSchoolBoard(isSelected ? "" : brd)}
                         className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
                           isSelected
-                            ? "bg-black border-black text-white"
-                            : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                            ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                            : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                         }`}
                       >
                         {brd}
@@ -261,8 +261,8 @@ export const Settings: React.FC = () => {
                         onClick={() => setApproximateStudents(isSelected ? "" : st)}
                         className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
                           isSelected
-                            ? "bg-black border-black text-white"
-                            : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                            ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                            : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                         }`}
                       >
                         {st}
@@ -293,8 +293,8 @@ export const Settings: React.FC = () => {
                       onClick={() => setPrimarySubject(sub)}
                       className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
                         isSelected
-                          ? "bg-black border-black text-white"
-                          : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                          ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {sub}
@@ -322,8 +322,8 @@ export const Settings: React.FC = () => {
                       }}
                       className={`rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all ${
                         isSelected
-                          ? "bg-black border-black text-white"
-                          : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                          ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {cls}

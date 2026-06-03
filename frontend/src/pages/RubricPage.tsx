@@ -127,7 +127,7 @@ export const RubricPage: React.FC = () => {
           </div>
         ) : !output ? (
           /* Form State */
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+          <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
             <div className="mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-1">Instant Rubric Designer</h2>
               <p className="text-xs text-gray-500">Generate a professional, multi-criteria grading rubric tailored to your assignment.</p>
@@ -209,8 +209,8 @@ export const RubricPage: React.FC = () => {
                       onClick={() => setPerformanceLevels(levels)}
                       className={`h-10 w-12 text-xs font-bold rounded-xl border flex items-center justify-center transition-all ${
                         performanceLevels === levels
-                          ? "bg-black border-black text-white"
-                          : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                          ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {levels}
@@ -261,16 +261,16 @@ export const RubricPage: React.FC = () => {
             </div>
 
             {/* Rubric HTML Table with borders and clean styling */}
-            <div className="rounded-2xl border border-gray-150 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse border-spacing-0">
                   <thead>
-                    <tr className="bg-gray-50 border-b border-gray-150">
-                      <th className="p-4 text-xs font-bold text-gray-900 border-r border-gray-150 w-[160px]">
+                    <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                      <th className="p-4 text-xs font-bold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 w-[160px]">
                         Criteria
                       </th>
                       {output.criteria[0]?.levels.map((level, lIdx) => (
-                        <th key={lIdx} className="p-4 text-xs font-bold text-gray-900 border-r border-gray-150 last:border-r-0 text-center">
+                        <th key={lIdx} className="p-4 text-xs font-bold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 last:border-r-0 text-center">
                           {level.label}
                         </th>
                       ))}
@@ -280,19 +280,19 @@ export const RubricPage: React.FC = () => {
                     {output.criteria.map((crit, cIdx) => (
                       <tr
                         key={cIdx}
-                        className={`border-b border-gray-150 last:border-b-0 ${
-                          cIdx % 2 === 1 ? "bg-gray-50/40" : "bg-white"
+                        className={`border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
+                          cIdx % 2 === 1 ? "bg-gray-50/40 dark:bg-gray-800/40" : "bg-white dark:bg-gray-900"
                         }`}
                       >
-                        <td className="p-4 border-r border-gray-150 align-top">
-                          <h4 className="text-xs font-bold text-gray-900 mb-1">{crit.name}</h4>
-                          <span className="inline-block text-[10px] font-semibold text-gray-500 bg-gray-100 rounded px-1.5 py-0.5 mt-1">
+                        <td className="p-4 border-r border-gray-200 dark:border-gray-700 align-top">
+                          <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100 mb-1">{crit.name}</h4>
+                          <span className="inline-block text-[10px] font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 rounded px-1.5 py-0.5 mt-1">
                             {crit.weight}% | {crit.marks} Marks
                           </span>
                         </td>
                         {crit.levels.map((level, lIdx) => (
-                          <td key={lIdx} className="p-4 border-r border-gray-150 last:border-r-0 align-top text-xs text-gray-600 leading-relaxed">
-                            <div className="font-bold text-gray-900 mb-1.5 text-center">
+                          <td key={lIdx} className="p-4 border-r border-gray-200 dark:border-gray-700 last:border-r-0 align-top text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div className="font-bold text-gray-900 dark:text-gray-100 mb-1.5 text-center">
                               {level.score} M
                             </div>
                             <div>{level.descriptor}</div>
@@ -306,19 +306,19 @@ export const RubricPage: React.FC = () => {
             </div>
 
             {/* Summary total marks */}
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h4 className="text-xs font-bold text-gray-700">Evaluation Total Summary</h4>
                 <p className="text-xs text-gray-500 mt-0.5">Sum of all criteria weights equals 100%.</p>
               </div>
               <div className="flex gap-4">
-                <div className="bg-white border border-gray-150 rounded-xl px-4 py-2 text-center shadow-sm">
-                  <span className="text-[10px] font-semibold text-gray-400 block uppercase">Total Weight</span>
-                  <span className="text-sm font-bold text-gray-900">100%</span>
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-center shadow-sm">
+                  <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 block uppercase">Total Weight</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">100%</span>
                 </div>
-                <div className="bg-white border border-gray-150 rounded-xl px-4 py-2 text-center shadow-sm">
-                  <span className="text-[10px] font-semibold text-gray-400 block uppercase">Total Marks</span>
-                  <span className="text-sm font-bold text-gray-900">{output.metadata.totalMarks} Marks</span>
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2 text-center shadow-sm">
+                  <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 block uppercase">Total Marks</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{output.metadata.totalMarks} Marks</span>
                 </div>
               </div>
             </div>

@@ -22,7 +22,7 @@ export const LearningObjectivesCard = ({ objectives }: LearningObjectivesCardPro
   const percentage = (completedCount / totalCount) * 100;
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
@@ -50,7 +50,7 @@ export const LearningObjectivesCard = ({ objectives }: LearningObjectivesCardPro
             <li 
               key={index} 
               onClick={() => toggleCheck(index)}
-              className={`flex items-start gap-3 p-2.5 rounded-xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 cursor-pointer transition-all ${
+              className={`flex items-start gap-3 p-2.5 rounded-xl border border-transparent hover:border-gray-100 dark:hover:border-gray-700 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 cursor-pointer transition-all ${
                 isChecked ? "bg-gray-50/30" : ""
               }`}
             >
@@ -59,7 +59,7 @@ export const LearningObjectivesCard = ({ objectives }: LearningObjectivesCardPro
                 className={`mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md border transition-all ${
                   isChecked 
                     ? "border-orange-500 bg-orange-500 text-white shadow-sm" 
-                    : "border-gray-200 hover:border-gray-400 bg-white"
+                    : "border-gray-200 dark:border-gray-600 hover:border-gray-400 bg-white dark:bg-gray-700"
                 }`}
               >
                 {isChecked && <CheckCircle2 className="h-3.5 w-3.5 fill-white stroke-orange-500" />}

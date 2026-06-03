@@ -475,7 +475,7 @@ const QuestionBankPage: React.FC = () => {
                               </span>
                             </div>
                             <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
-                              <span className="bg-gray-50 border border-gray-150 rounded px-1.5 py-0.5 capitalize text-[10px] text-gray-500">{q.difficulty}</span>
+                              <span className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-1.5 py-0.5 capitalize text-[10px] text-gray-500 dark:text-gray-400">{q.difficulty}</span>
                               <span className="bg-gray-900 text-white rounded px-1.5 py-0.5 text-[10px]">{q.marks} Mark{q.marks > 1 ? "s" : ""}</span>
                             </div>
                           </div>
@@ -493,7 +493,7 @@ const QuestionBankPage: React.FC = () => {
                                     key={oIdx}
                                     className={`flex items-center gap-3 p-3 rounded-xl border text-xs font-medium transition-all ${
                                       q.correctAnswer === optionLetter || q.correctAnswer.startsWith(optionLetter)
-                                        ? "border-green-200 bg-green-50/20 text-green-900"
+                                        ? "border-green-200 dark:border-green-800/40 bg-green-50/20 dark:bg-green-950/20 text-green-900 dark:text-green-400"
                                         : "border-gray-200 bg-white text-gray-700"
                                     }`}
                                   >
@@ -521,8 +521,8 @@ const QuestionBankPage: React.FC = () => {
                             </button>
 
                             {expandedAnswers[q.questionNumber] && (
-                              <div className="mt-2.5 p-4 rounded-xl bg-orange-50/30 border border-orange-100 text-xs text-orange-950 leading-relaxed font-mono">
-                                <div className="font-bold text-orange-800 uppercase tracking-wider text-[9px] mb-1">Correct Answer / Guideline:</div>
+                              <div className="mt-2.5 p-4 rounded-xl bg-orange-50/30 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/30 text-xs text-orange-950 dark:text-orange-400 leading-relaxed font-mono">
+                                <div className="font-bold text-orange-850 dark:text-orange-400 uppercase tracking-wider text-[9px] mb-1">Correct Answer / Guideline:</div>
                                 <div>{q.correctAnswer}</div>
                               </div>
                             )}

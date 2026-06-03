@@ -246,7 +246,7 @@ const TopicDetail = () => {
                 key={step}
                 className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-500 ${
                   i === stepIndex
-                    ? "bg-[#111111] text-white shadow-md scale-[1.02]"
+                    ? "bg-[#111111] dark:bg-zinc-50 text-white dark:text-zinc-950 shadow-md scale-[1.02]"
                     : i < stepIndex
                     ? "bg-gray-100 text-gray-400 line-through"
                     : "bg-gray-50 text-gray-400"

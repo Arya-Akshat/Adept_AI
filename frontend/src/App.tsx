@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import OnboardingPage from "./pages/OnboardingPage";
 
 // New Assignment Pages
+import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import CreateAssignment from "./pages/CreateAssignment";
 import AssignmentOutput from "./pages/AssignmentOutput";
@@ -30,6 +31,9 @@ import DoubtSolverPage from "./pages/DoubtSolverPage";
 
 // Navbar / Sidebar Dummy Pages
 import MyGroups from "./pages/MyGroups";
+import CreateGroupPage from "./pages/CreateGroupPage";
+import GroupDetailPage from "./pages/GroupDetailPage";
+import StudentProfilePage from "./pages/StudentProfilePage";
 import Toolkit from "./pages/Toolkit";
 import Settings from "./pages/Settings";
 
@@ -60,7 +64,7 @@ const App: React.FC = () => (
                   <Route path="/onboarding" element={<OnboardingPage />} />
 
                   {/* Dashboard and Assignment Routes */}
-                  <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                   <Route path="/assignments" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                   <Route path="/assignments/create" element={<ProtectedRoute><CreateAssignment /></ProtectedRoute>} />
                   <Route path="/assignments/:id" element={<ProtectedRoute><AssignmentOutput /></ProtectedRoute>} />
@@ -75,6 +79,9 @@ const App: React.FC = () => (
 
                   {/* Sidebar Navigation Pages */}
                   <Route path="/groups" element={<ProtectedRoute><MyGroups /></ProtectedRoute>} />
+                  <Route path="/groups/new" element={<ProtectedRoute><CreateGroupPage /></ProtectedRoute>} />
+                  <Route path="/groups/:id" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
+                  <Route path="/groups/:id/students/:sid" element={<ProtectedRoute><StudentProfilePage /></ProtectedRoute>} />
                   <Route path="/toolkit" element={<ProtectedRoute><Toolkit /></ProtectedRoute>} />
                   <Route path="/toolkit/lesson-plan" element={<ProtectedRoute><LessonPlanPage /></ProtectedRoute>} />
                   <Route path="/toolkit/rubric" element={<ProtectedRoute><RubricPage /></ProtectedRoute>} />

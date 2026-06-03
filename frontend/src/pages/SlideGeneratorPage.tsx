@@ -230,7 +230,7 @@ const SlideGeneratorPage: React.FC = () => {
         /* Presentation Previewer View */
         <div className="space-y-6 pb-20 animate-fade-in-scale">
           {/* Top Info Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 border border-gray-100 p-5 rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 rounded-2xl">
             <div>
               <h2 className="text-lg font-bold text-gray-900">{generatedPresentation.metadata.title}</h2>
               <p className="text-xs text-gray-400 mt-1">
@@ -268,7 +268,7 @@ const SlideGeneratorPage: React.FC = () => {
           {/* Slide Deck Workspace */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Slide Navigation Pane */}
-            <div className="lg:col-span-1 border border-gray-100 bg-white p-4 rounded-2xl h-[500px] overflow-y-auto space-y-3">
+            <div className="lg:col-span-1 border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 rounded-2xl h-[500px] overflow-y-auto space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Slide Thumbnails</h3>
               {generatedPresentation.slides.map((slide, idx) => {
                 const isTitleSlide = slide.slideNumber === 1;
@@ -324,17 +324,17 @@ const SlideGeneratorPage: React.FC = () => {
                   </div>
                 ) : (
                   /* Content Slide (Off-white headers with orange brand border) */
-                  <div className="absolute inset-0 bg-[#FCFCFA] text-slate-800 p-8 sm:p-12 flex flex-col justify-between select-none">
+                  <div className="absolute inset-0 bg-[#FCFCFA] text-zinc-800 p-8 sm:p-12 flex flex-col justify-between select-none">
                     {/* Top orange brand border */}
                     <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: courseColor }} />
                     
-                    <div className="flex justify-between items-center text-[10px] sm:text-xs tracking-wider text-gray-400 uppercase font-semibold">
+                    <div className="flex justify-between items-center text-[10px] sm:text-xs tracking-wider text-zinc-400 uppercase font-semibold">
                       <span className="truncate max-w-xs">{generatedPresentation.metadata.title}</span>
                       <span>Slide {generatedPresentation.slides[currentSlideIndex].slideNumber}</span>
                     </div>
 
                     <div className="my-auto space-y-6">
-                      <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 border-b border-gray-100 pb-3 font-serif">
+                      <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 border-b border-zinc-200/50 pb-3 font-serif">
                         {generatedPresentation.slides[currentSlideIndex].title}
                       </h2>
                       
@@ -342,7 +342,7 @@ const SlideGeneratorPage: React.FC = () => {
                         {generatedPresentation.slides[currentSlideIndex].bulletPoints.map((point, pIdx) => (
                           <li key={pIdx} className="flex items-start gap-2.5">
                             <span className="h-2 w-2 rounded-full mt-2 shrink-0" style={{ backgroundColor: courseColor }} />
-                            <span className="text-sm sm:text-base text-gray-700 leading-relaxed font-medium">
+                            <span className="text-sm sm:text-base text-zinc-700 leading-relaxed font-medium">
                               {point}
                             </span>
                           </li>
@@ -350,9 +350,9 @@ const SlideGeneratorPage: React.FC = () => {
                       </ul>
                     </div>
 
-                    <div className="text-[10px] text-gray-400 flex items-center justify-between border-t border-gray-50 pt-3">
+                    <div className="text-[10px] text-zinc-400 flex items-center justify-between border-t border-zinc-200/30 pt-3">
                       <span>Image Prompt suggestion: <span className="italic truncate max-w-md inline-block align-bottom">{generatedPresentation.slides[currentSlideIndex].suggestedImagePrompt}</span></span>
-                      <span className="font-semibold text-gray-500 font-mono">AdeptAi</span>
+                      <span className="font-semibold text-zinc-500 font-mono">AdeptAi</span>
                     </div>
                   </div>
                 )}
@@ -404,7 +404,7 @@ const SlideGeneratorPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20 animate-fade-in-scale">
           {/* Form Settings Pane */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-5">
+            <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm space-y-5">
               <h2 className="text-lg font-bold text-gray-900">Setup Presenter</h2>
               
               <div className="space-y-2">
@@ -475,8 +475,8 @@ const SlideGeneratorPage: React.FC = () => {
 
           {/* Files Checker Grid (Context source files list) */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm min-h-[400px]">
-              <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
+            <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm min-h-[400px]">
+              <div className="flex items-center justify-between mb-4 border-b border-gray-50 dark:border-gray-700 pb-3">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Select Slide Context</h2>
                   <p className="text-xs text-gray-400 mt-0.5">Check materials folder to synthesize slide texts</p>
@@ -532,13 +532,13 @@ const SlideGeneratorPage: React.FC = () => {
                         className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                           isChecked 
                             ? "border-orange-500 bg-orange-50/5 shadow-sm" 
-                            : "border-gray-100 bg-white hover:border-gray-200"
+                            : "border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-200 dark:hover:border-gray-600"
                         }`}
                       >
                         <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all ${
                           isChecked 
                             ? "border-orange-500 bg-orange-500 text-white" 
-                            : "border-gray-300 bg-white"
+                            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
                         }`}>
                           {isChecked && <Check className="h-3 w-3 stroke-[3]" />}
                         </div>

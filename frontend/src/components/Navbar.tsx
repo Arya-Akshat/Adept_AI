@@ -25,6 +25,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AdeptLogo } from "./AdeptLogo";
+import { Button } from "./ui/button";
 
 const PAGE_TITLES: Record<string, string> = {
   "/": "Assignment",
@@ -40,8 +42,54 @@ const PAGE_TITLES: Record<string, string> = {
 
 export const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isLandingPage = location.pathname === "/landing";
+
+  if (isLandingPage) {
+    return (
+      <header className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 shadow-sm mb-6 font-sans">
+        <div onClick={() => navigate("/")} className="cursor-pointer">
+          <AdeptLogo variant={2} />
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={toggleTheme}
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+            title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+          >
+            {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
+          {user ? (
+            <Button
+              onClick={() => navigate("/")}
+              className="rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-gray-900 dark:hover:bg-gray-100 text-xs font-semibold px-5 py-2.5 h-auto shadow-sm"
+            >
+              Go to Dashboard
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/login")}
+                className="text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 px-4 py-2 rounded-full h-auto text-gray-700 dark:text-gray-300"
+              >
+                Sign In
+              </Button>
+              <Button
+                onClick={() => navigate("/register")}
+                className="rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-gray-900 dark:hover:bg-gray-100 text-xs font-semibold px-5 py-2.5 h-auto shadow-sm"
+              >
+                Get Started
+              </Button>
+            </div>
+          )}
+        </div>
+      </header>
+    );
+  }
 
   const pageTitle =
     PAGE_TITLES[location.pathname] ||
@@ -90,54 +138,54 @@ export const Navbar = () => {
               <ChevronDown className="h-3.5 w-3.5 text-orange-400 dark:text-orange-500" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-lg border border-gray-100 bg-white">
+          <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5 shadow-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
             <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 px-2 py-1 uppercase tracking-wider">AI Toolkit Actions</DropdownMenuLabel>
             <DropdownMenuSeparator className="my-1" />
             
-            <DropdownMenuItem onClick={() => navigate("/assignments/create")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-100 text-orange-600">
+            <DropdownMenuItem onClick={() => navigate("/assignments/create")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-orange-100 dark:bg-orange-900/30 text-orange-600">
                 <Plus className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold text-gray-800">Create Assignment</span>
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Create Assignment</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => navigate("/toolkit/question-bank")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-100 text-blue-600">
+            <DropdownMenuItem onClick={() => navigate("/toolkit/question-bank")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600">
                 <BookOpen className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold text-gray-800">AI Question Bank</span>
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">AI Question Bank</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => navigate("/toolkit/slide-generator")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-100 text-purple-600">
+            <DropdownMenuItem onClick={() => navigate("/toolkit/slide-generator")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-100 dark:bg-purple-900/30 text-purple-600">
                 <Presentation className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold text-gray-800">AI Slide Generator</span>
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">AI Slide Generator</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => navigate("/toolkit/lesson-plan")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+            <DropdownMenuItem onClick={() => navigate("/toolkit/lesson-plan")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600">
                 <FileText className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold text-gray-800">Lesson Plan Generator</span>
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Lesson Plan Generator</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => navigate("/toolkit/rubric")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 focus:bg-gray-50">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 text-amber-600">
+            <DropdownMenuItem onClick={() => navigate("/toolkit/rubric")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-600">
                 <Award className="h-3.5 w-3.5" />
               </div>
-              <span className="text-xs font-bold text-gray-800">Instant Rubric Designer</span>
+              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Instant Rubric Designer</span>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator className="my-1" />
             <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 px-2 py-1 uppercase tracking-wider">File Uploads</DropdownMenuLabel>
             
-            <DropdownMenuItem onClick={() => navigate("/syllabus")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 cursor-pointer hover:bg-gray-50 focus:bg-gray-50 text-xs font-semibold text-gray-700">
+            <DropdownMenuItem onClick={() => navigate("/syllabus")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300">
               <Upload className="h-3.5 w-3.5 text-gray-500" />
               Syllabus Extractor
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => navigate("/input-notes")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 cursor-pointer hover:bg-gray-50 focus:bg-gray-50 text-xs font-semibold text-gray-700">
+            <DropdownMenuItem onClick={() => navigate("/input-notes")} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 focus:bg-gray-50 dark:focus:bg-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-300">
               <FileUp className="h-3.5 w-3.5 text-gray-500" />
               Study Notes Uploader
             </DropdownMenuItem>

@@ -31,7 +31,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#f5f5f5]">
+    <div className="flex min-h-screen w-full bg-[#f5f5f5] dark:bg-background">
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-[#111111] p-12">
         <AdeptLogo variant={3} />

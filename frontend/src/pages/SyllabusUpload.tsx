@@ -87,8 +87,8 @@ const SyllabusUpload = () => {
       <Layout>
         <div className="mx-auto max-w-xl mt-10 flex flex-col gap-4">
           {/* Main success card */}
-          <div className="rounded-2xl border border-green-100 bg-white p-8 shadow-sm flex flex-col items-center gap-5 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 border border-green-100">
+          <div className="rounded-2xl border border-green-100 dark:border-green-900/30 bg-white dark:bg-gray-900 p-8 shadow-sm flex flex-col items-center gap-5 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900/30">
               <CheckCircle2 className="h-8 w-8 text-green-500" />
             </div>
 
@@ -100,7 +100,7 @@ const SyllabusUpload = () => {
             </div>
 
             {/* File name pill */}
-            <div className="flex items-center gap-2 rounded-full border border-gray-100 bg-gray-50 px-4 py-2">
+            <div className="flex items-center gap-2 rounded-full border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-2">
               <FileImage className="h-4 w-4 text-orange-400 shrink-0" />
               <span className="text-sm font-medium text-gray-700 truncate max-w-xs">{fileName}</span>
             </div>
@@ -155,7 +155,7 @@ const SyllabusUpload = () => {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm flex flex-col gap-5">
+        <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 shadow-sm flex flex-col gap-5">
           {/* Course Folder Selection */}
           {courses.length > 0 && (
             <Card className="border-orange-500/20 bg-orange-50/5 rounded-2xl">

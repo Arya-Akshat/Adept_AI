@@ -287,7 +287,7 @@ export const OnboardingPage: React.FC = () => {
   // Render Loader if auth loading, user missing or already completed
   if (loading || !user || user.onboardingCompleted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f5]">
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f5] dark:bg-background">
         <Loader2 className="h-10 w-10 animate-spin text-[#EA580C]" />
       </div>
     );
@@ -327,7 +327,7 @@ export const OnboardingPage: React.FC = () => {
   const ActiveIcon = activeHighlightData.icon;
 
   return (
-    <div className="relative flex min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] font-sans selection:bg-black selection:text-white">
+    <div className="relative flex min-h-screen w-full overflow-x-hidden bg-[#f5f5f5] dark:bg-background font-sans selection:bg-black selection:text-white">
       {/* Drifting subtle gradient blobs */}
       <style>{`
         @keyframes driftOne {

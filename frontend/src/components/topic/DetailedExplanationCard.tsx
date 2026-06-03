@@ -12,7 +12,7 @@ function formatText(text: string): React.ReactNode[] {
     const parts = para.split(/(\*\*[^*]+\*\*)/g);
     const formatted = parts.map((part, i) => {
       if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={i} className="font-semibold text-gray-900">{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="font-semibold text-gray-900 dark:text-gray-100">{part.slice(2, -2)}</strong>;
       }
       // Handle single newlines as line breaks
       return part.split("\n").map((line, li, arr) => (
@@ -26,7 +26,7 @@ function formatText(text: string): React.ReactNode[] {
     // First paragraph gets a special featured treatment
     if (pIdx === 0) {
       return (
-        <div key={pIdx} className="relative bg-orange-50/40 border-l-4 border-orange-500 rounded-r-xl px-5 py-4 mb-6 shadow-sm">
+        <div key={pIdx} className="relative bg-orange-50/40 dark:bg-orange-950/20 border-l-4 border-orange-500 rounded-r-xl px-5 py-4 mb-6 shadow-sm">
           <Sparkles className="absolute top-3 right-3 h-4 w-4 text-orange-400/70" />
           <p className="text-[15.5px] font-medium text-gray-800 leading-[1.75]">
             {formatted}
@@ -46,7 +46,7 @@ function formatText(text: string): React.ReactNode[] {
 export const DetailedExplanationCard = ({ explanation }: DetailedExplanationCardProps) => {
   if (!explanation) return null;
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8 shadow-sm">
       <div className="flex items-center gap-2.5 mb-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
           <BookOpen className="h-4 w-4" />

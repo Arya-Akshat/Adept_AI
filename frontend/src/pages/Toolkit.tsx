@@ -92,7 +92,7 @@ const Toolkit: React.FC = () => {
           <span className="h-2.5 w-2.5 rounded-full bg-[#EA580C]" />
           <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">AI Teacher's Toolkit</h1>
         </div>
-        <p className="text-sm text-gray-500 dark:text-gray-455">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Access syllabus extraction, study roadmap pipelines, and preview upcoming AI tools.
         </p>
       </div>

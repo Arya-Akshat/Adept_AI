@@ -39,7 +39,7 @@ function renderExample(example: string, index: number) {
   }
 
   return (
-    <div key={index} className="flex gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:bg-gray-100/50 transition-all">
+    <div key={index} className="flex gap-4 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-all">
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
         <Lightbulb className="h-4 w-4" />
       </div>
@@ -54,7 +54,7 @@ function renderExample(example: string, index: number) {
 export const PracticalExamplesCard = ({ examples }: PracticalExamplesCardProps) => {
   if (!examples?.length) return null;
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-sm">
+    <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 md:p-8 shadow-sm">
       <div className="flex items-center gap-2.5 mb-6">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
           <Terminal className="h-4.5 w-4.5" />

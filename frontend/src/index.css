@@ -153,7 +153,9 @@ All colors MUST be HSL.
   border-color: hsl(var(--border)) !important;
 }
 
-.dark .bg-gray-50 {
+.dark .bg-gray-50,
+.dark .bg-gray-100,
+.dark .bg-gray-200 {
   background-color: hsl(var(--secondary)) !important;
 }
 
@@ -201,5 +203,123 @@ All colors MUST be HSL.
 
 .dark .hover\:bg-gray-900:hover {
   background-color: hsl(var(--primary) / 0.9) !important;
+}
+
+/* Dark mode overrides for input elements, textareas, and select elements */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 1px hsl(var(--primary)) !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground) / 0.8) !important;
+}
+
+.dark option {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Border overrides in dark mode */
+.dark .border-black {
+  border-color: hsl(var(--foreground)) !important;
+}
+
+/* Spinner border overrides in dark mode */
+.dark .border-black.border-t-transparent {
+  border-color: hsl(var(--foreground)) !important;
+  border-top-color: transparent !important;
+}
+
+/* Red alert and hover overrides in dark mode */
+.dark .bg-red-50,
+.dark .hover\:bg-red-50:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+/* Amber accent and alert overrides in dark mode */
+.dark .bg-amber-50,
+.dark .bg-amber-50\/40,
+.dark .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.dark .border-amber-100,
+.dark .border-amber-100\/50,
+.dark .border-amber-200 {
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-amber-800,
+.dark .text-amber-900 {
+  color: #fbbf24 !important;
+}
+
+/* Orange checked item overrides in dark mode */
+.dark .bg-orange-50,
+.dark .bg-orange-50\/20,
+.dark .bg-orange-50\/5 {
+  background-color: rgba(249, 115, 22, 0.1) !important;
+}
+
+.dark .border-orange-100,
+.dark .border-orange-200 {
+  border-color: rgba(249, 115, 22, 0.3) !important;
+}
+
+/* Gray transparency overrides in dark mode */
+.dark .bg-gray-50\/50 {
+  background-color: hsl(var(--secondary) / 0.5) !important;
+}
+
+/* Premium styled custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.dark * {
+  scrollbar-color: #374151 transparent;
 }
 

@@ -57,22 +57,38 @@ const startServer = async () => {
   httpServer.listen(PORT, () => {
     logger.info(`Server running on port ${PORT} in ${NODE_ENV} environment`);
     
-    // Wake up Python service and keep it awake
+    // Wake up self and Python service to keep them awake (Render/similar cold starts)
     try {
       import("axios").then((axios) => {
+        // 1. Self-ping Node backend
+        const pingSelf = () => {
+          const url = `http://localhost:${PORT}/health`;
+          logger.info(`Pinging Node backend self-health at ${url}...`);
+          axios.default.get(url, { timeout: 10000 })
+            .then((res) => {
+              logger.info(`Self-ping Node backend status: ${res.status}`);
+            })
+            .catch((err) => {
+              logger.warn(`Self-ping Node backend failed: ${err.message}`);
+            });
+        };
+        pingSelf(); // Initial self ping
+        setInterval(pingSelf, 5 * 60 * 1000); // Node self ping every 5 minutes
+
+        // 2. Ping Python service
         import("./config/env").then(({ FASTAPI_URL }) => {
           if (FASTAPI_URL) {
             const pingPython = () => {
               logger.info(`Pinging Python service at ${FASTAPI_URL} to keep it awake...`);
               axios.default.get(FASTAPI_URL, { timeout: 10000 }).catch(() => {});
             };
-            pingPython(); // Initial ping
-            setInterval(pingPython, 10 * 60 * 1000); // Ping every 10 minutes
+            pingPython(); // Initial python ping
+            setInterval(pingPython, 5 * 60 * 1000); // Python ping every 5 minutes
           }
         });
       });
     } catch (err) {
-      logger.warn("Failed to setup Python service polling");
+      logger.warn("Failed to setup service wake-up polling");
     }
   });
 

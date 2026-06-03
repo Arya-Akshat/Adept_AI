@@ -236,7 +236,7 @@ export const AssignmentOutput: React.FC = () => {
           </div>
           <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#111111] transition-all duration-500 rounded-full" 
+              className="h-full bg-[#111111] dark:bg-white transition-all duration-500 rounded-full" 
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -303,7 +303,7 @@ export const AssignmentOutput: React.FC = () => {
           <button
             onClick={handleDownloadPdf}
             disabled={downloadingPdf}
-            className="flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-black hover:bg-gray-50 transition-all shadow-sm"
+            className="flex items-center gap-2 rounded-full bg-zinc-50 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-zinc-100 transition-all shadow-sm"
           >
             <RefreshCw className={cn("h-4.5 w-4.5", downloadingPdf && "animate-spin")} />
             <span>Download as PDF</span>

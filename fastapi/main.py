@@ -7,6 +7,8 @@ import os
 import sys
 import io
 import logging
+import asyncio
+import urllib.request
 
 # Add current directory to path for sub-module loading
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -41,16 +43,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def ping_url(url: str):
+    try:
+        with urllib.request.urlopen(url, timeout=5.0) as response:
+            return response.getcode()
+    except Exception as e:
+        raise e
+
+async def self_ping_loop():
+    logger = logging.getLogger("main")
+    logger.info("Starting FastAPI self-ping loop...")
+    await asyncio.sleep(10)  # Wait for startup to complete
+
+    port = os.environ.get("PORT", "5001")
+    url = f"http://localhost:{port}/health"
+
+    while True:
+        try:
+            if sys.version_info >= (3, 9):
+                status_code = await asyncio.to_thread(ping_url, url)
+            else:
+                loop = asyncio.get_running_loop()
+                status_code = await loop.run_in_executor(None, ping_url, url)
+            logger.info(f"Self-ping FastAPI health status: {status_code}")
+        except Exception as e:
+            logger.warning(f"Self-ping FastAPI health check failed: {e}")
+        await asyncio.sleep(5 * 60)  # Ping every 5 minutes
+
 @app.on_event("startup")
 async def startup_event():
-    logger = logging.getLogger("main")
-    logger.info("FastAPI startup: Pre-warming embedding model...")
-    try:
-        from rag.embedder import load_embedding_model
-        load_embedding_model()
-        logger.info("Embedding model pre-warmed successfully on startup.")
-    except Exception as e:
-        logger.error(f"Failed to pre-warm embedding model: {e}")
+    # Register the self-ping loop task
+    asyncio.create_task(self_ping_loop())
 
 # Define paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -239,6 +262,10 @@ class ExplainTopicRequest(BaseModel):
 @app.get("/")
 def hello_world():
     return {"Res": 200}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
 
 @app.get("/deleteToken")
 def delete_token(userId: Optional[str] = None):

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Group, Student } from "@/types/groups";
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:4004" : "https://adept-ai.onrender.com");
 
@@ -509,4 +510,123 @@ export const courseApi = {
   listQuestionBanks: (courseId: string) =>
     api.get<any[]>(`/api/courses/${courseId}/question-banks`),
 };
+
+// Groups & Student Roster endpoints
+export const groupsApi = {
+  createGroup: (data: {
+    name: string;
+    subject: string;
+    grade: string;
+    academicYear: string;
+    subjectColumns?: string[];
+  }) =>
+    api.post<{ success: boolean; data: { group: Group } }>("/api/groups", data),
+
+  listGroups: () =>
+    api.get<{ success: boolean; data: { groups: Group[] } }>("/api/groups"),
+
+  getGroup: (id: string) =>
+    api.get<{ success: boolean; data: { group: Group } }>(`/api/groups/${id}`),
+
+  updateGroup: (
+    id: string,
+    data: {
+      name?: string;
+      subject?: string;
+      grade?: string;
+      academicYear?: string;
+      subjectColumns?: string[];
+    }
+  ) =>
+    api.patch<{ success: boolean; data: { group: Group } }>(`/api/groups/${id}`, data),
+
+  deleteGroup: (id: string) =>
+    api.delete<{ success: boolean; data: { message: string } }>(`/api/groups/${id}`),
+
+  addStudent: (
+    groupId: string,
+    data: {
+      name: string;
+      rollNumber: string;
+      email?: string;
+      phone?: string;
+    }
+  ) =>
+    api.post<{ success: boolean; data: { student: Student } }>(
+      `/api/groups/${groupId}/students`,
+      data
+    ),
+
+  importStudentsCSV: (groupId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return api.post<{
+      success: boolean;
+      data: {
+        imported: number;
+        skipped: string[];
+        errors: { row: number; error: string }[];
+      };
+    }>(`/api/groups/${groupId}/students/csv`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
+
+  listStudents: (
+    groupId: string,
+    params?: { search?: string; page?: number; limit?: number }
+  ) => {
+    const query = new URLSearchParams();
+    if (params?.search) query.append("search", params.search);
+    if (params?.page) query.append("page", String(params.page));
+    if (params?.limit) query.append("limit", String(params.limit));
+    const queryString = query.toString();
+    return api.get<{
+      success: boolean;
+      data: {
+        students: Student[];
+        total: number;
+        page: number;
+        limit: number;
+      };
+    }>(`/api/groups/${groupId}/students${queryString ? `?${queryString}` : ""}`);
+  },
+
+  exportStudents: (groupId: string) =>
+    api.get(`/api/groups/${groupId}/students/export`, { responseType: "blob" }),
+
+  getStudent: (groupId: string, sid: string) =>
+    api.get<{ success: boolean; data: { student: Student } }>(
+      `/api/groups/${groupId}/students/${sid}`
+    ),
+
+  updateStudent: (
+    groupId: string,
+    sid: string,
+    data: {
+      name?: string;
+      rollNumber?: string;
+      email?: string;
+      phone?: string;
+      overallRemark?: string;
+      attendancePercent?: number | null;
+      academicHistory?: {
+        columnName: string;
+        marks: number;
+        totalMarks: number;
+        remarks?: string;
+      }[];
+    }
+  ) =>
+    api.patch<{ success: boolean; data: { student: Student } }>(
+      `/api/groups/${groupId}/students/${sid}`,
+      data
+    ),
+
+  deleteStudent: (groupId: string, sid: string) =>
+    api.delete<{ success: boolean; data: { message: string } }>(
+      `/api/groups/${groupId}/students/${sid}`
+    ),
+};
+
 

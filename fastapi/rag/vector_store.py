@@ -46,7 +46,7 @@ def create_collection(pdfId: str) -> None:
         if not client.collection_exists(collection_name):
             client.create_collection(
                 collection_name=collection_name,
-                vectors_config=VectorParams(size=384, distance=Distance.COSINE)
+                vectors_config=VectorParams(size=768, distance=Distance.COSINE)
             )
             logger.info(f"Collection '{collection_name}' created.")
     except Exception as e:

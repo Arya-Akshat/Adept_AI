@@ -41,7 +41,7 @@ export const TopicHeader = ({
         <Button
           variant="ghost"
           onClick={onBack}
-          className="group gap-2 hover:bg-gray-100 hover:text-black text-gray-500 -ml-2 rounded-xl transition-all"
+          className="group gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-black dark:hover:text-white text-gray-500 -ml-2 rounded-xl transition-all"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
           Back to Roadmap
@@ -53,7 +53,7 @@ export const TopicHeader = ({
             className={`gap-2 rounded-xl text-xs font-semibold px-4 py-2 transition-all shadow-sm ${
               studied
                 ? "bg-green-600 hover:bg-green-700 text-white"
-                : "bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:text-black"
+                : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white"
             }`}
           >
             <CheckCircle className={`h-4 w-4 ${studied ? "fill-white text-green-600" : ""}`} />

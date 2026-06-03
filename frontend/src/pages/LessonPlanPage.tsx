@@ -142,7 +142,7 @@ ${output.teacherNotes}`;
           </div>
         ) : !output ? (
           /* Form State */
-          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
+          <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm">
             <div className="mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-1">Lesson Plan Generator</h2>
               <p className="text-xs text-gray-500">Design a detailed curriculum plan with timed sections and interactive actions.</p>
@@ -221,8 +221,8 @@ ${output.teacherNotes}`;
                       onClick={() => setTeachingStyle(style)}
                       className={`px-4 py-2 text-xs font-bold rounded-full border uppercase tracking-wider transition-all ${
                         teachingStyle === style
-                          ? "bg-black border-black text-white"
-                          : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
+                          ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black"
+                          : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                     >
                       {style.replace("-", " ")}
@@ -273,19 +273,19 @@ ${output.teacherNotes}`;
 
             {/* Chips bar */}
             <div className="flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-full bg-gray-50 border border-gray-150 px-3.5 py-1 text-xs font-semibold text-gray-700">
+              <span className="inline-flex items-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
                 Duration: {output.metadata.duration} Mins
               </span>
-              <span className="inline-flex items-center rounded-full bg-gray-50 border border-gray-150 px-3.5 py-1 text-xs font-semibold text-gray-700">
+              <span className="inline-flex items-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300">
                 Grade: {output.metadata.gradeLevel}
               </span>
-              <span className="inline-flex items-center rounded-full bg-gray-50 border border-gray-150 px-3.5 py-1 text-xs font-semibold text-gray-700 uppercase tracking-wide">
+              <span className="inline-flex items-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3.5 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
                 Style: {teachingStyle.replace("-", " ")}
               </span>
             </div>
 
             {/* Objectives card */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
               <h3 className="text-sm font-bold text-gray-900 mb-3">Learning Objectives</h3>
               <ul className="list-disc pl-5 space-y-1.5 text-xs text-gray-600">
                 {output.objectives.map((obj, i) => (
@@ -299,8 +299,8 @@ ${output.teacherNotes}`;
               <h3 className="text-sm font-bold text-gray-900 px-1">Lesson Timeline</h3>
               
               {output.sections.map((section, sIdx) => (
-                <div key={sIdx} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                <div key={sIdx} className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-3">
                     <h4 className="text-sm font-bold text-gray-800">{section.title}</h4>
                     <span className="inline-flex items-center rounded-full bg-orange-50 border border-orange-100 px-2.5 py-0.5 text-[10px] font-bold text-orange-700 uppercase">
                       {section.duration} min
@@ -329,10 +329,10 @@ ${output.teacherNotes}`;
                   </div>
 
                   {section.materials && section.materials.length > 0 && (
-                    <div className="pt-3 border-t border-gray-50 flex items-center flex-wrap gap-1.5">
+                    <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center flex-wrap gap-1.5">
                       <span className="text-[10px] font-bold text-gray-400 uppercase mr-1.5">Materials:</span>
                       {section.materials.map((mat, i) => (
-                        <span key={i} className="inline-flex items-center rounded-md bg-gray-50 border border-gray-100 px-2 py-0.5 text-[10px] text-gray-600">
+                        <span key={i} className="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-2 py-0.5 text-[10px] text-gray-600 dark:text-gray-400">
                           {mat}
                         </span>
                       ))}
@@ -344,18 +344,18 @@ ${output.teacherNotes}`;
 
             {/* Assessment & Homework bottom cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h4 className="text-sm font-bold text-gray-900 mb-2">Understanding Assessment</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">{output.assessment}</p>
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Understanding Assessment</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{output.assessment}</p>
               </div>
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h4 className="text-sm font-bold text-gray-900 mb-2">Follow-Up Homework</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">{output.homework}</p>
+              <div className="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-2">Follow-Up Homework</h4>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{output.homework}</p>
               </div>
             </div>
 
             {/* Teacher Notes */}
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50/50 p-6">
+            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 p-6">
               <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Teacher Notes & Common Misconceptions</h4>
               <p className="text-xs text-gray-600 italic leading-relaxed">
                 "{output.teacherNotes}"

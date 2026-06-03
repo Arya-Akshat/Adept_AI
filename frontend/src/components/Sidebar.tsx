@@ -43,7 +43,8 @@ export const Sidebar: React.FC = () => {
   const currentPath = location.pathname;
   const isOutputPage = /^\/assignments\/[a-f0-9]+$/i.test(currentPath) && !currentPath.endsWith("/create");
   const isCreatePage = currentPath === "/assignments/create";
-  const isListPage = currentPath === "/" || currentPath === "/assignments";
+  const isListPage = currentPath === "/assignments";
+  const isHomePage = currentPath === "/";
 
   const logoVariant = isOutputPage ? 1 : 2;
 
@@ -90,7 +91,7 @@ export const Sidebar: React.FC = () => {
   let assignmentsBadge: number | null = null;
   let libraryBadge: number | null = null;
 
-  if (isListPage) {
+  if (isListPage || isHomePage) {
     assignmentsBadge = assignmentsCount;
   } else if (isCreatePage) {
     libraryBadge = libraryCount;
@@ -255,9 +256,9 @@ export const Sidebar: React.FC = () => {
           <nav className="flex flex-col gap-1 mt-4">
             {navItems.map((item) => {
               const isActive =
-                (item.path === "/" && isListPage) ||
-                (item.path === "/assignments" && (isListPage || isOutputPage)) ||
-                (currentPath.startsWith(item.path) && item.path !== "/");
+                (item.path === "/" && currentPath === "/") ||
+                (item.path === "/assignments" && (currentPath.startsWith("/assignments") || isOutputPage)) ||
+                (currentPath.startsWith(item.path) && item.path !== "/" && item.path !== "/assignments");
               const IconComp = item.icon;
 
               const navButton = (
@@ -326,7 +327,7 @@ export const Sidebar: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <button
                 className={cn(
-                  "flex w-full items-center rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-left hover:bg-gray-50 dark:hover:bg-gray-850 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500",
+                  "flex w-full items-center rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)] text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500",
                   isSidebarCollapsed ? "justify-center" : "gap-3"
                 )}
               >

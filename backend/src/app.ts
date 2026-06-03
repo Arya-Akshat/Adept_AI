@@ -16,6 +16,7 @@ import userRoutes from "./routes/user.route";
 import assessmentRoutes from "./modules/assessment/assessment.routes";
 import toolkitRoutes from "./modules/toolkit/toolkit.routes";
 import courseRoutes from "./modules/course/course.routes";
+import groupsRoutes from "./modules/groups/groups.routes";
 
 // Import existing middleware
 import authenticate from "./middleware/auth.middleware";
@@ -69,6 +70,9 @@ app.use((req, res, next) => {
 app.get("/", (_req, res) => {
   res.status(OK).json({ status: "healthy" });
 });
+app.get("/health", (_req, res) => {
+  res.status(OK).json({ status: "healthy" });
+});
 
 // Existing routes (preserved at original paths)
 app.use("/auth", authRoutes);
@@ -77,6 +81,7 @@ app.use("/api/pdfs", authenticate, pdfRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/toolkit", toolkitRoutes);
 app.use("/api/courses", authenticate, courseRoutes);
+app.use("/api/groups", groupsRoutes);
 
 // Protected routes
 app.use("/user", authenticate, userRoutes);
