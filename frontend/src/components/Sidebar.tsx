@@ -300,27 +300,7 @@ export const Sidebar: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4">
-          {/* Settings */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={() => navigate("/settings")}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800",
-                  isSidebarCollapsed && "justify-center",
-                  currentPath === "/settings" && "bg-gray-100 dark:bg-gray-800 font-semibold text-gray-800 dark:text-white"
-                )}
-              >
-                <Settings className="h-5 w-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-                {!isSidebarCollapsed && <span>Settings</span>}
-              </button>
-            </TooltipTrigger>
-            {isSidebarCollapsed && (
-              <TooltipContent side="right">
-                <p>Settings</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
+
 
           {/* School Card with DropdownMenu */}
           <DropdownMenu>
