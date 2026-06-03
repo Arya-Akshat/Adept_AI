@@ -26,12 +26,15 @@ Our goal was to build a highly responsive and scalable application that doesn't 
 2. **Real-time Feedback:** The worker processes the request and streams status updates back to the React frontend in real-time using **Socket.io** (WebSockets).
 3. **Structured AI Output:** Instead of rendering raw LLM text, we enforce strict JSON schema adherence through our LangChain/Groq pipeline. The frontend then dynamically renders this structured JSON into a pixel-perfect, exam-style UI.
 4. **Microservice AI Engine:** Heavy PDF extraction (PyMuPDF) and LangChain operations are isolated in a dedicated Python/FastAPI microservice to keep the primary Node API highly available.
+5. **Cloud-Native Embeddings & Resource Optimization:** Migrated from heavy local PyTorch-based embeddings (`sentence-transformers`) to Google's cloud-based Gemini embedding API (`gemini-embedding-2` configured to `768` dimensions). This pruned PyTorch and CUDA dependencies completely, resolving Render OOM (Out of Memory) startup errors and shrinking the service memory footprint to under 100MB.
+6. **Active Production Keep-Alive**: Configured background self-pinging loops running every 5 minutes in both backend services to keep them warm and prevent cold starts / spin-downs on free hosting tiers (Render/Vercel).
 
 ### **Tech Stack**
 - **Frontend**: React (Vite) + TypeScript + Tailwind CSS + Zustand
 - **Backend (Node.js)**: Express, Mongoose, Redis, BullMQ, Socket.io, PDFKit
-- **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain
-- **Primary AI Provider**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`)
+- **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain (running on `gemini-embedding-2`)
+- **Primary AI Provider**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`) and Google Generative AI (Gemini)
+
 
 ---
 
