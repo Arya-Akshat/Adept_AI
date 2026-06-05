@@ -74,6 +74,47 @@ app.get("/health", (_req, res) => {
   res.status(OK).json({ status: "healthy" });
 });
 
+app.get("/health-check", async (_req, res) => {
+  const { redisClient } = await import("./config/redis");
+  const LibraryFile = (await import("./models/LibraryFile")).default;
+
+  let redisStatus = "not initialized";
+  let redisPing = "failed";
+  if (redisClient) {
+    redisStatus = redisClient.status;
+    try {
+      redisPing = await redisClient.ping();
+    } catch (err: any) {
+      redisPing = `error: ${err.message}`;
+    }
+  }
+
+  let libraryFiles: any[] = [];
+  try {
+    const files = await LibraryFile.find().sort({ uploadDate: -1 }).limit(10);
+    libraryFiles = files.map(f => ({
+      filename: f.filename,
+      originalName: f.originalName,
+      roadmapStatus: f.roadmapStatus,
+      roadmapError: f.roadmapError,
+      vectorStatus: f.vectorStatus,
+      vectorError: f.vectorError,
+      uploadDate: f.uploadDate
+    }));
+  } catch (err: any) {
+    libraryFiles = [{ error: err.message }];
+  }
+
+  res.status(OK).json({
+    status: "healthy",
+    redis: {
+      status: redisStatus,
+      ping: redisPing
+    },
+    libraryFiles
+  });
+});
+
 // Existing routes (preserved at original paths)
 app.use("/auth", authRoutes);
 app.use("/api", authenticate, apiRoutes);
