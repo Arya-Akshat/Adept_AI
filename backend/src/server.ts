@@ -54,7 +54,7 @@ const startServer = async () => {
   initializeSocket(httpServer);
 
   // Start HTTP server
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT, async () => {
     logger.info(`Server running on port ${PORT} in ${NODE_ENV} environment`);
     
     // Wake up self and Python service to keep them awake (Render/similar cold starts)
