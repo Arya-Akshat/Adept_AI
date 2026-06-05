@@ -103,7 +103,7 @@ FRONTEND_URL=http://localhost:5173
 FASTAPI_URL=http://localhost:5001
 
 # Database
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/vedaai
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/adeptai
 
 # Security / JWT
 JWT_SECRET=your_jwt_access_secret_key
@@ -113,7 +113,7 @@ JWT_REFRESH_SECRET=your_jwt_refresh_secret_key
 RAW_DATA_PATH=./src/constants/rawData
 PROCESSED_DATA_PATH=./src/constants/processedData
 
-# VedaAI Generation Configuration
+# AdeptAI Generation Configuration
 GROQ_API_KEY=your_groq_api_key
 REDIS_URL=redis://localhost:6379
 WORKER_CONCURRENCY=3
