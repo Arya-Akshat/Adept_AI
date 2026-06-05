@@ -12,9 +12,7 @@ VedaAI is a production-grade educational platform that combines student roadmap 
 ---
 
 ## 🎥 Demo Video
-Watch the full application walkthrough on YouTube: 
-
-[![VedaAI Demo](https://img.youtube.com/vi/CuQZ74n6ed4/0.jpg)](https://youtu.be/CuQZ74n6ed4)
+🎥 [Watch the VedaAI Demo Video Walkthrough on YouTube](https://youtu.be/CuQZ74n6ed4)
 
 ---
 
@@ -27,7 +25,10 @@ Our goal was to build a highly responsive and scalable application that doesn't 
 3. **Structured AI Output:** Instead of rendering raw LLM text, we enforce strict JSON schema adherence through our LangChain/Groq pipeline. The frontend then dynamically renders this structured JSON into a pixel-perfect, exam-style UI.
 4. **Microservice AI Engine:** Heavy PDF extraction (PyMuPDF) and LangChain operations are isolated in a dedicated Python/FastAPI microservice to keep the primary Node API highly available.
 5. **Cloud-Native Embeddings & Resource Optimization:** Migrated from heavy local PyTorch-based embeddings (`sentence-transformers`) to Google's cloud-based Gemini embedding API (`gemini-embedding-2` configured to `768` dimensions). This pruned PyTorch and CUDA dependencies completely, resolving Render OOM (Out of Memory) startup errors and shrinking the service memory footprint to under 100MB.
-6. **Active Production Keep-Alive**: Configured background self-pinging loops running every 5 minutes in both backend services to keep them warm and prevent cold starts / spin-downs on free hosting tiers (Render/Vercel).
+6. **Active Production Keep-Alive**: Configured background self-pinging loops running every 5 minutes in both backend services (including `PING` commands to Redis) to keep services warm and prevent cold starts / spin-downs on free hosting tiers (Render/Vercel).
+7. **Resilient Production Startup**: Updated the database and queue initialization so that temporary Redis offline/sleep states do not block backend boot-up or permanently disable background workers. Connection retries continue in the background.
+8. **Robust Multi-modal Retries**: Implemented exponential backoff retries for image text extraction calls to Gemini, making the upload and chunking pipeline resilient to transient 503 (Service Unavailable) or 429 (Rate Limit) errors.
+9. **Rubric Marks Math Guard**: Integrated an automatic scaling and rounding mechanism for AI-generated rubrics, ensuring intermediate performance scores mathematically align with the criterion's total marks.
 
 ### **Tech Stack**
 - **Frontend**: React (Vite) + TypeScript + Tailwind CSS + Zustand

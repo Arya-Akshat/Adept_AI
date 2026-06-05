@@ -34,15 +34,15 @@ At the beginning of this challenge, **ADEPT** was a specialized **AI Study Compa
 Our goal is to evolve **ADEPT** from a student study tool into a bidirectional education platform by implementing **VedaAI's AI Assessment Creator** inside the codebase. 
 
 ### **Planned Upgrades:**
-1.  **Add Teacher Workspace (Frontend):** Build a responsive, beautiful form using Zustand to gather test parameters (Due date, Question count, Marks, Instructions, Difficulty).
-2.  **Asynchronous Generation Pipeline (Backend):** 
+1.  **[x] Add Teacher Workspace (Frontend):** Build a responsive, beautiful form using Zustand to gather test parameters (Due date, Question count, Marks, Instructions, Difficulty).
+2.  **[x] Asynchronous Generation Pipeline (Backend):** 
     *   Integrate **Redis** and **BullMQ** to process AI question generation in the background.
     *   Set up a **WebSocket (Socket.io)** server to push real-time queue progress updates to the frontend.
-3.  **Structured AI Prompting (AI Engine):** Implement a structured schema parser to force Gemini to return valid, JSON-formatted question papers split into logical sections (A, B, C) with difficulty tags (Easy, Moderate, Hard).
-4.  **Premium Output Layout (Frontend):** Create an elegant, exam-style preview page matching the Figma design, with student info inputs, visually colored difficulty badges, and clean styling.
+3.  **[x] Structured AI Prompting (AI Engine):** Implement a structured schema parser to force Gemini to return valid, JSON-formatted question papers split into logical sections (A, B, C) with difficulty tags (Easy, Moderate, Hard).
+4.  **[x] Premium Output Layout (Frontend):** Create an elegant, exam-style preview page matching the Figma design, with student info inputs, visually colored difficulty badges, and clean styling.
 5.  **Extra features:**
-    *   [ ] PDF Export (properly formatted).
-    *   [ ] Regeneration action bar.
+    *   [x] PDF Export (properly formatted).
+    *   [x] Regeneration action bar.
 
 ---
 
@@ -68,7 +68,10 @@ Please refer to [docs/ARCHITECTURE.md](file:///Users/gurudev/Desktop/VS%20Code/M
 12. **Bulletproof User Data Isolation**: Enforced secure multi-tenant isolation by prefixing syllabus uploads, notes parse files, Google Classroom OAuth tokens, and assessment documents with user IDs (`userId`) and validating ownership permissions at every API request.
 13. **VedaAI Premium Branding**: Implemented the premium VedaAI logo graphic (`logo.png`) across all app layers, including transparent and inverted color variations to fit seamlessly into dark-panel authentication screens and light-themed dashboards.
 14. **Roadmap Route Consolidation & Toolkit Expansion**: Eliminated the redundant `/roadmap` route in favor of the consolidated `/library` view, adding fallback URL redirects, and enhanced the AI Teacher's Toolkit page with previews for upcoming future tools (AI Question Bank, Rubric Designer, classroom analytics, and presentation creators).
-15. **Production Keep-Alive Loop**: Implemented cross-server self-pinging loops to prevent cold starts and service timeouts in Render production environments.
-16. **FastAPI OOM Resolution via Gemini Cloud Embeddings**: Resolved the Render deployment OOM crash by replacing local PyTorch sentence-transformer models with Google's Gemini cloud embeddings (`gemini-embedding-2` at `768` dimensions), removing heavy dependencies completely.
+15. **Production Keep-Alive Loops**: Implemented cross-server self-pinging loops (Express self-ping, FastAPI self-ping, and Redis connection ping) to keep free-tier instances warm and prevent spin-downs.
+16. **FastAPI OOM Resolution via Gemini Cloud Embeddings**: Resolved the Render OOM crash by replacing local PyTorch sentence-transformer models with Google's Gemini cloud embeddings (`gemini-embedding-2` at `768` dimensions), removing heavy dependencies completely.
 17. **Sidebar Navigation & Toolkit Polishing**: Cleaned up the navigation by removing the redundant "Settings" link and reordered the toolkit cards to display ready tools at the front and upcoming tools at the end.
-
+18. **Resilient Production Connection Handling**: Overhauled Redis connection startup logic to connect asynchronously and retry indefinitely in production, preventing a sleeping database from permanently disabling background workers.
+19. **Multimodal API Retry Guard**: Added an exponential backoff retry system for Gemini vision image-text extractions, shielding uploads from transient 503 and 429 API failures.
+20. **Rubric Scaling Guard**: Implemented mathematical scaling and rounding to the nearest 0.5 in the rubric generation service to guarantee that the highest score levels perfectly match total marks.
+21. **UX Polish**: Fixed first-time visit authentication error messages so they no longer incorrectly claim the user's session has expired.
