@@ -1,18 +1,16 @@
-# VedaAI (formerly ADEPT) – AI Assessment Creator & Study Companion
+# AdeptAI – AI Assessment Creator & Study Companion
 
-VedaAI is a production-grade educational platform that combines student roadmap generation with a powerful AI Assessment Creator for teachers. It features background job queuing via Redis/BullMQ, real-time WebSocket notifications via Socket.io, structured text generation via Groq, file extraction (PDF/text), and exam-style PDF generation using PDFKit.
+AdeptAI is a production-grade educational platform that combines student roadmap generation with a powerful AI Assessment Creator for teachers. It features background job queuing via Redis/BullMQ, real-time WebSocket notifications via Socket.io, structured text generation via Groq, file extraction (PDF/text), and exam-style PDF generation using PDFKit.
 
 ---
 
-## 🌐 Live Deployments
-- **Vercel Web Client (Frontend):** [https://adept-ai-seven.vercel.app](https://adept-ai-seven.vercel.app)
-- **Render Server (Node.js Backend):** [https://adept-ai.onrender.com](https://adept-ai.onrender.com)
-- **Render AI Engine (Python/FastAPI):** [https://adept-ai-fastapi.onrender.com](https://adept-ai-fastapi.onrender.com)
+## 🌐 Live Deployment
+- **Frontend App:** [https://adept-ai-seven.vercel.app](https://adept-ai-seven.vercel.app)
 
 ---
 
 ## 🎥 Demo Video
-🎥 [Watch the VedaAI Demo Video Walkthrough on YouTube](https://youtu.be/2FcKouCd3xg)
+🎥 [Watch the AdeptAI Demo Video Walkthrough on YouTube](https://youtu.be/2FcKouCd3xg)
 
 ---
 
