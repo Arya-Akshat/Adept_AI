@@ -21,8 +21,6 @@ const extractTextFromImageUsingGemini = async (filePath: string): Promise<string
     if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) {
       mimeType = "image/jpeg";
     }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     const payload = {
       contents: [
@@ -42,28 +40,50 @@ const extractTextFromImageUsingGemini = async (filePath: string): Promise<string
       ]
     };
 
-    let response;
-    let retries = 3;
-    let currentDelay = 1000;
-    for (let i = 0; i < retries; i++) {
-      try {
-        response = await axios.post(url, payload, {
-          headers: {
-            "Content-Type": "application/json"
+    const models = ["gemini-3.5-flash", "gemini-2.5-flash"];
+    let lastError: any = null;
+    let response: any = null;
+
+    for (const model of models) {
+      logger.info({ model, filePath }, "FileExtract: Attempting Gemini extraction");
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+      
+      let retries = 3;
+      let currentDelay = 1000;
+      let success = false;
+
+      for (let i = 0; i < retries; i++) {
+        try {
+          response = await axios.post(url, payload, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          });
+          success = true;
+          break;
+        } catch (err: any) {
+          const status = err.response?.status;
+          const isTemporary = status === 503 || status === 429 || !status;
+          if (isTemporary && i < retries - 1) {
+            logger.warn(`Gemini API call for ${model} returned ${status || 'network error'}. Retrying in ${currentDelay}ms... (Attempt ${i + 1}/${retries})`);
+            await new Promise(resolve => setTimeout(resolve, currentDelay));
+            currentDelay *= 2;
+          } else {
+            logger.error(`Gemini API call for ${model} failed permanently on attempt ${i + 1} with status ${status || 'unknown'}`);
+            lastError = err;
+            break;
           }
-        });
-        break;
-      } catch (err: any) {
-        const status = err.response?.status;
-        const isTemporary = status === 503 || status === 429 || !status;
-        if (isTemporary && i < retries - 1) {
-          logger.warn(`Gemini API call returned ${status || 'network error'}. Retrying in ${currentDelay}ms... (Attempt ${i + 1}/${retries})`);
-          await new Promise(resolve => setTimeout(resolve, currentDelay));
-          currentDelay *= 2;
-        } else {
-          throw err;
         }
       }
+
+      if (success) {
+        logger.info({ model, filePath }, "FileExtract: Gemini extraction successful");
+        break;
+      }
+    }
+
+    if (!response) {
+      throw lastError || new Error("All Gemini models failed to extract text");
     }
 
     const text = (response?.data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
