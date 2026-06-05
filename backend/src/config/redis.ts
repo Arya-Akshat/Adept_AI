@@ -10,7 +10,8 @@ export const connectRedis = async (): Promise<Redis> => {
   redisClient = new Redis(REDIS_URL, {
     maxRetriesPerRequest: null, // Required by BullMQ
     retryStrategy: (times: number) => {
-      if (times > 10) {
+      const isProd = process.env.NODE_ENV === "production";
+      if (!isProd && times > 10) {
         logger.error("Redis: Max retry attempts reached");
         return null;
       }
@@ -31,6 +32,12 @@ export const connectRedis = async (): Promise<Redis> => {
   redisClient.on("close", () => {
     logger.warn("Redis: Connection closed");
   });
+
+  // In production, do not block server startup or fail permanently if Redis is sleeping/slow.
+  // Let ioredis handle the connection in the background.
+  if (process.env.NODE_ENV === "production") {
+    return redisClient;
+  }
 
   await new Promise<void>((resolve, reject) => {
     if (!redisClient) {
