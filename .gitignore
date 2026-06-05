@@ -97,13 +97,6 @@ backend/src/constants/metadata/pdfs.json
 dump.rdb
 
 # ===========================
-# Screenshots (local only)
-# ===========================
-ss_old/
-ss_new/
-images/
-
-# ===========================
 # AI / Prompt Files
 # ===========================
 PROMPT.md
