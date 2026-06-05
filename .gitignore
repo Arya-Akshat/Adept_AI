@@ -80,3 +80,7 @@ PROMPT.md
 
 # Redis Database Dumps
 *.rdb
+
+# Temporary older commit folder
+older/
+
