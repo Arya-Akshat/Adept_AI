@@ -14,20 +14,6 @@ AdeptAI is a production-grade educational platform that combines student roadmap
 
 ---
 
-## 📸 Screenshots
-
-### **1. Teacher's Workspace Dashboard**
-![Workspace Dashboard](ss_new/HomeOverview.png)
-
-### **2. AI Exam Creator & Question Bank**
-![Question Bank](ss_new/QuestionBank.png)
-
-### **3. Optimized Library & File Manager**
-![Library Overview](ss_new/LibraryOverview.png)
-
-### **4. Teacher's Toolkit**
-![Teacher Toolkit](ss_new/ToolkitOverview.png)
-
 ---
 
 ## 🛠️ Architecture Overview & Approach
