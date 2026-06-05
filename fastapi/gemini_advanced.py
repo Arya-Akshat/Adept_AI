@@ -22,7 +22,7 @@ if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY not found in environment variables")
 
 genai.configure(api_key=GEMINI_API_KEY)
-gemini_vision_model = genai.GenerativeModel("gemini-2.0-flash")
+gemini_vision_model = genai.GenerativeModel("gemini-3.5-flash")
 groq_client = Groq(api_key=GROQ_API_KEY)
 
 

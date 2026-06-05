@@ -101,7 +101,7 @@ export const uploadPdfHandler = catchErrors(async (req, res) => {
 
 // List all PDFs
 export const listPdfsHandler = catchErrors(async (req, res) => {
-    const userPdfs = await LibraryFile.find({ userId: req.userId });
+    const userPdfs = await LibraryFile.find({ userId: req.userId }).select("-roadmapData");
     
     // Map to old schema format for frontend compatibility
     const formattedPdfs = userPdfs.map((pdf: any) => ({
@@ -127,7 +127,7 @@ export const listPdfsHandler = catchErrors(async (req, res) => {
 // Get specific PDF metadata
 export const getPdfMetadataHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId }).select("-roadmapData");
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     return res.status(OK).json({
@@ -241,7 +241,7 @@ export const getRoadmapHandler = catchErrors(async (req, res) => {
 // Get specific PDF roadmap status
 export const getPdfStatusHandler = catchErrors(async (req, res) => {
     const { pdfId } = req.params;
-    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId });
+    const pdf = await LibraryFile.findOne({ _id: pdfId, userId: req.userId }).select("-roadmapData");
     appAssert(pdf, NOT_FOUND, "PDF not found");
 
     return res.status(OK).json({
