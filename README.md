@@ -5,14 +5,30 @@ VedaAI is a production-grade educational platform that combines student roadmap 
 ---
 
 ## 🌐 Live Deployments
-- **Frontend (Vercel):** [https://adept-ai-seven.vercel.app](https://adept-ai-seven.vercel.app)
-- **Node.js Backend (Render):** [https://adept-ai.onrender.com](https://adept-ai.onrender.com)
-- **AI / FastAPI Service (Render):** [https://adept-ai-fastapi.onrender.com](https://adept-ai-fastapi.onrender.com)
+- **Vercel Web Client (Frontend):** [https://adept-ai-seven.vercel.app](https://adept-ai-seven.vercel.app)
+- **Render Server (Node.js Backend):** [https://adept-ai.onrender.com](https://adept-ai.onrender.com)
+- **Render AI Engine (Python/FastAPI):** [https://adept-ai-fastapi.onrender.com](https://adept-ai-fastapi.onrender.com)
 
 ---
 
 ## 🎥 Demo Video
 🎥 [Watch the VedaAI Demo Video Walkthrough on YouTube](https://youtu.be/2FcKouCd3xg)
+
+---
+
+## 📸 Screenshots
+
+### **1. Teacher's Workspace Dashboard**
+![Workspace Dashboard](ss_new/HomeOverview.png)
+
+### **2. AI Exam Creator & Question Bank**
+![Question Bank](ss_new/QuestionBank.png)
+
+### **3. Optimized Library & File Manager**
+![Library Overview](ss_new/LibraryOverview.png)
+
+### **4. Teacher's Toolkit**
+![Teacher Toolkit](ss_new/ToolkitOverview.png)
 
 ---
 
@@ -31,8 +47,8 @@ Our goal was to build a highly responsive and scalable application that doesn't 
 9. **Rubric Marks Math Guard**: Integrated an automatic scaling and rounding mechanism for AI-generated rubrics, ensuring intermediate performance scores mathematically align with the criterion's total marks.
 
 ### **Tech Stack**
-- **Frontend**: React (Vite) + TypeScript + Tailwind CSS + Zustand
-- **Backend (Node.js)**: Express, Mongoose, Redis, BullMQ, Socket.io, PDFKit
+- **Frontend**: React (Vite) + TypeScript + Tailwind CSS + Zustand + Socket.io-client
+- **Backend (Node.js)**: Express, Mongoose, Redis (ioredis), BullMQ, Socket.io, PDFKit
 - **AI Engine (Python/FastAPI)**: FastAPI, Google Gemini API, LangChain (running on `gemini-embedding-2`)
 - **Primary AI Provider**: Groq SDK (`llama-3.3-70b-versatile` & fallback `llama-3.1-8b-instant`) and Google Generative AI (Gemini)
 

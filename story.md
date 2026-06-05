@@ -1,77 +1,98 @@
-# The ADEPT Revival & VedaAI Integration: Our Finish-Up-A-Thon Journey
+# The Story of AdeptAI: The Resurrected Assistant
 
-This document captures the before-and-after story of reviving **ADEPT** and expanding it with the **VedaAI AI Assessment Creator** for the GitHub Finish-Up-A-Thon Challenge.
+In my college, we have a lot of exams. Teachers get constantly overwhelmed with creating exam papers, checking student work, and tracking individual progress. A teacher once told me how much time they waste just doing manual paperwork instead of teaching. That was the spark: *what if an AI could handle all the tedious exam generation, grading rubrics, and personalized study guides?*
+
+That was the birth of **AdeptAI**. 
+
+It first started as a hackathon project, but like many student ideas, it got abandoned midway due to our own exams and was forgotten with time. But with the GitHub-a-thon, I finally got a chance to bring it back to life.
 
 ---
 
 ## 📅 The Starting Point (Before)
 
-At the beginning of this challenge, **ADEPT** was a specialized **AI Study Companion** built to help students turn unstructured syllabus images and notes PDFs into organized, interactive learning paths.
+Initially, AdeptAI was a basic student study companion designed to help convert syllabus images or notes PDFs into simple roadmap milestones. 
 
-### **Current Tech Stack:**
-*   **Frontend:** React (Vite) + TypeScript + Tailwind CSS + Shadcn UI
-*   **Backend:** Node.js (Express + TypeScript) + MongoDB (Mongoose)
-*   **AI Engine:** Python (Flask) + Google Gemini API + LangChain
-*   **Database:** MongoDB
+Here is what the interface looked like before the resurrection:
 
-### **Current Feature Status:**
-- [x] **User Auth:** Basic JWT authentication (Register / Login).
-- [x] **Notes Integration:** Downloading course materials directly from Google Classroom using Google OAuth.
-- [x] **Roadmap Generation:** Parsing syllabus images and PDFs using Gemini to output study milestones.
-- [x] **Topic Explanation:** Double-clicking topic cards to get detailed Gemini-generated explanations.
-- [x] **Video Curation:** Pulling relevant YouTube tutorials using the YouTube Data API.
+### 1. Simple Login & Dashboard
+The login was standard, and the dashboard was a basic, static layout displaying course files.
 
-### **Limitations / Pain Points (Before the Hackathon):**
-1.  **Student-Only Utility:** Only served students studying existing material; no features existed for teachers, tutors, or assessment creators.
-2.  **No Background Queuing:** Long-running AI generations were handled synchronously over HTTP, risking timeouts.
-3.  **No Real-time Sync:** The frontend had to wait for HTTP responses rather than receiving real-time status updates via WebSockets.
-4.  **No Global State Management:** State was passed through props or React Context, lacking a scalable global store (like Redux or Zustand).
+![Old Login](ss_old/login.png)
+*Figure 1: The old, basic authentication screen.*
 
----
+![Old Dashboard](ss_old/dashboard.png)
+*Figure 2: The old student dashboard showing loaded courses.*
 
-## 🎯 The Revival Goal: Merging VedaAI with ADEPT
+### 2. Syllabus Upload & Roadmaps
+Students could upload a syllabus file to create simple learning roadmaps. However, processing was slow, synchronous, and frequently timed out on large files.
 
-Our goal is to evolve **ADEPT** from a student study tool into a bidirectional education platform by implementing **VedaAI's AI Assessment Creator** inside the codebase. 
+![Old Upload](ss_old/upload.png)
+*Figure 3: The initial syllabus upload screen.*
 
-### **Planned Upgrades:**
-1.  **[x] Add Teacher Workspace (Frontend):** Build a responsive, beautiful form using Zustand to gather test parameters (Due date, Question count, Marks, Instructions, Difficulty).
-2.  **[x] Asynchronous Generation Pipeline (Backend):** 
-    *   Integrate **Redis** and **BullMQ** to process AI question generation in the background.
-    *   Set up a **WebSocket (Socket.io)** server to push real-time queue progress updates to the frontend.
-3.  **[x] Structured AI Prompting (AI Engine):** Implement a structured schema parser to force Gemini to return valid, JSON-formatted question papers split into logical sections (A, B, C) with difficulty tags (Easy, Moderate, Hard).
-4.  **[x] Premium Output Layout (Frontend):** Create an elegant, exam-style preview page matching the Figma design, with student info inputs, visually colored difficulty badges, and clean styling.
-5.  **Extra features:**
-    *   [x] PDF Export (properly formatted).
-    *   [x] Regeneration action bar.
+![Old Roadmap](ss_old/roadmap.png)
+*Figure 4: A basic, linearly generated study roadmap.*
+
+### 3. Basic Doubt Solvers
+Clicking a topic card opened a simple panel providing standard LLM definitions and raw YouTube tutorials.
+
+![Old Doubt Panel](ss_old/topic_explanation.png)
+*Figure 5: The original topic explanation panel.*
 
 ---
 
-## 🚀 The Finish Line (After)
+## 🚀 The Upgrade Journey (After)
 
-We have successfully designed and built the complete backend pipeline for VedaAI's Assessment Creator!
+With the GitHub Finish-Up-a-thon, we didn't just fix the bugs—we completely rebuilt AdeptAI into a unified, high-performance learning suite for both teachers and students.
 
-### **New Architecture Diagram:**
-Please refer to [docs/ARCHITECTURE.md](file:///Users/gurudev/Desktop/VS%20Code/MyProjects/ADEPT/docs/ARCHITECTURE.md) for a complete system layout diagram.
+Here is the upgraded interface:
 
-### **Completed Upgrades & Copilot's Role:**
-1. **Centralized Config & Env Validation**: Replaced loose constants with zod-validated runtime environment variables.
-2. **Background Queue Infrastructure**: Integrated Redis and BullMQ to schedule, scale, and retry assessment generation.
-3. **Mongoose Database Schema**: Added strict schemas for `Assessment` (with nested `generatedPaper`) and `AssessmentJob`.
-4. **WebSocket Server**: Configured Socket.io server and rooms to stream progress updates (`queued` -> `processing` -> `generating_sections` -> `formatting` -> `completed` / `failed`) to individual clients.
-5. **Groq AI Pipeline**: Engineered prompt formatting and a structured parser using `llama-3.3-70b-versatile` with automatic error retries and model fallback.
-6. **Robust CRUD & Regenerate APIs**: Completed 6 assessment routes protected by JWT cookie auth.
-7. **File Text Extraction**: Added support for extracting plaintext from `.txt` and `.pdf` uploads before starting AI generation.
-8. **Structured PDFKit Exporter**: Created a high-fidelity exam-style PDF renderer that streams downloads directly.
-9. **Centralized Error Handler**: Enhanced Express error handling to format CastError, validation, JWT, Zod, and AppError classes.
-10. **Full-Stack Frontend Integration**: Completed the teacher workspace UI utilizing a unified layout with custom theme styles, global state management using Zustand for tracking generation inputs, and Socket.io listeners to update the real-time generation progress bar dynamically.
-11. **User Profile Settings & Visual Avatar Customization**: Implemented profile settings updates (Full Name, Institution, Branch) and a visual display picture (DP) uploader converting images to Base64 data URIs, synchronizing the avatar in real-time across both top-right header and bottom-left navigation components.
-12. **Bulletproof User Data Isolation**: Enforced secure multi-tenant isolation by prefixing syllabus uploads, notes parse files, Google Classroom OAuth tokens, and assessment documents with user IDs (`userId`) and validating ownership permissions at every API request.
-13. **VedaAI Premium Branding**: Implemented the premium VedaAI logo graphic (`logo.png`) across all app layers, including transparent and inverted color variations to fit seamlessly into dark-panel authentication screens and light-themed dashboards.
-14. **Roadmap Route Consolidation & Toolkit Expansion**: Eliminated the redundant `/roadmap` route in favor of the consolidated `/library` view, adding fallback URL redirects, and enhanced the AI Teacher's Toolkit page with previews for upcoming future tools (AI Question Bank, Rubric Designer, classroom analytics, and presentation creators).
-15. **Production Keep-Alive Loops**: Implemented cross-server self-pinging loops (Express self-ping, FastAPI self-ping, and Redis connection ping) to keep free-tier instances warm and prevent spin-downs.
-16. **FastAPI OOM Resolution via Gemini Cloud Embeddings**: Resolved the Render OOM crash by replacing local PyTorch sentence-transformer models with Google's Gemini cloud embeddings (`gemini-embedding-2` at `768` dimensions), removing heavy dependencies completely.
-17. **Sidebar Navigation & Toolkit Polishing**: Cleaned up the navigation by removing the redundant "Settings" link and reordered the toolkit cards to display ready tools at the front and upcoming tools at the end.
-18. **Resilient Production Connection Handling**: Overhauled Redis connection startup logic to connect asynchronously and retry indefinitely in production, preventing a sleeping database from permanently disabling background workers.
-19. **Multimodal API Retry Guard**: Added an exponential backoff retry system for Gemini vision image-text extractions, shielding uploads from transient 503 and 429 API failures.
-20. **Rubric Scaling Guard**: Implemented mathematical scaling and rounding to the nearest 0.5 in the rubric generation service to guarantee that the highest score levels perfectly match total marks.
-21. **UX Polish**: Fixed first-time visit authentication error messages so they no longer incorrectly claim the user's session has expired.
+### 1. Modern Workspace & VedaAI Branding
+We refreshed the design language, introduced a unified layout with custom theme panels, and synchronized user avatars in real-time.
+
+![New Login](ss_new/Login.png)
+*Figure 6: The updated authentication page with modern panels.*
+
+![New Home](ss_new/HomeOverview.png)
+*Figure 7: The new dashboard workspace featuring active course metrics.*
+
+### 2. High-Performance Library & Async Pipelines
+We optimized database queries to exclude heavy JSON payloads (`-roadmapData`) so library lists load in milliseconds. We also added Redis and BullMQ queues to handle roadmaps in the background, showing real-time progress bars via Socket.io.
+
+![New Library](ss_new/LibraryOverview.png)
+*Figure 8: Optimized Library view with instant document load speeds.*
+
+### 3. Intelligent Doubt Solving
+We replaced discontinued Gemini endpoints with a resilient, self-healing model sequence (trying `gemini-3.5-flash` first, falling back to `gemini-2.5-flash`), securing seamless image-text extractions even under high load.
+
+![New Doubt Solver](ss_new/DoubtSolver.png)
+*Figure 9: The upgraded interactive Doubt Solver companion.*
+
+### 4. The Teacher's Toolkit
+We introduced a teacher suite designed to make exam creation and grading easy:
+* **Rubrics Generator:** Splits total marks mathematically into structured grades automatically.
+* **AI Question Bank & Slides:** Generates questions by difficulty and compiles study slides.
+* **Groups Management:** Arranges students into active project teams.
+
+![New Toolkit](ss_new/ToolkitOverview.png)
+*Figure 10: The new Teacher's Toolkit dashboard.*
+
+![New Question Bank](ss_new/QuestionBank.png)
+*Figure 11: The AI Exam Creator with custom difficulty splits.*
+
+![New Groups](ss_new/GroupsOverview.png)
+*Figure 12: Group management workspace for classroom collaboration.*
+
+![New Slide Generator](ss_new/SlideGenerator.png)
+*Figure 13: Slide deck generator workspace.*
+
+---
+
+## 🛠️ The Tech Stack (Under the Hood)
+* **Frontend:** React (Vite) + TypeScript + Tailwind CSS + Zustand + Socket.io-client
+* **Backend:** Node.js (Express) + MongoDB (Mongoose) + Redis (ioredis) + BullMQ + Socket.io + PDFKit
+* **AI Engine:** Python (FastAPI) + Google Gemini API (`gemini-3.5-flash` & `gemini-embedding-2`) + LangChain + Groq SDK (`llama-3.3-70b-versatile`)
+* **File Storage:** Supabase Cloud Storage
+* **Deployments:**
+  * **Vercel Client:** https://adept-ai-seven.vercel.app
+  * **Render API Backend:** https://adept-ai.onrender.com
+  * **YouTube Demo Walkthrough:** https://youtu.be/2FcKouCd3xg
