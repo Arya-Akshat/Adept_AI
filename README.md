@@ -12,7 +12,7 @@ VedaAI is a production-grade educational platform that combines student roadmap 
 ---
 
 ## 🎥 Demo Video
-🎥 [Watch the VedaAI Demo Video Walkthrough on YouTube](https://youtu.be/CuQZ74n6ed4)
+🎥 [Watch the VedaAI Demo Video Walkthrough on YouTube](https://youtu.be/2FcKouCd3xg)
 
 ---
 
