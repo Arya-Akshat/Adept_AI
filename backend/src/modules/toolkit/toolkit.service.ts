@@ -81,7 +81,7 @@ export const generateRubric = async (teacherId: string, payload: RubricRequest) 
           levels: [
             {
               label: "string (e.g. Excellent, Good, Developing, Beginning)",
-              score: "number",
+              score: "number (for the highest level, score must equal the criterion's marks; lower levels must scale down proportionally)",
               descriptor: "string"
             }
           ]
@@ -125,14 +125,37 @@ Requirements:
         totalWeight += crit.weight || 0;
         crit.marks = parseFloat(((payload.totalMarks * (crit.weight || 0)) / 100).toFixed(1));
         totalMarksCalculated += crit.marks;
+
+        // Scale and round levels scores to match calculated marks (nearest 0.5)
+        if (Array.isArray(crit.levels) && crit.levels.length > 0) {
+          const scores = crit.levels.map((lvl: any) => parseFloat(lvl.score) || 0);
+          const maxScore = Math.max(...scores);
+          if (maxScore > 0) {
+            crit.levels.forEach((lvl: any) => {
+              const rawScore = ((parseFloat(lvl.score) || 0) / maxScore) * crit.marks;
+              lvl.score = Math.round(rawScore * 2) / 2;
+            });
+          }
+        }
       });
 
       // Adjust rounding errors if any
       if (data.criteria.length > 0 && Math.abs(totalMarksCalculated - payload.totalMarks) > 0.01) {
         const diff = payload.totalMarks - totalMarksCalculated;
-        data.criteria[data.criteria.length - 1].marks = parseFloat(
-          (data.criteria[data.criteria.length - 1].marks + diff).toFixed(1)
-        );
+        const lastCrit = data.criteria[data.criteria.length - 1];
+        lastCrit.marks = parseFloat((lastCrit.marks + diff).toFixed(1));
+        
+        // Re-scale the last criterion levels to match the adjusted marks
+        if (Array.isArray(lastCrit.levels) && lastCrit.levels.length > 0) {
+          const scores = lastCrit.levels.map((lvl: any) => parseFloat(lvl.score) || 0);
+          const maxScore = Math.max(...scores);
+          if (maxScore > 0) {
+            lastCrit.levels.forEach((lvl: any) => {
+              const rawScore = ((parseFloat(lvl.score) || 0) / maxScore) * lastCrit.marks;
+              lvl.score = Math.round(rawScore * 2) / 2;
+            });
+          }
+        }
       }
     }
 
