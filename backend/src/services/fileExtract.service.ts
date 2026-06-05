@@ -42,13 +42,31 @@ const extractTextFromImageUsingGemini = async (filePath: string): Promise<string
       ]
     };
 
-    const response = await axios.post(url, payload, {
-      headers: {
-        "Content-Type": "application/json"
+    let response;
+    let retries = 3;
+    let currentDelay = 1000;
+    for (let i = 0; i < retries; i++) {
+      try {
+        response = await axios.post(url, payload, {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+        break;
+      } catch (err: any) {
+        const status = err.response?.status;
+        const isTemporary = status === 503 || status === 429 || !status;
+        if (isTemporary && i < retries - 1) {
+          logger.warn(`Gemini API call returned ${status || 'network error'}. Retrying in ${currentDelay}ms... (Attempt ${i + 1}/${retries})`);
+          await new Promise(resolve => setTimeout(resolve, currentDelay));
+          currentDelay *= 2;
+        } else {
+          throw err;
+        }
       }
-    });
+    }
 
-    const text = (response.data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = (response?.data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) {
       throw new Error("Gemini returned empty or invalid content");
     }
