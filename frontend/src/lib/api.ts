@@ -53,9 +53,12 @@ api.interceptors.response.use(
       }
 
       if (originalRequest._retry) {
+        const hadToken = !!(localStorage.getItem("accessToken") || localStorage.getItem("refreshToken"));
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.dispatchEvent(new Event("auth-expired"));
+        if (hadToken) {
+          window.dispatchEvent(new Event("auth-expired"));
+        }
         return Promise.reject(error);
       }
 
@@ -87,9 +90,12 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
+        const hadToken = !!(localStorage.getItem("accessToken") || localStorage.getItem("refreshToken"));
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        window.dispatchEvent(new Event("auth-expired"));
+        if (hadToken) {
+          window.dispatchEvent(new Event("auth-expired"));
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

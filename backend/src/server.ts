@@ -90,6 +90,24 @@ const startServer = async () => {
     } catch (err) {
       logger.warn("Failed to setup service wake-up polling");
     }
+
+    // 3. Redis keep-alive ping (prevents Render free-tier Redis from sleeping)
+    if (redisConnected) {
+      const { redisClient } = await import("./config/redis");
+      if (redisClient) {
+        const pingRedis = () => {
+          redisClient.ping()
+            .then((res) => {
+              logger.info(`Redis keep-alive ping: ${res}`);
+            })
+            .catch((err) => {
+              logger.warn(`Redis keep-alive ping failed: ${err.message}`);
+            });
+        };
+        pingRedis(); // Initial ping
+        setInterval(pingRedis, 5 * 60 * 1000); // Every 5 minutes
+      }
+    }
   });
 
   // Graceful shutdown
